@@ -1,0 +1,15 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="NARLEY app icon">
+<title>NARLEY</title>
+<desc>NARLEY app icon, small-size optimized: solid hunter green square with a centered cream house mark. Strokes are heavier and the doorway is enlarged so the house stays crisp and readable when scaled down to 24-48px.</desc>
+<rect x="0" y="0" width="1024" height="1024" fill="#16402F"/>
+<!-- Small-size tuning: stroke 76 (vs 56) so thin outlines don't blur to
+     mush at 24-32px; doorway widened so it stays an open gap. -->
+<g stroke="#FBF7EC" stroke-width="76" stroke-linecap="round" stroke-linejoin="round" fill="none">
+  <!-- roof -->
+  <path d="M324 506 L512 340 L700 506"/>
+  <!-- walls -->
+  <path d="M376 472 V674 H648 V472"/>
+  <!-- doorway: wider and shorter so it survives downscaling -->
+  <path d="M452 674 V566 H572 V674"/>
+</g>
+</svg>

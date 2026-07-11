@@ -1,0 +1,6 @@
+<svg width="96" height="96" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="NARLEY notification icon preview">
+<title>NARLEY notification icon — preview</title>
+<desc>PREVIEW ONLY. The white house silhouette shown on a dark panel so it is visible when opened directly. For production on Android, use narley-notification-icon.svg, which has a transparent background as the notification system requires.</desc>
+<rect x="0" y="0" width="96" height="96" rx="18" fill="#16402F"/>
+<path fill="#FFFFFF" d="M48 18 L82 48 H72 V78 H56 V58 H40 V78 H24 V48 H14 Z"/>
+</svg>

@@ -1,0 +1,17 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="NARLEY app icon">
+<title>NARLEY</title>
+<desc>NARLEY app icon: solid hunter green square with a centered cream house mark. No wordmark, sized for legibility at small icon sizes and safe for iOS rounded-corner masking.</desc>
+<!-- Full-bleed background. iOS clips this square into a rounded "squircle"
+     automatically, so we do NOT round the corners ourselves. -->
+<rect x="0" y="0" width="1024" height="1024" fill="#16402F"/>
+<!-- House mark, centered. Stroke weight 56 keeps the mark solid and
+     readable when scaled down to 48-120px. -->
+<g stroke="#FBF7EC" stroke-width="56" stroke-linecap="round" stroke-linejoin="round" fill="none">
+  <!-- roof -->
+  <path d="M320 512 L512 342 L704 512"/>
+  <!-- walls -->
+  <path d="M364 468 V680 H660 V468"/>
+  <!-- doorway -->
+  <path d="M462 680 V566 H562 V680"/>
+</g>
+</svg>
