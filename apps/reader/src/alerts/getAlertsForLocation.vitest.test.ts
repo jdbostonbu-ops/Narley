@@ -6,6 +6,7 @@ const fetchNws = vi.fn();
 const deps = { fetchWeather, fetchNws };
 
 const location = { latitude: 41.35, longitude: -72.1 };
+const zip = "06320";
 
 const hotForecast = {
   time: ["2026-07-12T13:00", "2026-07-12T14:00"],
@@ -20,35 +21,49 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe("getAlertsForLocation (ALERT-R-001 combine + graceful failure)", () => {
-  it("combines forecast temperature and NWS warnings for the location", async () => {
+describe("getAlertsForLocation (ALERT-R-001/002 combine + normalize + graceful failure)", () => {
+  it("returns normalized alerts from both sources", async () => {
     fetchWeather.mockResolvedValue(hotForecast);
-    fetchNws.mockResolvedValue([{ properties: { event: "Tornado Warning" } }]);
+    fetchNws.mockResolvedValue([
+      { properties: { event: "Tornado Warning", headline: "Tornado Warning until 3:30 PM", expires: "2026-07-12T15:30", severity: "Severe" } },
+    ]);
 
-    const result = await getAlertsForLocation(location, deps);
+    const result = await getAlertsForLocation(location, zip, deps);
 
     expect(fetchWeather).toHaveBeenCalledWith(location);
     expect(fetchNws).toHaveBeenCalledWith(location);
-    expect(result.alerts.map((a) => a.type ?? a.event)).toEqual(["HEAT", "Tornado Warning"]);
+
+    const titles = result.alerts.map((a) => a.title);
+    expect(titles).toEqual(["Extreme Heat", "Tornado Warning"]);
+
+    // every alert carries the common shape
+    for (const a of result.alerts) {
+      for (const key of ["title", "message", "location", "time", "severity", "advice"]) {
+        expect(a).toHaveProperty(key);
+      }
+      expect(a.location).toBe("06320");
+    }
   });
 
-  it("includes the expected time on a forecast temperature alert", async () => {
+  it("normalizes the forecast alert with advice and expected time", async () => {
     fetchWeather.mockResolvedValue(hotForecast);
     fetchNws.mockResolvedValue([]);
 
-    const result = await getAlertsForLocation(location, deps);
-
-    expect(result.alerts[0].type).toBe("HEAT");
-    expect(result.alerts[0].expectedAt).toBe("2026-07-12T14:00");
+    const [alert] = (await getAlertsForLocation(location, zip, deps)).alerts;
+    expect(alert.title).toBe("Extreme Heat");
+    expect(alert.time).toBe("2026-07-12T14:00");
+    expect(alert.advice).toBe("keep cool");
+    expect(alert.severity).toBeNull();
   });
 
   it("still returns NWS warnings when the weather API fails", async () => {
     fetchWeather.mockRejectedValue(new Error("open-meteo down"));
-    fetchNws.mockResolvedValue([{ properties: { event: "Flood Warning" } }]);
+    fetchNws.mockResolvedValue([
+      { properties: { event: "Flood Warning", headline: "Flood Warning", expires: "2026-07-12T20:00", severity: "Severe" } },
+    ]);
 
-    const result = await getAlertsForLocation(location, deps);
-
-    expect(result.alerts.map((a) => a.event)).toEqual(["Flood Warning"]);
+    const result = await getAlertsForLocation(location, zip, deps);
+    expect(result.alerts.map((a) => a.title)).toEqual(["Flood Warning"]);
     expect(result.failures).toContain("weather");
   });
 
@@ -56,9 +71,8 @@ describe("getAlertsForLocation (ALERT-R-001 combine + graceful failure)", () => 
     fetchWeather.mockResolvedValue(hotForecast);
     fetchNws.mockRejectedValue(new Error("nws down"));
 
-    const result = await getAlertsForLocation(location, deps);
-
-    expect(result.alerts.map((a) => a.type)).toEqual(["HEAT"]);
+    const result = await getAlertsForLocation(location, zip, deps);
+    expect(result.alerts.map((a) => a.title)).toEqual(["Extreme Heat"]);
     expect(result.failures).toContain("nws");
   });
 
@@ -66,8 +80,7 @@ describe("getAlertsForLocation (ALERT-R-001 combine + graceful failure)", () => 
     fetchWeather.mockRejectedValue(new Error("down"));
     fetchNws.mockRejectedValue(new Error("down"));
 
-    const result = await getAlertsForLocation(location, deps);
-
+    const result = await getAlertsForLocation(location, zip, deps);
     expect(result.alerts).toEqual([]);
     expect(result.failures).toEqual(expect.arrayContaining(["weather", "nws"]));
   });
@@ -76,8 +89,7 @@ describe("getAlertsForLocation (ALERT-R-001 combine + graceful failure)", () => 
     fetchWeather.mockResolvedValue(mildForecast);
     fetchNws.mockResolvedValue([]);
 
-    const result = await getAlertsForLocation(location, deps);
-
+    const result = await getAlertsForLocation(location, zip, deps);
     expect(result.alerts).toEqual([]);
     expect(result.failures).toEqual([]);
   });
