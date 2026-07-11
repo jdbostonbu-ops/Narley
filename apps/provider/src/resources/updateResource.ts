@@ -15,15 +15,36 @@ type UpdateResourceDependencies = {
   recordAuditEvent: (event: UpdateAuditEvent) => Promise<unknown>;
 };
 
-type UpdateResourceResult = {
-  ok: true;
-};
+type UpdateResourceResult =
+  | {
+      ok: true;
+      error?: never;
+    }
+  | {
+      ok: false;
+      error: string;
+    };
 
 export const updateResource = async (
   resourceId: string,
   changes: ResourceChanges,
   dependencies: UpdateResourceDependencies,
 ): Promise<UpdateResourceResult> => {
+  if (Object.prototype.hasOwnProperty.call(changes, "expiresAt")) {
+    const expiresAt = changes.expiresAt;
+
+    if (
+      !(expiresAt instanceof Date) ||
+      Number.isNaN(expiresAt.getTime()) ||
+      expiresAt.getTime() < Date.now()
+    ) {
+      return {
+        ok: false,
+        error: "Expiration date must be a valid future date.",
+      };
+    }
+  }
+
   await dependencies.update(resourceId, changes);
   await dependencies.recordAuditEvent({
     resourceId,
