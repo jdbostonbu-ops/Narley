@@ -1,4 +1,5 @@
 import { canWritePin } from "../auth/canWritePin";
+import { validateResource } from "./validateResource";
 
 type ResourceInput = {
   title: string;
@@ -57,6 +58,15 @@ export const createResource = async (
     return {
       ok: false,
       error: "A verified, authorized Provider is required to create a resource.",
+    };
+  }
+
+  const validation = validateResource(resource);
+
+  if (!validation.valid) {
+    return {
+      ok: false,
+      error: validation.errors.join(" "),
     };
   }
 

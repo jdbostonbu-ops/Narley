@@ -18,7 +18,11 @@ const unverifiedMembership = {
 
 const resource = {
   title: "Food Pantry",
+  category: "Food",
   address: "111 Plant Street, New London, CT 06320",
+  latitude: 41.35,
+  longitude: -72.1,
+  expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
 };
 
 type Membership = {
