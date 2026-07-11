@@ -4,11 +4,13 @@ import { updateResource } from "./updateResource";
 const update = vi.fn();
 const insert = vi.fn();
 const recordAuditEvent = vi.fn();
-const deps = { update, insert, recordAuditEvent };
+const findActiveByTitleAndAddress = vi.fn();
+const deps = { update, insert, recordAuditEvent, findActiveByTitleAndAddress };
 
 beforeEach(() => {
   vi.clearAllMocks();
   update.mockResolvedValue({ id: "resource_1", title: "Joe's Barbershop" });
+  findActiveByTitleAndAddress.mockResolvedValue(null);
 });
 
 describe("updateResource (EDIT-009)", () => {

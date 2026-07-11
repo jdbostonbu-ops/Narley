@@ -6,6 +6,11 @@ type UpdateAuditEvent = {
   timestamp: Date;
 };
 
+type ExistingResource = {
+  id: string;
+  status: string;
+};
+
 type UpdateResourceDependencies = {
   update: (
     resourceId: string,
@@ -13,6 +18,10 @@ type UpdateResourceDependencies = {
   ) => Promise<unknown>;
   insert: (resource: ResourceChanges) => Promise<unknown>;
   recordAuditEvent: (event: UpdateAuditEvent) => Promise<unknown>;
+  findActiveByTitleAndAddress: (
+    title: string,
+    address?: string,
+  ) => Promise<ExistingResource | null>;
 };
 
 type UpdateResourceResult =
@@ -41,6 +50,23 @@ export const updateResource = async (
       return {
         ok: false,
         error: "Expiration date must be a valid future date.",
+      };
+    }
+  }
+
+  if (typeof changes.title === "string") {
+    const address =
+      typeof changes.address === "string" ? changes.address : undefined;
+    const matchingResource =
+      await dependencies.findActiveByTitleAndAddress(changes.title, address);
+
+    if (
+      matchingResource?.status === "ACTIVE" &&
+      matchingResource.id !== resourceId
+    ) {
+      return {
+        ok: false,
+        error: "Duplicate resource — edit, report, or use Custom",
       };
     }
   }

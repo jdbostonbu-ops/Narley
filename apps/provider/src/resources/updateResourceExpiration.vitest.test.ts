@@ -4,13 +4,15 @@ import { updateResource } from "./updateResource";
 const update = vi.fn();
 const insert = vi.fn();
 const recordAuditEvent = vi.fn();
-const deps = { update, insert, recordAuditEvent };
+const findActiveByTitleAndAddress = vi.fn();
+const deps = { update, insert, recordAuditEvent, findActiveByTitleAndAddress };
 
 const DAY = 24 * 60 * 60 * 1000;
 
 beforeEach(() => {
   vi.clearAllMocks();
   update.mockResolvedValue({ id: "resource_1" });
+  findActiveByTitleAndAddress.mockResolvedValue(null);
 });
 
 describe("updateResource — expiration validation (EDIT-007)", () => {
