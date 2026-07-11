@@ -1,4 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+
+vi.mock("bcryptjs", () => ({
+  default: {
+    hash: vi.fn().mockResolvedValue("HASHED"),
+  },
+}));
+
 import { requestPasswordReset, confirmPasswordReset } from "./passwordReset";
 
 const findUserByEmail = vi.fn();
