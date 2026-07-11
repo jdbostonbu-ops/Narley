@@ -7,13 +7,22 @@ const deps = { fetchWeather, fetchNws };
 
 const location = { latitude: 41.35, longitude: -72.1 };
 
+const hotForecast = {
+  time: ["2026-07-12T13:00", "2026-07-12T14:00"],
+  temperature_2m: [88, 95],
+};
+const mildForecast = {
+  time: ["2026-07-12T13:00", "2026-07-12T14:00"],
+  temperature_2m: [72, 74],
+};
+
 beforeEach(() => {
   vi.clearAllMocks();
 });
 
 describe("getAlertsForLocation (ALERT-R-001 combine + graceful failure)", () => {
-  it("combines temperature and NWS warnings for the location", async () => {
-    fetchWeather.mockResolvedValue({ temperature_2m: 95 });
+  it("combines forecast temperature and NWS warnings for the location", async () => {
+    fetchWeather.mockResolvedValue(hotForecast);
     fetchNws.mockResolvedValue([{ properties: { event: "Tornado Warning" } }]);
 
     const result = await getAlertsForLocation(location, deps);
@@ -21,6 +30,16 @@ describe("getAlertsForLocation (ALERT-R-001 combine + graceful failure)", () => 
     expect(fetchWeather).toHaveBeenCalledWith(location);
     expect(fetchNws).toHaveBeenCalledWith(location);
     expect(result.alerts.map((a) => a.type ?? a.event)).toEqual(["HEAT", "Tornado Warning"]);
+  });
+
+  it("includes the expected time on a forecast temperature alert", async () => {
+    fetchWeather.mockResolvedValue(hotForecast);
+    fetchNws.mockResolvedValue([]);
+
+    const result = await getAlertsForLocation(location, deps);
+
+    expect(result.alerts[0].type).toBe("HEAT");
+    expect(result.alerts[0].expectedAt).toBe("2026-07-12T14:00");
   });
 
   it("still returns NWS warnings when the weather API fails", async () => {
@@ -33,13 +52,13 @@ describe("getAlertsForLocation (ALERT-R-001 combine + graceful failure)", () => 
     expect(result.failures).toContain("weather");
   });
 
-  it("still returns temperature alerts when the NWS API fails", async () => {
-    fetchWeather.mockResolvedValue({ temperature_2m: 20 });
+  it("still returns forecast temperature alerts when the NWS API fails", async () => {
+    fetchWeather.mockResolvedValue(hotForecast);
     fetchNws.mockRejectedValue(new Error("nws down"));
 
     const result = await getAlertsForLocation(location, deps);
 
-    expect(result.alerts.map((a) => a.type)).toEqual(["COLD"]);
+    expect(result.alerts.map((a) => a.type)).toEqual(["HEAT"]);
     expect(result.failures).toContain("nws");
   });
 
@@ -53,8 +72,8 @@ describe("getAlertsForLocation (ALERT-R-001 combine + graceful failure)", () => 
     expect(result.failures).toEqual(expect.arrayContaining(["weather", "nws"]));
   });
 
-  it("returns no alerts when conditions are normal and both APIs succeed", async () => {
-    fetchWeather.mockResolvedValue({ temperature_2m: 72 });
+  it("returns no alerts when the forecast is mild and NWS is empty", async () => {
+    fetchWeather.mockResolvedValue(mildForecast);
     fetchNws.mockResolvedValue([]);
 
     const result = await getAlertsForLocation(location, deps);
