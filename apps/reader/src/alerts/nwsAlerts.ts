@@ -1,11 +1,17 @@
 type NwsFeature = {
   properties: {
     event: string;
+    headline?: string;
+    expires?: string;
+    severity?: string;
   };
 };
 
 type NwsAlert = {
   event: string;
+  headline: string;
+  expires: string;
+  severity: string;
 };
 
 const WARNING_EVENTS = new Set([
@@ -21,4 +27,9 @@ const WARNING_EVENTS = new Set([
 export const nwsAlerts = (features: readonly NwsFeature[]): NwsAlert[] =>
   features
     .filter(({ properties }) => WARNING_EVENTS.has(properties.event))
-    .map(({ properties }) => ({ event: properties.event }));
+    .map(({ properties }) => ({
+      event: properties.event,
+      headline: properties.headline ?? properties.event,
+      expires: properties.expires ?? "",
+      severity: properties.severity ?? "",
+    }));

@@ -6,6 +6,7 @@ const fetchNws = vi.fn();
 const deps = { fetchWeather, fetchNws };
 
 const location = { latitude: 41.35, longitude: -72.1 };
+const zip = "06320";
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -18,23 +19,23 @@ beforeEach(() => {
 
 describe("getAlertsWithSetting (ALERT-R-001 Weather Alerts toggle)", () => {
   it("returns alerts from both sources when Weather Alerts is ON", async () => {
-    const result = await getAlertsWithSetting(location, true, deps);
+    const result = await getAlertsWithSetting(location, zip, true, deps);
     expect(result.alerts.length).toBeGreaterThan(0);
   });
 
   it("returns no alerts when Weather Alerts is OFF", async () => {
-    const result = await getAlertsWithSetting(location, false, deps);
+    const result = await getAlertsWithSetting(location, zip, false, deps);
     expect(result.alerts).toEqual([]);
   });
 
   it("does not call either API when Weather Alerts is OFF", async () => {
-    await getAlertsWithSetting(location, false, deps);
+    await getAlertsWithSetting(location, zip, false, deps);
     expect(fetchWeather).not.toHaveBeenCalled();
     expect(fetchNws).not.toHaveBeenCalled();
   });
 
   it("fetches from both sources when Weather Alerts is ON", async () => {
-    await getAlertsWithSetting(location, true, deps);
+    await getAlertsWithSetting(location, zip, true, deps);
     expect(fetchWeather).toHaveBeenCalledWith(location);
     expect(fetchNws).toHaveBeenCalledWith(location);
   });

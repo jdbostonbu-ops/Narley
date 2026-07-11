@@ -1,10 +1,11 @@
 import { getAlertsForLocation } from "./getAlertsForLocation";
 
 type Location = Parameters<typeof getAlertsForLocation>[0];
-type AlertDependencies = Parameters<typeof getAlertsForLocation>[1];
+type AlertDependencies = Parameters<typeof getAlertsForLocation>[2];
 
 export const getAlertsWithSetting = async (
   location: Location,
+  zip: string,
   weatherAlertsOn: boolean,
   deps: AlertDependencies
 ) => {
@@ -12,5 +13,5 @@ export const getAlertsWithSetting = async (
     return { alerts: [] };
   }
 
-  return getAlertsForLocation(location, deps);
+  return getAlertsForLocation(location, zip, deps);
 };

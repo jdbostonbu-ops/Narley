@@ -1,4 +1,5 @@
 import { forecastTemperatureAlert } from "./forecastTemperatureAlert";
+import { normalizeAlert } from "./normalizeAlert";
 import { nwsAlerts } from "./nwsAlerts";
 
 type Location = {
@@ -14,15 +15,13 @@ type WeatherResult = {
 type NwsFeature = {
   properties: {
     event: string;
+    headline?: string;
+    expires?: string;
+    severity?: string;
   };
 };
 
-type Alert = {
-  alert?: true;
-  type?: "HEAT" | "COLD";
-  expectedAt?: string;
-  event?: string;
-};
+type Alert = ReturnType<typeof normalizeAlert>;
 
 type AlertDependencies = {
   fetchWeather: (location: Location) => Promise<WeatherResult>;
@@ -36,6 +35,7 @@ type AlertsResult = {
 
 export const getAlertsForLocation = async (
   location: Location,
+  zip: string,
   { fetchWeather, fetchNws }: AlertDependencies
 ): Promise<AlertsResult> => {
   const [weatherResult, nwsResult] = await Promise.allSettled([
@@ -49,14 +49,16 @@ export const getAlertsForLocation = async (
     const alert = forecastTemperatureAlert(weatherResult.value);
 
     if (alert.alert) {
-      alerts.push(alert);
+      alerts.push(normalizeAlert(alert, zip));
     }
   } else {
     failures.push("weather");
   }
 
   if (nwsResult.status === "fulfilled") {
-    alerts.push(...nwsAlerts(nwsResult.value));
+    alerts.push(
+      ...nwsAlerts(nwsResult.value).map((alert) => normalizeAlert(alert, zip))
+    );
   } else {
     failures.push("nws");
   }
