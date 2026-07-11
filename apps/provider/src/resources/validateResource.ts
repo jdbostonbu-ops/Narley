@@ -1,6 +1,8 @@
 type ResourceInput = {
   title?: string;
   category?: string;
+  latitude?: number;
+  longitude?: number;
 };
 
 type ResourceValidationResult = {
@@ -22,6 +24,10 @@ export const validateResource = (
     resource.category.trim().length === 0
   ) {
     errors.push("Resource category is required.");
+  }
+
+  if (resource.latitude === undefined || resource.longitude === undefined) {
+    errors.push("Resource location requires latitude and longitude.");
   }
 
   return {
