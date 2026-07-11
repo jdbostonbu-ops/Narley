@@ -3,7 +3,8 @@ import { updateResource } from "./updateResource";
 
 const update = vi.fn();
 const insert = vi.fn();
-const deps = { update, insert };
+const recordAuditEvent = vi.fn();
+const deps = { update, insert, recordAuditEvent };
 
 beforeEach(() => {
   vi.clearAllMocks();
