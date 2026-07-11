@@ -8,5 +8,5 @@ export const saveResource = <T extends Resource>(
 ): readonly T[] => {
   const isAlreadySaved = savedList.some(({ id }) => id === resource.id);
 
-  return isAlreadySaved ? savedList : [...savedList, resource];
+  return isAlreadySaved ? savedList : [...savedList, { ...resource }];
 };
