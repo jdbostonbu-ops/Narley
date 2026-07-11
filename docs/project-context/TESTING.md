@@ -106,31 +106,31 @@ Location permissions
 # 5. Provider Authentication and Access
 AUTH-P-001 — Loading state
 
-AUTH-P-002 — Signed-out Provider sees authentication (one line corrected)
+AUTH-P-002 — logged-out Provider sees authentication (one line corrected)
 Behavior
-A signed-out user must see the Provider login screen. Account creation is not offered here — it is reached only by scanning the org QR.
+A logged-out user must see the Provider login screen. Account creation is not offered here — it is reached only by scanning the org QR.
 
 Expected result
 Map, Post, My Posts, Alerts, Profile are not visible. Login controls are available. Account-creation controls are not shown on the cold signed-out screen (they appear only in the QR-initiated flow).
 
-## RED condition
-A signed-out user can reach Provider tabs, or can create an account without a QR.
+## RED Test 1
+A logged-out user can reach Provider tabs, or can create an account without a QR.
 
-## GREEN condition
+## GREEN Test 1
 The login screen renders when user === null.
 
-AUTH-P-003 — Signed-in Provider sees tabs (replaces the email-verification gate)
+AUTH-P-003 — logged-in Provider sees tabs (replaces the email-verification gate)
 
 Behavior
-A signed-in user with an ACTIVE membership in a verified, active org sees the Provider tabs. There is no email-verification screen — verification happened at account creation, by matching the approved allowlist through the org QR.
+A logged-in user with an ACTIVE membership in a verified, active org sees the Provider tabs. There is no email-verification screen — verification happened at account creation, by matching the approved allowlist through the org QR.
 
 Expected result
 Map, Post, My Posts, Alerts, Profile are visible. No "awaiting verification," resend, or refresh controls appear anywhere.
 
-## RED condition
+## RED Test 2
 Tabs are hidden for a valid signed-in member, or an email-verification screen blocks a signed-in member.
 
-## GREEN condition
+## GREEN Test 2
 The Provider tabs render when user !== null and the membership is ACTIVE.
 
 AUTH-P-004 — QR-initiated account creation
@@ -151,10 +151,10 @@ Provider tabs are not shown
 
 Provider tabs remain unavailable throughout this screen.
 
-## RED condition
+## RED Test 3
 The screen grants a session and lands the user directly in the Provider tabs, or it creates an account for an email that is not on the org's PENDING allowlist, or it is reachable without a valid QR token.
 
-## GREEN condition
+## GREEN Test 3
 The create-account screen renders only when a valid org token is present, and on successful submit the user is routed to login with no session.
 
 Behavior
@@ -176,20 +176,20 @@ AUTH-P-005 — Provider write authorization
 Behavior
 A logged-in User may create/edit/delete pin only if they have an ACTIVE membership. Being a User (able to log in) is identity; the ACTIVE membership is what authorizes pinning. The client checks the same membership source the backend checks.
 
-## RED condition
+## RED Test 4
 A logged-in User with no ACTIVE membership can reach or use pin/create/edit/delete pins controls; or the client authorizes on anything other than ACTIVE membership.
 
-## GREEN condition
+## GREEN Test 4
 Pin/create/edit/delete pins is permitted only when an ACTIVE membership in a verified, active org is confirmed.
 
 AUTH-P-006 — Login
 
 Behavior: A Provider logs in with email + password. There is no email-link verification step — the employee's email was already verified by Narley admin during vetting and stored in the DB.
 
-## RED condition
+## RED Test 5
 An email with no User row (terminated → removed) authenticates; or wrong credentials are accepted; or the error reveals which factor failed or leaks internals; or the password field is unmasked without an intentional eye toggle.
 
-## GREEN condition
+## GREEN Test 5
 A session returns only for correct email + password matching an existing User; every other case is denied with a generic error; password stays masked unless toggled.
 
 Behavior
@@ -218,10 +218,10 @@ Time-limited. An expired link/code is rejected.
 Tampered/unknown token. A reset token that matches nothing is rejected.
 Old sessions die. After a successful reset, previously issued sessions no longer authenticate.
 
-## RED condition
+## RED Test 6
 The reset response reveals whether an email exists (enumeration); a reset link/code works more than once; an expired or unknown token still allows a reset; the old password still works after reset; or old sessions survive a reset.
 
-## GREEN condition
+## GREEN Test 6
 A valid, unexpired, single-use token lets the matching user set a new password; the old password stops working; old sessions are invalidated; and the request-reset response is identical for existing and non-existing emails.
 
 AUTH-P-008 — Password strength policy (all users)
@@ -232,11 +232,11 @@ When a user sets or resets a password (at QR account creation per AUTH-P-004, or
 Expected result
 A password is accepted only if all of these hold: length ≥ 8; at least 1 uppercase; at least 1 lowercase; at least 2 digits; at least 2 of !@#$%&*. A failing password is rejected with a clear message stating what's missing, and no User is created / no password is changed.
 
-## RED condition
+## RED Test 7
 
 A password missing any requirement is accepted (too short; no uppercase; no lowercase; fewer than 2 digits; fewer than 2 specials); or a failing password still gets hashed/stored.
 
-## GREEN condition
+## GREEN Test 7
 
 Only passwords satisfying all five rules are accepted and passed to bcrypt; every failing case is rejected before hashing with a message identifying the unmet requirement.
 

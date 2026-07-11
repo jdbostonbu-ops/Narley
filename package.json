@@ -1,4 +1,12 @@
 {
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:run": "jest --runInBand"
+  },
+  "jest": {
+    "preset": "jest-expo"
+  },
   "dependencies": {
     "vitest": "^4.1.10"
   }

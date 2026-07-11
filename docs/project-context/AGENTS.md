@@ -23,7 +23,7 @@ A RED test must represent approved behavior from:
 
 ### GREEN
 
-Implement only enough code to satisfy the approved test.
+Implement minimal code to satisfy the approved test.
 
 After implementation:
 
