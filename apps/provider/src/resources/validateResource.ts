@@ -30,6 +30,24 @@ export const validateResource = (
     errors.push("Resource location requires latitude and longitude.");
   }
 
+  if (
+    resource.latitude !== undefined &&
+    (!Number.isFinite(resource.latitude) ||
+      resource.latitude < -90 ||
+      resource.latitude > 90)
+  ) {
+    errors.push("Latitude must be a finite number between -90 and 90.");
+  }
+
+  if (
+    resource.longitude !== undefined &&
+    (!Number.isFinite(resource.longitude) ||
+      resource.longitude < -180 ||
+      resource.longitude > 180)
+  ) {
+    errors.push("Longitude must be a finite number between -180 and 180.");
+  }
+
   return {
     valid: errors.length === 0,
     errors,
