@@ -3,6 +3,7 @@ export const REPORT_REASONS = [
   "Wrong hours",
   "Wrong address / location",
   "No more resources available",
+  "Phone disconnected / no longer working",
 ] as const;
 
 export type ReportReason = (typeof REPORT_REASONS)[number];
