@@ -4,6 +4,7 @@ type ResourceInput = {
   address?: string;
   latitude?: number;
   longitude?: number;
+  expiresAt?: Date;
 };
 
 type ResourceValidationResult = {
@@ -51,6 +52,22 @@ export const validateResource = (
       resource.longitude > 180)
   ) {
     errors.push("Longitude must be a finite number between -180 and 180.");
+  }
+
+  if (resource.expiresAt === undefined) {
+    errors.push("Resource expiration date is required.");
+  } else if (Number.isNaN(resource.expiresAt.getTime())) {
+    errors.push("Resource expiration date must be valid.");
+  } else {
+    const now = Date.now();
+    const oneYearFromNow = new Date(now);
+    oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
+
+    if (resource.expiresAt.getTime() < now) {
+      errors.push("Resource expiration date cannot be in the past.");
+    } else if (resource.expiresAt.getTime() > oneYearFromNow.getTime()) {
+      errors.push("Resource expiration date cannot be more than one year away.");
+    }
   }
 
   return {
