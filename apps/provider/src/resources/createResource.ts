@@ -12,6 +12,13 @@ type ExistingResource = {
   status: string;
 };
 
+type AuditEvent = {
+  resourceId: string;
+  providerId: string;
+  event: "created";
+  timestamp: Date;
+};
+
 type CreateResourceDependencies = {
   findActiveByTitleAndAddress: (
     title: string,
@@ -19,7 +26,8 @@ type CreateResourceDependencies = {
   ) => Promise<ExistingResource | null>;
   insert: (
     resource: ResourceInput & { providerId: string },
-  ) => Promise<unknown>;
+  ) => Promise<{ id: string }>;
+  recordAuditEvent: (event: AuditEvent) => Promise<unknown>;
 };
 
 type CreateResourceResult =
@@ -38,6 +46,7 @@ export const createResource = async (
   {
     findActiveByTitleAndAddress,
     insert,
+    recordAuditEvent,
   }: CreateResourceDependencies,
 ): Promise<CreateResourceResult> => {
   const existingResource = await findActiveByTitleAndAddress(
@@ -52,9 +61,16 @@ export const createResource = async (
     };
   }
 
-  await insert({
+  const createdResource = await insert({
     ...resource,
     providerId: provider.id,
+  });
+
+  await recordAuditEvent({
+    resourceId: createdResource.id,
+    providerId: provider.id,
+    event: "created",
+    timestamp: new Date(),
   });
 
   return { ok: true };
