@@ -1,5 +1,5 @@
+import { forecastTemperatureAlert } from "./forecastTemperatureAlert";
 import { nwsAlerts } from "./nwsAlerts";
-import { temperatureAlert } from "./temperatureAlert";
 
 type Location = {
   latitude: number;
@@ -7,7 +7,8 @@ type Location = {
 };
 
 type WeatherResult = {
-  temperature_2m: number;
+  time: readonly string[];
+  temperature_2m: readonly number[];
 };
 
 type NwsFeature = {
@@ -19,6 +20,7 @@ type NwsFeature = {
 type Alert = {
   alert?: true;
   type?: "HEAT" | "COLD";
+  expectedAt?: string;
   event?: string;
 };
 
@@ -44,7 +46,7 @@ export const getAlertsForLocation = async (
   const failures: Array<"weather" | "nws"> = [];
 
   if (weatherResult.status === "fulfilled") {
-    const alert = temperatureAlert(weatherResult.value.temperature_2m);
+    const alert = forecastTemperatureAlert(weatherResult.value);
 
     if (alert.alert) {
       alerts.push(alert);

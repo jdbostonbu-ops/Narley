@@ -9,7 +9,10 @@ const location = { latitude: 41.35, longitude: -72.1 };
 
 beforeEach(() => {
   vi.clearAllMocks();
-  fetchWeather.mockResolvedValue({ temperature_2m: 95 });
+  fetchWeather.mockResolvedValue({
+    time: ["2026-07-12T13:00", "2026-07-12T14:00"],
+    temperature_2m: [88, 95],
+  });
   fetchNws.mockResolvedValue([{ properties: { event: "Tornado Warning" } }]);
 });
 
