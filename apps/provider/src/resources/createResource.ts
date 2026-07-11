@@ -1,3 +1,5 @@
+import { canWritePin } from "../auth/canWritePin";
+
 type ResourceInput = {
   title: string;
   address: string;
@@ -20,6 +22,7 @@ type AuditEvent = {
 };
 
 type CreateResourceDependencies = {
+  membership: Parameters<typeof canWritePin>[1];
   findActiveByTitleAndAddress: (
     title: string,
     address: string,
@@ -44,11 +47,19 @@ export const createResource = async (
   resource: ResourceInput,
   provider: Provider,
   {
+    membership,
     findActiveByTitleAndAddress,
     insert,
     recordAuditEvent,
   }: CreateResourceDependencies,
 ): Promise<CreateResourceResult> => {
+  if (!canWritePin(provider, membership)) {
+    return {
+      ok: false,
+      error: "A verified, authorized Provider is required to create a resource.",
+    };
+  }
+
   const existingResource = await findActiveByTitleAndAddress(
     resource.title,
     resource.address,

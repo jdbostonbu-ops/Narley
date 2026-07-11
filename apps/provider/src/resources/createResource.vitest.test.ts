@@ -5,7 +5,16 @@ import { validResource } from "./validResource.fixture";
 const findActiveByTitleAndAddress = vi.fn();
 const insert = vi.fn();
 const recordAuditEvent = vi.fn();
-const deps = { findActiveByTitleAndAddress, insert, recordAuditEvent };
+const membership = {
+  status: "ACTIVE",
+  org: { status: "VERIFIED", active: true },
+};
+const deps = {
+  findActiveByTitleAndAddress,
+  insert,
+  recordAuditEvent,
+  membership,
+};
 
 const provider = { id: "provider_1" };
 

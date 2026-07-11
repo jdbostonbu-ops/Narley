@@ -21,7 +21,12 @@ const resource = {
   address: "111 Plant Street, New London, CT 06320",
 };
 
-const deps = (membership: unknown) => ({
+type Membership = {
+  status: string;
+  org: { status: string; active: boolean };
+};
+
+const deps = (membership: Membership) => ({
   findActiveByTitleAndAddress,
   insert,
   recordAuditEvent,
