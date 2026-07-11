@@ -3,6 +3,7 @@ import { validateResource } from "./validateResource";
 
 const validResource = {
   title: "Food Pantry",
+  category: "Food",
 };
 
 describe("validateResource — title (POST-002)", () => {

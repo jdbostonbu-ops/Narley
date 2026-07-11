@@ -47,7 +47,8 @@
     "lint": "expo lint",
     "test": "jest",
     "test:run": "jest --runInBand",
-    "test:unit": "vitest run"
+    "test:unit": "vitest run",
+    "test:report": "NO_COLOR=1 vitest run --reporter=verbose 2>&1 | tee ../../PASS-FAIL.md"
   },
   "jest": {
     "preset": "jest-expo"

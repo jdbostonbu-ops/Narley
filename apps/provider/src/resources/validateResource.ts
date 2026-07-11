@@ -1,5 +1,6 @@
 type ResourceInput = {
   title?: string;
+  category?: string;
 };
 
 type ResourceValidationResult = {
@@ -14,6 +15,13 @@ export const validateResource = (
 
   if (resource.title === undefined || resource.title.trim().length === 0) {
     errors.push("Resource title is required.");
+  }
+
+  if (
+    resource.category === undefined ||
+    resource.category.trim().length === 0
+  ) {
+    errors.push("Resource category is required.");
   }
 
   return {
