@@ -380,18 +380,6 @@ A required expiration date must be present.
 Invalid dates are rejected.
 Past dates are rejected.
 
-POST-010 — Available-again date
-
-Behavior
-
-Available Again Date is optional and distinct from expiration.
-
-Expected result
-
-The date is stored as availableAgainAt.
-
-It must be logically consistent with the selected resource status.
-
 POST-011 — Status contract
 
 Behavior
@@ -571,34 +559,15 @@ Discard closes without saving.
 # 9. Resource Lifecycle and Visibility
 LIFE-001 — Active
 
-Active resources appear in approved Reader and Provider-visible feeds.
+Active resources appear in approved Reader and Provider feeds as well as the corrolated cards generated under the map.
 
-LIFE-002 — Paused
+LIFE-002 — Expired
 
-Paused resources follow the approved Version 3 behavior.
+Expired resources do not appear in Reader and Provider results as well as the corrolated cards generated under the map.
 
-The expected behavior must be explicitly defined before implementation, for example:
+Life-003 - Deleted
 
-visible with a paused indicator, or
-hidden from Reader results.
-
-The test must reflect the approved choice.
-
-LIFE-003 — Expired
-
-Expired resources do not appear in Reader-visible results.
-
-LIFE-004 — Closed
-
-Closed resources do not appear in Reader-visible results.
-
-LIFE-005 — Archived
-
-Archived resources do not appear in Reader-visible results but remain available for audit/history.
-
-LIFE-006 — Available again
-
-A future-available resource displays its approved status and date without appearing as currently open.
+Deleted resources do not appear in Reader and Provider results as well as the corrolated cards generated under the map.
 
 LIFE-007 — Expiration consistency
 
@@ -620,26 +589,61 @@ If Version 3 includes backend expiration processing, expired resources must stop
 
 LIFE-009 — Status-change confirmation
 
-The following require confirmation:
-
-Pause
 Activate
-Mark Closed
-Archive
-Restore
-Delete/remove
-LIFE-010 — Status audit event
+Delete/remove (with confirmation dialogue)
 
-Each accepted lifecycle change writes an audit event with the correct action.
+The only resource lifecycle
+  > states are ACTIVE and
+  > EXPIRED. Delete is a
+  > Provider-only action, not a
+  > lifecycle state. 
+
+  > An ACTIVE resource with
+  > valid coordinates appears as
+  > the same resource ID on both
+  > the Provider Map and Reader
+  > Map. Each map displays its
+  > pin and corresponding card
+  > below the map.
+
+  > Tapping a pin selects the
+  > resource and displays its
+  > concise map preview. It does
+  > not open the full detail
+  > modal. Tapping the
+  > corresponding card opens the
+  > full detail modal for that
+  > same resource ID.
+
+  > When expiresAt passes, the
+  > resource’s pin and
+  > corresponding card
+  > automatically disappear from
+  > both Provider and Reader
+  > apps. An expired resource
+  > behaves as removed from both
+  > maps and requires no Reader-
+  > device refresh or manual
+  > deletion.
+
+  > Only an authorized Provider
+  > may delete a resource.
+  > Delete requires a
+  > confirmation dialog. Cancel
+  > preserves the resource.
+  > Confirm deletes it and
+  > removes its matching pin and
+  > card from both Provider and
+  > Reader apps.
 
 # 10. Provider Map
 PMAP-001 — Visible resource feed
 
-The map displays only resources the signed-in Provider is allowed to view under the approved Version 3 policy.
+The map displays only resources the logged-in Provider is allowed to view under the approved Version 3.
 
 PMAP-002 — Ownership-sensitive controls
 
-Edit, Archive, Close, and Delete controls appear only when the Provider is authorized to perform those actions.
+Edit, Save Edit update, and Delete, controls appear only when the Provider is authorized to perform those actions.
 
 Required V3 correction
 
@@ -681,11 +685,8 @@ PMAP-008 — Provider actions
 Authorized Provider actions include the approved subset of:
 
 Edit
-Pause
+Save for update edits
 Activate
-Mark Closed
-Archive
-Restore
 Delete/remove
 Close modal
 
@@ -786,8 +787,6 @@ The Reader sees only resources that satisfy all approved visibility rules, inclu
 Allowed status
 Valid coordinates
 Not expired
-Not archived
-Not closed
 RMAP-005 — Resource count
 
 The displayed count accurately represents the approved visible result set.
