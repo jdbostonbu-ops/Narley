@@ -5,7 +5,16 @@ const update = vi.fn();
 const insert = vi.fn();
 const recordAuditEvent = vi.fn();
 const findActiveByTitleAndAddress = vi.fn();
-const deps = { update, insert, recordAuditEvent, findActiveByTitleAndAddress };
+const resource = { organizationId: "org_A" };
+const membership = { organizationId: "org_A", status: "ACTIVE" };
+const deps = {
+  update,
+  insert,
+  recordAuditEvent,
+  findActiveByTitleAndAddress,
+  resource,
+  membership,
+};
 
 const DAY = 24 * 60 * 60 * 1000;
 

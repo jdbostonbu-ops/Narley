@@ -1,3 +1,5 @@
+import { canEditResource } from "./canEditResource";
+
 type ResourceChanges = Record<string, unknown>;
 
 type UpdateAuditEvent = {
@@ -11,7 +13,18 @@ type ExistingResource = {
   status: string;
 };
 
+type Resource = {
+  organizationId: string;
+};
+
+type Membership = {
+  organizationId: string;
+  status: string;
+};
+
 type UpdateResourceDependencies = {
+  resource: Resource;
+  membership: Membership | null;
   update: (
     resourceId: string,
     changes: ResourceChanges,
@@ -39,6 +52,21 @@ export const updateResource = async (
   changes: ResourceChanges,
   dependencies: UpdateResourceDependencies,
 ): Promise<UpdateResourceResult> => {
+  const editor = dependencies.membership === null ? null : { id: "editor" };
+
+  if (
+    !canEditResource(
+      editor,
+      dependencies.membership,
+      dependencies.resource,
+    )
+  ) {
+    return {
+      ok: false,
+      error: "Not authorized to edit this organization's resource.",
+    };
+  }
+
   if (Object.prototype.hasOwnProperty.call(changes, "expiresAt")) {
     const expiresAt = changes.expiresAt;
 
