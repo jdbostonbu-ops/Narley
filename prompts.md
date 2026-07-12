@@ -411,3 +411,127 @@ Make ALERT-R-001 Weather Alerts toggle pass GREEN. The failing test is apps/read
 ## Prompt 79
 
 add remaining prompts to prompts md file please
+
+## Prompt 80
+
+Read the root AGENTS.md and TESTING.md, then follow their rules.
+Make ALERT-R-001 forecast thresholds pass GREEN. The failing test is apps/reader/src/alerts/forecastTemperatureAlert.vitest.test.ts. Create apps/reader/src/alerts/forecastTemperatureAlert.ts exporting forecastTemperatureAlert(hourly) where hourly has parallel time and temperature_2m arrays. Scan the hours in order and return the first hour that reaches a threshold: { alert: true, type: "HEAT", expectedAt } when a temperature is 91°F or above, { alert: true, type: "COLD", expectedAt } when 32°F or below, where expectedAt is that hour's time. Return { alert: false } when no hour crosses a threshold or the forecast is empty. Don't touch the test.
+
+## Prompt 81
+
+Read the root AGENTS.md and TESTING.md, then follow their rules.
+Make ALERT-R-001 getAlertsForLocation pass GREEN after the temperature rewire. The failing test is apps/reader/src/alerts/getAlertsForLocation.vitest.test.ts. Update apps/reader/src/alerts/getAlertsForLocation.ts to use forecastTemperatureAlert instead of the removed temperatureAlert. fetchWeather(location) now returns hourly forecast data ({ time, temperature_2m } arrays); pass that to forecastTemperatureAlert, and when it flags an alert, include it (with its type and expectedAt) in result.alerts. Keep the NWS handling via nwsAlerts and the graceful per-source failure (catch a failing source, skip its alerts, add "weather" or "nws" to result.failures). Remove any remaining reference to the deleted temperatureAlert. Don't touch the test.
+
+## Prompt 82
+
+Read the root AGENTS.md and TESTING.md, then follow their rules.
+Make ALERT-R-002 (common alert fields) pass GREEN. The failing test is apps/reader/src/alerts/normalizeAlert.vitest.test.ts. Create apps/reader/src/alerts/normalizeAlert.ts exporting normalizeAlert(alert, zip) that returns a common shape with fields title, message, location, time, severity, advice. For a temperature alert (has type HEAT/COLD and expectedAt): title is "Extreme Heat"/"Extreme Cold", message is "Extreme heat expected at [expectedAt]" / "Extreme cold expected at [expectedAt]", location is zip, time is expectedAt, advice is "keep cool"/"bundle up", severity is null. For an NWS alert (has event, headline, expires, severity): title is event, message is headline, location is zip, time is expires, severity is the NWS severity, advice is null. Don't touch the test.
+
+## Prompt 83
+
+Read the root AGENTS.md and TESTING.md, then follow their rules.Make ALERT-R-002 normalized-alerts wiring pass GREEN. The failing test is apps/reader/src/alerts/getAlertsForLocation.vitest.test.ts. Update apps/reader/src/alerts/getAlertsForLocation.ts to take (location, zip, deps) and run every alert (forecast temperature alerts and NWS alerts) through the existing normalizeAlert(alert, zip) so result.alerts contains normalized alerts with the common shape. Preserve the graceful per-source failure behavior and the failures array. Then update apps/reader/src/alerts/getAlertsWithSetting.ts so it accepts and passes zip through to getAlertsForLocation. If the getAlertsWithSetting test fails because its call signature changed, update that test's calls to pass a zip — mock/call-signature update only, do not change its assertions. Reuse normalizeAlert; don't reimplement it. Don't touch assertions.
+
+## Prompt 84
+
+Read the root AGENTS.md and TESTING.md, then follow their rules.
+Make REPORT-001 (structured reasons) pass GREEN. The failing test is apps/reader/src/reports/reportReason.vitest.test.ts. Create apps/reader/src/reports/reportReason.ts as the single source of truth for reader report reasons: export REPORT_REASONS containing exactly "Closed / no longer operating", "Wrong hours", "Wrong address / location", and "No more resources available", a ReportReason type derived from it, and isValidReportReason(value) returning true only for an approved reason. Don't touch the test.
+
+## Prompt 85
+
+Read the root AGENTS.md and TESTING.md, then follow their rules.
+Make REPORT-002 (no direct edits) pass GREEN. The failing test is apps/reader/src/reports/createReport.vitest.test.ts. Create apps/reader/src/reports/createReport.ts exporting createReport({ resourceId, address, reason }) — when a reason is present, return { ok: true, report: { resourceId, address, reason } }; when the reason is missing or empty, return { ok: false, error: "must select a reason to send report" } with no report. The function must only take and return report data — it has no access to and never touches the live resource. Don't touch the test.
+
+## Prompt 86
+
+Read the root AGENTS.md and TESTING.md, then follow their rules.
+Make REPORT-003 (confirmation) pass GREEN. The failing test is apps/reader/src/reports/submitReport.vitest.test.ts. Create apps/reader/src/reports/submitReport.ts exporting async submitReport(report, { submit }). Require all fields complete — resourceId, address, and reason. If the reason is missing, return { ok: false, error: "must select a reason to send report" } without calling submit. If resourceId or address is missing, return { ok: false, error } without calling submit. When the report is complete, call submit once and return { ok: true, message: "report submitted" }. Don't touch the test.
+
+## Prompt 87
+
+Read the root AGENTS.md and TESTING.md, then follow their rules.
+Make REPORT-001 pass GREEN with the added fifth reason. The failing test is apps/reader/src/reports/reportReason.vitest.test.ts. Update apps/reader/src/reports/reportReason.ts to add "Phone disconnected / no longer working" to REPORT_REASONS, so the approved set is exactly those five reasons. Keep isValidReportReason accepting only approved reasons. Don't touch the test.
+
+## Prompt 88
+
+Read the root AGENTS.md and TESTING.md, then follow their rules.
+Make AI-002/003/004/008 pass GREEN. The failing test is apps/provider/src/reports/validateAiResult.vitest.test.ts. Create apps/provider/src/reports/validateAiResult.ts exporting validateAiResult(result). Reject (ok: false) when findings are empty, or the confidence label is missing or not one of high/medium/low. Otherwise ok: true. Strip any source lacking a traceable url, and cap sources at 3. Set uncertain: true when confidence is "low" or there are no valid sources, otherwise uncertain: false. Return { ok, uncertain, sources }. Don't touch the test.
+
+## Prompt 89
+
+Read the root AGENTS.md and TESTING.md, then follow their rules.
+Make REPORT-006 flow pass GREEN. The failing test is apps/provider/src/reports/verifyReaderReport.vitest.test.ts. Create apps/provider/src/reports/verifyReaderReport.ts exporting async verifyReaderReport(report, { callOpenAI, createProviderAlert }). Call callOpenAI(report) to get the AI result. Validate it with the existing validateAiResult. If the result is not ok (e.g. no findings), do not create an alert. Otherwise call createProviderAlert once with an alert containing: report (the full reader report), resourceId and address (from the report), findings, confidence, sources (from the validated result), and uncertain (from validateAiResult). Reuse validateAiResult; do not reimplement it. Don't touch the test.
+
+## Prompt 90
+
+Open src/reports/verifyReaderReport.ts (the implementation, not the test).
+Temporarily add, inside the function: deps.deleteResource?.();
+
+## Prompt 91
+
+Open src/reports/verifyReaderReport.ts
+Delete the temporary deps.deleteResource?.(); line you added
+
+## Prompt 92
+
+In src/resources/getReaderVisibleResources.ts, temporarily add an owner filter so it only returns one org's resources. For example, if the function currently filters like resources.filter(r => isResourceVisible(r, now)), change it temporarily to:
+resources.filter(r => isResourceVisible(r, now) && r.organizationId === "org_A"
+
+## Prompt 93
+
+revert — remove the && r.organizationId === "org_A" so it's back to owner-blind:
+resources.filter(r => isResourceVisible(r, now))
+
+## Prompt 94
+
+Read the root AGENTS.md and TESTING.md, then follow their rules.
+Make Flow 2 (provider report to Narley admin) pass GREEN. The failing test is apps/provider/src/reports/submitProviderReport.vitest.test.ts. Create apps/provider/src/reports/submitProviderReport.ts exporting async submitProviderReport(report, { sendToNarleyAdmin }). Require all fields present: address, providerName, providerEmail, providerPhone, and details — if any is missing/empty, return { ok: false, error } without sending. Reject details longer than 500 words with an error message mentioning "500 words", without sending. When everything is valid, call sendToNarleyAdmin once with the report and return { ok: true }. Don't touch the test.
+
+## Prompt 95
+
+Read the root AGENTS.md and TESTING.md, then follow their rules.
+Make ALERT-P-006 (alert count) pass GREEN. The failing test is apps/provider/src/reports/activeAlertCount.vitest.test.ts. Create apps/provider/src/reports/activeAlertCount.ts exporting activeAlertCount(alerts, weatherAlertsOn) — count every alert with kind: "report" always, and count alerts with kind: "weather" only when weatherAlertsOn is true. Return the total. Don't touch the test.
+
+## Prompt 96
+
+Read the root AGENTS.md and TESTING.md, then follow their rules.Make SEC-001 (ownership guard on update) pass GREEN. The failing test is apps/provider/src/resources/updateResourceOwnership.vitest.test.ts. Update apps/provider/src/resources/updateResource.ts so its dependencies also accept resource (with organizationId) and membership. Before any update, call the existing canEditResource(membership && { id: "editor" }, membership, resource) — or however canEditResource is signed — to check the editor is an active member of the resource's owning organization. If not authorized, return { ok: false, error } with an authorization message, without calling update and without recording an audit event. If authorized, proceed with the existing expiration/duplicate checks and update. Reuse canEditResource; do not reimplement the ownership logic. If existing updateResource tests fail because their deps lack resource/membership, add an authorized membership and matching resource to those test deps so they still represent an authorized edit — deps/fixture update only, do not change their assertions. Don't touch assertions.
+
+## Prompt 97
+
+Read the root AGENTS.md and TESTING.md, then follow their rules.
+Make SEC-002 (verified-provider guard on create) pass GREEN. The failing test is apps/provider/src/resources/createResourceVerified.vitest.test.ts. Update apps/provider/src/resources/createResource.ts so its dependencies also accept membership. Before checking duplicates or inserting, call the existing canWritePin(provider, membership) — using the provider as the user. If it returns false, return { ok: false, error } with a verified/authorization message, without calling insert and without recording an audit event. If it returns true, proceed with the existing duplicate check, insert, and audit. Reuse canWritePin; do not reimplement the verification logic. If existing createResource tests fail because their deps lack membership, add a verified active membership ({ status: "ACTIVE", org: { status: "VERIFIED", active: true } }) to those test deps so they represent an authorized create — deps/fixture update only, do not change their assertions. Don't touch assertions.
+
+## Prompt 98
+
+Read the root AGENTS.md and TESTING.md, then follow their rules.
+Make SEC-004 (validate input before write) pass GREEN. The failing test is apps/provider/src/resources/createResourceValidation.vitest.test.ts. Update apps/provider/src/resources/createResource.ts so that, after the verified-provider check and before the duplicate check and insert, it calls the existing validateResource(resource). If the result's valid is false, return { ok: false, error } using the validation errors (e.g. the joined errors or the first error), without calling insert and without recording an audit event. If valid, proceed as now. Reuse validateResource; do not reimplement validation. Keep all existing tests passing — if any existing createResource test uses a resource missing required fields (title, category, address, latitude, longitude, expiresAt), update that test's fixture to a complete valid resource — fixture update only, do not change assertions. Don't touch assertions.
+
+## Prompt 99
+
+is .env being tracked or is node_modules being tracked?
+
+## Prompt 100
+
+.env should be tracked please run commands to untrack .env
+
+## Prompt 101
+
+check the .gitignore and learn why .env is being tracked and fix, I don't want my .env in git logs
+
+## Prompt 102
+
+(base) jacquelinedelgado@Jacquelines-MacBook-Pro Narley % git rm
+ --cached -- .env
+rm '.env'
+(base) jacquelinedelgado@Ja
+
+## Prompt 103
+
+I rotated the key, is .env being tracked
+
+## Prompt 104
+
+run command to append test results for vitest reporter
+
+## Prompt 105
+
+add remaining prompts in prompts md file please

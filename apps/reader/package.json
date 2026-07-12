@@ -21,6 +21,7 @@
     "react-dom": "19.2.3",
     "react-native": "0.86.0",
     "react-native-gesture-handler": "~2.32.0",
+    "react-native-maps": "1.27.2",
     "react-native-reanimated": "4.5.0",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "4.25.2",
@@ -39,7 +40,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "test:unit": "vitest run"
+    "test:unit": "vitest run --config vitest.config.js"
   },
   "private": true
 }
