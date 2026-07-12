@@ -14,6 +14,7 @@ import { MapScreen } from "./screens/MapScreen";
 import { MyPostsScreen } from "./screens/MyPostsScreen";
 import { PostResourceScreen } from "./screens/PostResourceScreen";
 import { ProfileScreen } from "./screens/ProfileScreen";
+import { ResourceStoreProvider } from "./src/state/ResourceStore";
 import { getTheme } from "@shared-ui/theme/theme";
 
 type ProviderTabParamList = {
@@ -79,13 +80,19 @@ const ProviderTabs = () => (
     <Tab.Screen name="Post" component={PostResourceScreen} />
     <Tab.Screen name="My Posts" component={MyPostsScreen} />
     <Tab.Screen name="Alerts" component={AlertsScreen} />
-    <Tab.Screen name="Profile" component={ProfileScreen} />
+    <Tab.Screen
+      name="Profile"
+      component={ProfileScreen}
+      options={{ tabBarButton: () => null }}
+    />
   </Tab.Navigator>
 );
 
 export const App = () => (
   <NavigationContainer theme={navigationTheme}>
-    <ProviderTabs />
+    <ResourceStoreProvider>
+      <ProviderTabs />
+    </ResourceStoreProvider>
   </NavigationContainer>
 );
 

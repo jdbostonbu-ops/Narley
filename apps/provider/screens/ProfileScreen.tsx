@@ -1,3 +1,87 @@
-import { PlaceholderScreen } from "./PlaceholderScreen";
+import { useState } from "react";
+import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 
-export const ProfileScreen = () => <PlaceholderScreen title="Profile" />;
+import { getTheme } from "@shared-ui/theme/theme";
+
+const theme = getTheme(false);
+
+export const ProfileScreen = () => {
+  const [weatherAlerts, setWeatherAlerts] = useState(false);
+  const [language, setLanguage] = useState("English");
+
+  return (
+    <View style={styles.screen}>
+      <ScrollView contentContainerStyle={styles.content}>
+        <View style={styles.header}>
+          <Text style={styles.eyebrow}>PROVIDER ACCOUNT</Text>
+          <Text accessibilityRole="header" style={styles.title}>Profile</Text>
+        </View>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Organization</Text>
+          <Text style={styles.primary}>Narley Provider</Text>
+          <Text style={styles.secondary}>Manage your public resource information and alerts.</Text>
+        </View>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Notification Preferences</Text>
+          <View style={styles.toggleRow}>
+            <View style={styles.toggleCopy}>
+              <Text style={styles.toggleLabel}>Weather alerts</Text>
+              <Text style={styles.secondary}>Notifications for severe weather, shelter changes, closures, and urgent community conditions.</Text>
+            </View>
+            <Switch
+              accessibilityLabel="Weather alerts"
+              ios_backgroundColor="#334155"
+              onValueChange={setWeatherAlerts}
+              thumbColor={weatherAlerts ? "#57C7B6" : "#CBD5E1"}
+              trackColor={{ false: "#334155", true: "#0F766E" }}
+              value={weatherAlerts}
+            />
+          </View>
+        </View>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Language</Text>
+          <View style={styles.languages}>
+            {["English", "Español"].map((item) => (
+              <Pressable key={item} onPress={() => setLanguage(item)} style={[styles.language, language === item && styles.languageSelected]}>
+                <Text style={[styles.languageText, language === item && styles.languageTextSelected]}>{item}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+        <View style={styles.logoutCard}>
+          <Text style={styles.logoutTitle}>Log out</Text>
+          <Text style={styles.logoutBody}>Sign out of this provider account on this device.</Text>
+          <Pressable
+            onPress={() => Alert.alert("Log out?", "You will need to sign in again to manage resources.", [{ text: "Cancel", style: "cancel" }, { text: "Log Out", style: "destructive" }])}
+            style={styles.logoutButton}
+          ><Text style={styles.logoutText}>Log Out</Text></Pressable>
+        </View>
+      </ScrollView>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  screen: { backgroundColor: "#020617", flex: 1 },
+  content: { gap: 14, padding: 18, paddingBottom: 132 },
+  header: { marginBottom: 4 },
+  eyebrow: { color: theme.colors.accent, fontSize: 12, fontWeight: "900", marginBottom: 6 },
+  title: { color: theme.colors.textInverse, fontSize: 23, fontWeight: "900" },
+  card: { ...theme.shadows.card, backgroundColor: theme.colors.background, borderRadius: 24, padding: 24, width: "100%" },
+  cardTitle: { color: theme.colors.text, fontSize: 18, fontWeight: "900", marginBottom: 10 },
+  primary: { color: theme.colors.text, fontSize: 16, fontWeight: "800", marginBottom: 6 },
+  secondary: { color: "#4B5563", fontSize: 14, lineHeight: 20 },
+  toggleRow: { alignItems: "center", flexDirection: "row", gap: 12, paddingVertical: 10 },
+  toggleCopy: { flex: 1 },
+  toggleLabel: { color: theme.colors.text, fontSize: 15, fontWeight: "900", marginBottom: 2 },
+  languages: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginBottom: 10 },
+  language: { backgroundColor: theme.colors.border, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 10 },
+  languageSelected: { backgroundColor: "#0F766E" },
+  languageText: { color: theme.colors.text, fontSize: 13, fontWeight: "900" },
+  languageTextSelected: { color: theme.colors.textInverse },
+  logoutCard: { backgroundColor: "#2A1210", borderColor: "rgba(239,68,68,0.4)", borderRadius: 24, borderWidth: 1, padding: 24 },
+  logoutTitle: { color: "#FFF7F1", fontSize: 18, fontWeight: "900", marginBottom: 6 },
+  logoutBody: { color: "#FCA5A5", fontSize: 14, lineHeight: 20, marginBottom: 14 },
+  logoutButton: { alignSelf: "flex-start", backgroundColor: "#8B2E24", borderRadius: 16, paddingHorizontal: 18, paddingVertical: 13 },
+  logoutText: { color: theme.colors.textInverse, fontSize: 14, fontWeight: "900" },
+});

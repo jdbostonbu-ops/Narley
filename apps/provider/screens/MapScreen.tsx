@@ -1,17 +1,12 @@
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import MapView, { Marker, type Region } from "react-native-maps";
 
 import { getTheme } from "@shared-ui/theme/theme";
 import { filterResourcesByZip } from "../src/resources/filterResourcesByZip";
-
-type SampleResource = {
-  id: string;
-  title: string;
-  address: string;
-  latitude: number;
-  longitude: number;
-};
+import { ProviderCard, type ProviderCardData } from "../components/ProviderCard";
+import { ProviderDetailModal } from "../components/ProviderDetailModal";
+import { useResourceStore } from "../src/state/ResourceStore";
 
 const theme = getTheme(false);
 
@@ -22,48 +17,35 @@ const initialRegion: Region = {
   longitudeDelta: 0.05,
 };
 
-const sampleResources: SampleResource[] = [
-  {
-    id: "sample-food-resource",
-    title: "Test Food Resource",
-    address: "181 State Street, New London, CT 06320",
-    latitude: 41.3557,
-    longitude: -72.0995,
-  },
-  {
-    id: "sample-soup-kitchen",
-    title: "Test Soup Kitchen",
-    address: "106 Truman Street, New London, CT 06320",
-    latitude: 41.3632,
-    longitude: -72.1058,
-  },
-  {
-    id: "sample-community-pantry",
-    title: "Test Community Pantry",
-    address: "1 Beach Pond Road, Groton, CT 06340",
-    latitude: 41.3489,
-    longitude: -72.0917,
-  },
-];
-
 export const MapScreen = () => {
+  const { resources } = useResourceStore();
   const [searchText, setSearchText] = useState("");
-  const [visibleResources, setVisibleResources] = useState(sampleResources);
+  const [activeZip, setActiveZip] = useState<string | null>(null);
+  const [selectedResource, setSelectedResource] = useState<ProviderCardData | null>(null);
+  const visibleResources = activeZip === null
+    ? resources
+    : filterResourcesByZip(resources, activeZip);
 
   const handleSearch = () => {
     const query = searchText.trim();
 
     if (/^\d{5}$/.test(query)) {
-      setVisibleResources(filterResourcesByZip(sampleResources, query));
+      setActiveZip(query);
       return;
     }
 
     // TODO: Add city geocoding when the search service is connected.
-    setVisibleResources(sampleResources);
+    setActiveZip(null);
   };
 
   return (
     <View style={styles.screen}>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <View style={styles.header}>
+        <Text style={styles.eyebrow}>PROVIDER MAP</Text>
+        <Text accessibilityRole="header" style={styles.screenTitle}>Your resources</Text>
+        <Text style={styles.intro}>Review the resources your organization has placed on the map.</Text>
+      </View>
       <View style={styles.searchRow}>
         <TextInput
           accessibilityLabel="Search resources by city or ZIP code"
@@ -104,6 +86,39 @@ export const MapScreen = () => {
           ))}
         </MapView>
       </View>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Your map listings</Text>
+        <Text style={styles.count}>{visibleResources.length}</Text>
+      </View>
+      {visibleResources.length ? visibleResources.map((resource) => {
+        const item: ProviderCardData = resource;
+        return <ProviderCard item={item} key={resource.id} onPress={() => setSelectedResource(item)} />;
+      }) : (
+        <View style={styles.emptyCard}>
+          <Text style={styles.emptyTitle}>No resources found</Text>
+          <Text style={styles.emptyBody}>Try another city or ZIP code.</Text>
+        </View>
+      )}
+      </ScrollView>
+      <ProviderDetailModal item={selectedResource} onClose={() => setSelectedResource(null)}>
+        <View style={styles.modalActions}>
+          <Pressable
+            accessibilityLabel="Report this resource"
+            accessibilityRole="button"
+            onPress={() => Alert.alert(
+              "Report this resource?",
+              "Send this resource for review if its information appears incorrect or unavailable.",
+              [
+                { text: "Cancel", style: "cancel" },
+                { text: "Report", style: "destructive" },
+              ],
+            )}
+            style={styles.reportButton}
+          >
+            <Text style={styles.reportButtonText}>Report</Text>
+          </Pressable>
+        </View>
+      </ProviderDetailModal>
     </View>
   );
 };
@@ -112,8 +127,16 @@ const styles = StyleSheet.create({
   screen: {
     backgroundColor: theme.colors.appBackground,
     flex: 1,
-    paddingHorizontal: 8,
   },
+  content: {
+    paddingBottom: 124,
+    paddingHorizontal: 12,
+    paddingTop: 16,
+  },
+  header: { marginBottom: 16 },
+  eyebrow: { color: theme.colors.accent, fontSize: 12, fontWeight: "900", marginBottom: 6 },
+  screenTitle: { color: theme.colors.textInverse, fontSize: 24, fontWeight: "900", marginBottom: 6 },
+  intro: { color: "#CBD5E1", fontSize: 14, lineHeight: 20 },
   searchRow: {
     alignItems: "center",
     flexDirection: "row",
@@ -153,4 +176,23 @@ const styles = StyleSheet.create({
   map: {
     flex: 1,
   },
+  sectionHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 14,
+  },
+  sectionTitle: { color: theme.colors.textInverse, fontSize: 22, fontWeight: "900" },
+  count: { color: "#CBD5E1", fontSize: 14, fontWeight: "900" },
+  emptyCard: { ...theme.shadows.card, backgroundColor: theme.colors.background, borderRadius: 24, padding: 24 },
+  emptyTitle: { color: theme.colors.text, fontSize: 18, fontWeight: "900", marginBottom: 6 },
+  emptyBody: { color: "#4B5563", fontSize: 15, lineHeight: 22 },
+  modalActions: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginTop: 8 },
+  reportButton: {
+    backgroundColor: "#8B2E24",
+    borderRadius: 16,
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+  },
+  reportButtonText: { color: theme.colors.textInverse, fontSize: 14, fontWeight: "900" },
 });

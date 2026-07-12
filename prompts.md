@@ -690,3 +690,191 @@ Then convert v3's provider to match: remove the expo-router setup and src/app; c
 ## Prompt 128
 
 add remaining prompts in prompts md file please
+
+## Prompt 129
+
+In the Narley v3 provider app (apps/provider), the app crashes at runtime with a React Native New Architecture (Fabric) render error: "Exception in HostFunction: TypeError: expected dynamic type 'boolean', but had type 'string'". It occurs when the ProviderTabs / Tab.Navigator renders (App.tsx), on the initial Map screen. Search App.tsx, all files in screens/, and the shared theme files for a string value being passed where a native boolean is expected. Identify the exact file, line, and value, explain why it triggers the Fabric error, and propose the minimal fix before applying it. Do not modify src/resources, src/reports, src/alerts, or src/auth.
+
+## Prompt 130
+
+In the Narley v3 provider app (apps/provider), add a themed header bar with the Narley logo to the bottom-tab navigator in App.tsx. Enable a shared header across the tabs, show ./assets/narley-logo.png at a small size, and use the shared theme's primary background and inverse text/tint. Keep the right side empty, do not change the tabs or screens, and do not modify src/resources, src/reports, src/alerts, or src/auth. Report the changes.
+
+## Prompt 131
+
+In the Narley v3 provider app (apps/provider), rebuild the AppHeader component to match the Narley v2 header exactly: a deep-green rounded horizontal container, a darker rounded square with a white Ionicons home icon, and a text column containing "NARLEY" and "Community resource navigation". Use only shared theme tokens, reference design-theme-layout.md, leave the top-right empty, and do not modify src/resources, src/reports, src/alerts, or src/auth. Report the changes.
+
+## Prompt 132
+
+codex the app header tsx file is filled with red editor errors
+
+## Prompt 133
+
+where is the width and height for the logo on the map screen?
+
+## Prompt 134
+
+I need some thing more exact than lg, because I need to move it and see it move on the app. can you change it to numbers I need to adjust the width and heigh visually and manually
+
+## Prompt 135
+
+how do I refresh the expo in the terminal do I have to start all over?
+
+## Prompt 136
+
+the header height , width and size was changed but it didn't make a difference what am I doing wrong, does this have to be in global css instead?
+
+## Prompt 137
+
+no this is I asked you to do is to change it to numerical
+
+## Prompt 138
+
+no codex revert I didnt ask you to change or add variables I asked for the container to be numerical
+
+## Prompt 139
+
+In the Narley v3 provider app (apps/provider), replace the Map screen placeholder with a real map. Build screens/MapScreen.tsx to render a react-native-maps map (react-native-maps@1.20.1 is installed; on iOS it uses Apple Maps, no API key needed). Render a full-screen MapView below the header, centered initially on New London, CT at approximately 41.3557, -72.0995 with deltas around 0.05. Add two or three hardcoded sample resource Marker pins. Use the shared theme where applicable, reference design-theme-layout.md and the v2 map layout, and do not modify src/resources, src/reports, src/alerts, or src/auth. Report the changes.
+
+## Prompt 140
+
+where is the map width and height?
+
+## Prompt 141
+
+In the Narley v3 provider app (apps/provider), add a search row to the Map screen between the header and map, matching the v2 layout and design-theme-layout.md. Include a themed "City or ZIP code" input and blue Search button. For a five-digit ZIP, filter the sample pins using the existing filterResourcesByZip from src/resources; accept non-ZIP city searches for now with a TODO for geocoding. Keep the sample resources, use shared theme tokens, do not modify protected src logic, report the changes, and run npm run test:unit to confirm 164 tests pass.
+
+## Prompt 142
+
+where are the the fields I need the width of that row to be 400
+
+## Prompt 143
+
+okay the height of the search button must be the same height as the search field
+
+## Prompt 144
+
+if I extend the width of the search row it moves to the right I need the search field and search button to equal the width of 400 on the screen. to match the logo
+
+## Prompt 145
+
+all the border radius must match the border radius of the logo, can you please change that
+
+## Prompt 146
+
+The v3 provider app's layout doesn't match v2 — the border radius, height, and width of the header, search field, search button, and map are wrong because they were approximated from a description instead of copied from v2's real code. Read the actual v2 component code under Hayn Mobile, first report which v2 files render each element, then reproduce v2's exact StyleSheet values in v3 for radii, dimensions, padding, margins, flex layout, typography, and colors mapped to v3 theme tokens. Do not modify protected src logic. Report each exact value and run npm run test:unit to confirm 164 tests pass.
+
+## Prompt 147
+
+the only problem is that search field with search button is not matching the width as the map and the logo looks like its wider than the map
+
+## Prompt 148
+
+I want to nudge all of them a little wider, where do I do that?
+
+## Prompt 149
+
+okay so I chaged the width of the logo but it doesn't budge, in logo in app header, so where do you have the logo width? because it needs to match the map
+
+## Prompt 150
+
+the map and the search row move together but the logo doesn't move with it.
+
+## Prompt 151
+
+are you sure that the border radius is for the search row is the same as version 2 because it looks different
+
+## Prompt 152
+
+make the search row match like version 2 version 2 layout looks way better
+
+## Prompt 153
+
+so here is the caveat screen is not at 100% and I like the width, the logo, is at 100% and padding horizaontal 8 and doesn't match the map
+
+## Prompt 154
+
+why aren't package json and config being committed when I try to commit?
+
+## Prompt 155
+
+I tried to add them and commit them but it isn't working can you do it for me
+
+## Prompt 156
+
+commit the prompts.md too please
+
+## Prompt 157
+
+if you read the docs/design-theme-layout.md can you see how the cards associated to the pins should be designed?
+
+## Prompt 158
+
+add all remaining prompts in prompts.md please
+
+## Prompt 159
+
+we are working on the ui of the provider app, the theme, height and width, color balance, frame, tabs, labels, modal cards, font, style are in the design-theme-layout.md to help guide you as you build each screen, we are making sure that design, cards, chips, screens font, tiles have the same dimensions and are places in their appropriate place, go ahead and read the file and begin building each screen in the provider app. if the map and the logo, search row doesn't match, fix it to the dimensions stated in the design-theme-layout.md if it is stated there, if it isn't stated don't invent and leave the map, search row, and logo the way it is. we are only working on the provider app. the provider app. I will also need a hamburger on the upper right hand corner of the map screen which will have profile. remove the profile icon from the bottom nav and move it to the hamburger, all five icons on the bottom nav are too crammed. the alert screen is supposed to have cards that look like the map screen cards, and the modal cards on the alert screen are suppose to open and hover over the alert card on the alert screen with the same width, height and scroll as the modal cards shown on the map screen for the alert screen, we need all the cards to be uniform on all the screens, so that the style is not changing screen to screen, the alert screen modal cards will have different data, so don't invent chips, just create the style, layout, fonts, color balance for the alert cards, and we will continue as we test, the alert cards will need a font though because ai will need to report in the alert cards
+
+## Prompt 160
+
+what do I run to run expo?
+
+## Prompt 161
+
+the height of the logo should be all the same on every screen
+
+## Prompt 162
+
+no the height of the logo on the other screens do not match the map screen and the change you made is causing a flash
+
+## Prompt 163
+
+no you changed the the logo in the map screen, that is not what I was asking, I want the other screens to have the same width and height as the logo in the map screen, but you changed the logo height and in the map screen
+
+## Prompt 164
+
+no you moved the logo on the map screen up and I can see the logo, you did the same thing with all the screens
+
+## Prompt 165
+
+on the map screen you have your map listings row with a number make the row in the alerts screen match the font size and have a count for alerts just like the row on the map screen
+
+## Prompt 166
+
+on the alerts screen, remove the top row where it says Alerts. I only need your alerts
+
+## Prompt 167
+
+no you removed the sentence that was under alerts, I need that sentence
+
+## Prompt 168
+
+now add the screens, cards, map, chips, labels, fonts, logo, layout, color balance, and theme-balance for the reader app and use the design-theme-layout.md as your guid for the reader app
+
+## Prompt 169
+
+on the provider app on the map screen after you tap on the card, a modal card opens, that modal card is supposed to have a report button
+
+## Prompt 170
+
+the same thing for the reader app, on the map screen, when you tap on the card, the modal card that opens is supposed to have a report button
+
+## Prompt 171
+
+are the widths on the screens for the provider app one number one class or container? meaning are the width for the logo and the map and cards for all the screens pointing to one number?
+
+## Prompt 172
+
+the cards on the My Posts screen should have the same width as the logo on the provider app
+
+## Prompt 173
+
+on the Post screen the width of the fields and rows should match the width of the logo, they look narrower than the logo width so the screen is not uniform
+
+## Prompt 174
+
+make sure the screens are uniform by width as well on the reader app to match the logo width please
+
+## Prompt 175
+
+add all remaining prompts in prompts.md please

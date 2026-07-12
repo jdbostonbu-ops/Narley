@@ -1,98 +1,54 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import MapView, { Marker, type Region } from 'react-native-maps';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { BrandHeader } from '@/components/brand-header';
+import { ResourceCard, type ReaderResource } from '@/components/resource-card';
+import { ResourceDetailModal } from '@/components/resource-detail-modal';
+import { READER_SCREEN_INSET } from '@/constants/layout';
+import { getTheme } from '@shared-ui/theme/theme';
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+const theme = getTheme(false);
+const region: Region = { latitude: 41.3557, longitude: -72.0995, latitudeDelta: 0.05, longitudeDelta: 0.05 };
+export const readerResources: ReaderResource[] = [
+  { id: 'food-1', category: 'Food', status: 'Open', title: 'Community Food Resource', notes: 'Food support and local resource information.', address: '181 State Street, New London, CT 06320', latitude: 41.3557, longitude: -72.0995 },
+  { id: 'meal-1', category: 'Meals', status: 'Open', title: 'Community Meal Program', notes: 'Prepared meals available during posted service hours.', address: '106 Truman Street, New London, CT 06320', latitude: 41.3632, longitude: -72.1058 },
+];
 
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+export default function MapScreen() {
+  const insets = useSafeAreaInsets();
+  const [query, setQuery] = useState('');
+  const [selected, setSelected] = useState<ReaderResource | null>(null);
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
-  );
+  return <View style={styles.screen}>
+    <ScrollView contentContainerStyle={[styles.content, { paddingTop: insets.top + 12 }]} keyboardShouldPersistTaps="handled">
+      <BrandHeader />
+      <View style={styles.searchRow}>
+        <TextInput accessibilityLabel="Search resources by city or ZIP code" onChangeText={setQuery} placeholder="City or ZIP code" placeholderTextColor="#9CA3AF" returnKeyType="search" style={styles.searchInput} value={query} />
+        <Pressable accessibilityRole="button" style={styles.searchButton}><Text style={styles.searchText}>Search</Text></Pressable>
+      </View>
+      <View style={styles.mapCard}>
+        <MapView initialRegion={region} style={styles.map}>{readerResources.map((item) => <Marker coordinate={{ latitude: item.latitude!, longitude: item.longitude! }} key={item.id} onPress={() => setSelected(item)} title={item.title} />)}</MapView>
+      </View>
+      <View style={styles.sectionHeader}><Text style={styles.sectionTitle}>Nearby resources</Text><Text style={styles.count}>{readerResources.length}</Text></View>
+      <View style={styles.list}>{readerResources.map((item) => <ResourceCard item={item} key={item.id} onPress={() => setSelected(item)} />)}</View>
+    </ScrollView>
+    <ResourceDetailModal item={selected} onClose={() => setSelected(null)} showReport />
+  </View>;
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
-  },
+  screen: { backgroundColor: theme.colors.appBackground, flex: 1 },
+  content: { paddingBottom: 120, paddingHorizontal: READER_SCREEN_INSET },
+  searchRow: { alignItems: 'center', flexDirection: 'row', gap: 12, marginBottom: 14, width: '100%' },
+  searchInput: { backgroundColor: theme.colors.surfaceDark, borderRadius: 20, color: theme.colors.textInverse, flex: 1, fontSize: 16, height: 52, paddingHorizontal: 14 },
+  searchButton: { alignItems: 'center', backgroundColor: theme.colors.cta, borderRadius: 20, height: 52, justifyContent: 'center', paddingHorizontal: 18 },
+  searchText: { color: theme.colors.textInverse, fontSize: 15, fontWeight: '900' },
+  mapCard: { borderRadius: 24, height: 420, marginBottom: 20, overflow: 'hidden', width: '100%' },
+  map: { flex: 1 },
+  sectionHeader: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 },
+  sectionTitle: { color: theme.colors.textInverse, fontSize: 22, fontWeight: '900' },
+  count: { color: '#9CA3AF', fontSize: 14, fontWeight: '800' },
+  list: { paddingBottom: 20, width: '100%' },
 });
