@@ -47,6 +47,24 @@ export const ProviderDetailModal = ({ item, onClose, children }: ProviderDetailM
                   <Text style={styles.value}>{item.address}</Text>
                 </View>
               )}
+              {!!item.phone && (
+                <View style={styles.block}>
+                  <Text style={styles.label}>PHONE</Text>
+                  <Text style={styles.value}>{item.phone}</Text>
+                </View>
+              )}
+              {!!item.website && (
+                <View style={styles.block}>
+                  <Text style={styles.label}>WEBSITE</Text>
+                  <Text style={styles.value}>{item.website}</Text>
+                </View>
+              )}
+              {!!item.expiresAt && (
+                <View style={styles.block}>
+                  <Text style={styles.label}>EXPIRATION</Text>
+                  <Text style={styles.value}>{item.expiresAt.toLocaleDateString()}</Text>
+                </View>
+              )}
               {!!item.metadata && (
                 <View style={styles.block}>
                   <Text style={styles.label}>UPDATED</Text>

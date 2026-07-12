@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import MapView, { Marker, type Region } from "react-native-maps";
 
 import { getTheme } from "@shared-ui/theme/theme";
@@ -18,7 +18,7 @@ const initialRegion: Region = {
 };
 
 export const MapScreen = () => {
-  const { resources } = useResourceStore();
+  const { resources, loading, error } = useResourceStore();
   const [searchText, setSearchText] = useState("");
   const [activeZip, setActiveZip] = useState<string | null>(null);
   const [selectedResource, setSelectedResource] = useState<ProviderCardData | null>(null);
@@ -90,7 +90,12 @@ export const MapScreen = () => {
         <Text style={styles.sectionTitle}>Nearby Resources</Text>
         <Text style={styles.count}>{visibleResources.length}</Text>
       </View>
-      {visibleResources.length ? visibleResources.map((resource) => {
+      {loading ? (
+        <View style={styles.emptyCard}>
+          <ActivityIndicator color={theme.colors.accent} />
+          <Text style={styles.loadingText}>Loading resources…</Text>
+        </View>
+      ) : visibleResources.length ? visibleResources.map((resource) => {
         const item: ProviderCardData = resource;
         return <ProviderCard item={item} key={resource.id} onPress={() => setSelectedResource(item)} />;
       }) : (
@@ -99,9 +104,9 @@ export const MapScreen = () => {
             {activeZip === null ? "No resources yet" : "No resources found"}
           </Text>
           <Text style={styles.emptyBody}>
-            {activeZip === null
+            {error ?? (activeZip === null
               ? "Resources you create from the Post screen will appear here."
-              : "Try another city or ZIP code."}
+              : "Try another city or ZIP code.")}
           </Text>
         </View>
       )}
@@ -193,6 +198,13 @@ const styles = StyleSheet.create({
   emptyCard: { ...theme.shadows.card, backgroundColor: theme.colors.background, borderRadius: 24, padding: 24 },
   emptyTitle: { color: theme.colors.text, fontSize: 18, fontWeight: "900", marginBottom: 6 },
   emptyBody: { color: "#4B5563", fontSize: 15, lineHeight: 22 },
+  loadingText: {
+    color: theme.colors.textMuted,
+    fontSize: 15,
+    fontWeight: "700",
+    marginTop: theme.spacing.sm,
+    textAlign: "center",
+  },
   modalActions: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginTop: 8 },
   reportButton: {
     backgroundColor: "#8B2E24",

@@ -6,3 +6,8 @@ dist/
 *.log
 
 /generated/prisma
+
+# Local database credential/setup utilities
+/server/checkLogin.ts
+/server/setPassword.ts
+/server/setupUser.ts

@@ -1,13 +1,42 @@
+import { useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { getTheme } from "@shared-ui/theme/theme";
+import { EditResourceModal } from "../components/EditResourceModal";
 import { ProviderCard, type ProviderCardData } from "../components/ProviderCard";
-import { useResourceStore } from "../state/ResourceStore";
+import { ProviderDetailModal } from "../components/ProviderDetailModal";
+import { type StoredResource, useResourceStore } from "../state/ResourceStore";
 
 const theme = getTheme(false);
 
 export const MyPostsScreen = () => {
   const { removeResource, resources } = useResourceStore();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [editingResource, setEditingResource] = useState<StoredResource | null>(null);
+  const selectedResource = resources.find(({ id }) => id === selectedId) ?? null;
+
+  const confirmDelete = (resource: StoredResource) => {
+    Alert.alert(
+      "Delete resource?",
+      "This cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            removeResource(resource.id);
+            setSelectedId(null);
+          },
+        },
+      ],
+    );
+  };
+
+  const openEdit = (resource: StoredResource) => {
+    setSelectedId(null);
+    setEditingResource(resource);
+  };
 
   return (
     <View style={styles.screen}>
@@ -23,38 +52,44 @@ export const MyPostsScreen = () => {
 
           return (
             <ProviderCard
-              actions={(
-                <View style={styles.actions}>
-                  <Pressable accessibilityLabel={`Edit ${resource.title}`} accessibilityRole="button" style={[styles.button, styles.edit]}>
-                    <Text style={styles.buttonText}>Edit</Text>
-                  </Pressable>
-                  <Pressable
-                    accessibilityLabel={`Delete ${resource.title}`}
-                    accessibilityRole="button"
-                    onPress={() => Alert.alert(
-                      "Delete resource?",
-                      "This cannot be undone.",
-                      [
-                        { text: "Cancel", style: "cancel" },
-                        {
-                          text: "Delete",
-                          style: "destructive",
-                          onPress: () => removeResource(resource.id),
-                        },
-                      ],
-                    )}
-                    style={[styles.button, styles.delete]}
-                  >
-                    <Text style={styles.buttonText}>Delete</Text>
-                  </Pressable>
-                </View>
-              )}
               item={item}
               key={resource.id}
+              onPress={() => setSelectedId(resource.id)}
             />
           );
         })}
       </ScrollView>
+
+      <ProviderDetailModal
+        item={selectedResource}
+        onClose={() => setSelectedId(null)}
+      >
+        {selectedResource !== null && (
+          <View style={styles.actions}>
+            <Pressable
+              accessibilityLabel={`Edit ${selectedResource.title}`}
+              accessibilityRole="button"
+              onPress={() => openEdit(selectedResource)}
+              style={[styles.button, styles.edit]}
+            >
+              <Text style={styles.buttonText}>Edit</Text>
+            </Pressable>
+            <Pressable
+              accessibilityLabel={`Delete ${selectedResource.title}`}
+              accessibilityRole="button"
+              onPress={() => confirmDelete(selectedResource)}
+              style={[styles.button, styles.delete]}
+            >
+              <Text style={styles.buttonText}>Delete</Text>
+            </Pressable>
+          </View>
+        )}
+      </ProviderDetailModal>
+
+      <EditResourceModal
+        onClose={() => setEditingResource(null)}
+        resource={editingResource}
+      />
     </View>
   );
 };
@@ -86,7 +121,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 10,
-    marginTop: 14,
+    marginTop: theme.spacing.sm,
   },
   button: {
     borderRadius: theme.radius.md,

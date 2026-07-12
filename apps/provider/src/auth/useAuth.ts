@@ -1,4 +1,11 @@
-import { useReducer } from "react";
+import {
+  createContext,
+  createElement,
+  useContext,
+  useMemo,
+  useReducer,
+  type ReactNode,
+} from "react";
 
 import { postLogin } from "../api/client";
 import {
@@ -18,7 +25,9 @@ export type ProviderAuthState = {
   logout: () => void;
 };
 
-export const useAuth = (): ProviderAuthState => {
+const AuthContext = createContext<ProviderAuthState | null>(null);
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(authReducer, initialAuthState);
 
   const login = async (email: string, password: string): Promise<LoginResult> => {
@@ -41,10 +50,25 @@ export const useAuth = (): ProviderAuthState => {
 
   const logout = () => dispatch({ type: "LOGOUT" });
 
-  return {
-    user: state.user,
-    loading: state.loading,
-    login,
-    logout,
-  };
+  const value = useMemo(
+    () => ({
+      user: state.user,
+      loading: state.loading,
+      login,
+      logout,
+    }),
+    [state.user, state.loading],
+  );
+
+  return createElement(AuthContext.Provider, { value }, children);
+};
+
+export const useAuth = (): ProviderAuthState => {
+  const value = useContext(AuthContext);
+
+  if (value === null) {
+    throw new Error("useAuth must be used inside AuthProvider");
+  }
+
+  return value;
 };

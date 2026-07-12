@@ -10,6 +10,9 @@ export type ProviderCardData = {
   notes?: string;
   address?: string;
   metadata?: string;
+  phone?: string;
+  website?: string;
+  expiresAt?: Date;
 };
 
 type ProviderCardProps = {

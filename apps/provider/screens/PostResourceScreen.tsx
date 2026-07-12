@@ -12,9 +12,9 @@ import {
 import MapView, { Marker } from "react-native-maps";
 
 import { getTheme } from "@shared-ui/theme/theme";
-import { createResource } from "../src/resources/createResource";
 import { geocodeAddress } from "../src/resources/geocodeAddress";
 import { normalizePhone } from "../src/resources/normalizePhone";
+import { useAuth } from "../src/auth/useAuth";
 import { useResourceStore } from "../state/ResourceStore";
 
 const theme = getTheme(false);
@@ -28,6 +28,7 @@ type Coordinates = {
 
 export const PostResourceScreen = () => {
   const { addResource } = useResourceStore();
+  const { user } = useAuth();
   const [title, setTitle] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>(categories[0]);
   const [customCategory, setCustomCategory] = useState("");
@@ -175,46 +176,24 @@ export const PostResourceScreen = () => {
           59,
         )
       : new Date(Number.NaN);
-    const resource = {
+
+    if (coordinates === null) {
+      showError("Resource location requires a pinned address.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    const result = await addResource({
       title: title.trim(),
       category,
       address: address.trim(),
-      latitude: coordinates?.latitude,
-      longitude: coordinates?.longitude,
+      latitude: coordinates.latitude,
+      longitude: coordinates.longitude,
       expiresAt: expiration,
       notes: details.trim(),
+      providerId: user?.id ?? "user_jacq",
       ...(phoneForResource === undefined ? {} : { phone: phoneForResource }),
       ...(website.trim().length === 0 ? {} : { website: website.trim() }),
-    };
-
-    const result = await createResource(resource, { id: "provider_dev" }, {
-      membership: {
-        status: "ACTIVE",
-        org: { status: "VERIFIED", active: true },
-      },
-      findActiveByTitleAndAddress: async () => null,
-      insert: async () => {
-        const id = `resource-${Date.now()}`;
-
-        if (coordinates !== null) {
-          addResource({
-            id,
-            title: resource.title,
-            category: resource.category,
-            address: resource.address,
-            latitude: coordinates.latitude,
-            longitude: coordinates.longitude,
-            expiresAt: expiration,
-            notes: resource.notes,
-            status: "Active",
-            ...(phoneForResource === undefined ? {} : { phone: phoneForResource }),
-            ...(website.trim().length === 0 ? {} : { website: website.trim() }),
-          });
-        }
-
-        return { id };
-      },
-      recordAuditEvent: async () => undefined,
     });
 
     if (!result.ok) {

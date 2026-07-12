@@ -961,3 +961,170 @@ Do NOT modify anything in src/. UI/data change only. Keep constraints: no any/va
 ## Prompt 181
 
 add all remaining prompts in prompts.md
+
+## Prompt 182
+
+Read the root AGENTS.md and TESTING.md, then follow their rules.
+Make the auth-state reducer pass GREEN. The failing test is apps/provider/src/auth/authState.vitest.test.ts. Create apps/provider/src/auth/authState.ts exporting:
+
+initialAuthState — { user: null, loading: false }
+authReducer(state, action) — a pure reducer returning a new state, handling these action types:
+
+LOGIN_START → { ...state, loading: true } (keeps user null)
+LOGIN_SUCCESS (action carries user) → { user: action.user, loading: false }
+LOGIN_FAILURE → { user: null, loading: false }
+LOGOUT → { user: null, loading: false }
+
+Define proper TypeScript types: a ProviderUser type { id: string }, an AuthState type { user: ProviderUser | null; loading: boolean }, and a discriminated union AuthAction for the four action types (LOGIN_SUCCESS carries user: ProviderUser; the others carry no payload).
+Constraints from AGENTS.md: no any, no var, arrow/closure-based function, pure reducer (no side effects). Do not weaken or modify the test. Do not modify other files.
+Then state the command; I will run it and paste the output: npm run test:unit
+
+## Prompt 183
+
+did I give you this prompt? Read the root AGENTS.md and TESTING.md, then follow their rules.
+Make the auth-state reducer pass GREEN. The failing test is apps/provider/src/auth/authState.vitest.test.ts. Create apps/provider/src/auth/authState.ts exporting:
+
+initialAuthState — { user: null, loading: false }
+authReducer(state, action) — a pure reducer returning a new state, handling these action types:
+
+LOGIN_START → { ...state, loading: true } (keeps user null)
+LOGIN_SUCCESS (action carries user) → { user: action.user, loading: false }
+LOGIN_FAILURE → { user: null, loading: false }
+LOGOUT → { user: null, loading: false }
+
+Define proper TypeScript types: a ProviderUser type { id: string }, an AuthState type { user: ProviderUser | null; loading: boolean }, and a discriminated union AuthAction for the four action types (LOGIN_SUCCESS carries user: ProviderUser; the others carry no payload).
+Constraints from AGENTS.md: no any, no var, arrow/closure-based function, pure reducer (no side effects). Do not weaken or modify the test. Do not modify other files.
+Then state the command; I will run it and paste the output: npm run test:unit
+
+## Prompt 184
+
+In the Narley v3 provider app (apps/provider), build the real useAuth hook and a small API client, wiring the already-tested auth logic to the backend login endpoint. Do NOT modify anything in src/ that has tests (authState.ts, login.ts, resolveAuthView.ts, etc.) — import and use them.
+
+Create apps/provider/src/api/client.ts — a tiny fetch client with a configurable base URL. Read the base URL from process.env.EXPO_PUBLIC_API_URL if set, otherwise default to http://localhost:4000. Export an async postLogin(email, password) that POSTs to /login with a JSON body { email, password } and returns the parsed JSON ({ session?: { userId } , error?: string }). Handle network/parse errors by returning { error: "..." }.
+Rewrite apps/provider/src/auth/useAuth.ts as a real hook using React's useReducer with the existing authReducer and initialAuthState from ./authState. Expose:
+
+user and loading from state
+login(email, password): dispatch LOGIN_START, call postLogin, then on a returned session dispatch LOGIN_SUCCESS with { id: session.userId } and return { ok: true }; on error dispatch LOGIN_FAILURE and return { ok: false, error }.
+logout(): dispatch LOGOUT.
+
+Constraints: no any, no var, arrow/closure functions, typed. Use the existing authReducer (do not reimplement state logic). After, run npm run test:unit (expect 175 passing — no tests should break since existing tested files are untouched). Report the files created/changed.
+
+## Prompt 185
+
+In the Narley v3 provider app (apps/provider), build the Login screen and wire the auth gate so the app shows login when logged out and the tabs when logged in. Trace to AUTH-P-002 and AUTH-P-006 in TESTING.md.
+
+Create apps/provider/screens/LoginScreen.tsx:
+
+Email field (keyboardType email, accessible label/id)
+Password field: masked by default, with an eye-toggle button to show/hide (AUTH-P-006 — password stays masked unless intentionally toggled)
+A "Log In" button
+An error message area that shows the generic error returned from login (never revealing which factor failed)
+On submit: call useAuth().login(email, password). While loading, disable the button / show a spinner. On { ok: false }, show the returned error. On { ok: true }, do nothing here — the auth gate will switch to tabs automatically.
+Account creation is NOT offered on this screen (AUTH-P-002 — that's only reached via the QR flow, which we're deferring).
+Style with the shared theme (@shared-ui/theme/theme, getTheme) — match the app's look, deep green / dark shell, CTA blue button. Render user-entered text only as plain <Text>/<TextInput> (no raw HTML).
+
+Wire the auth gate in App.tsx (or wherever the navigator root is): use useAuth() to get { user, loading }, compute the view with the tested resolveAuthView({ loading, user, membership }) from src/auth/resolveAuthView. For now, since membership isn't fetched yet, pass membership as an ACTIVE stub when a user is present (user ? { status: "ACTIVE" } : null) — we'll fetch real membership later. Render:
+
+"loading" → a loading indicator
+"login" → the LoginScreen
+"tabs" → the existing bottom-tab navigator
+Remove the current auth-bypass (the app should now start on the LoginScreen when logged out, not jump straight to tabs).
+
+Constraints: no any, no var, arrow/closure functions, accessible labels, theme tokens, minimal-but-quality. Do NOT modify tested files in src/ (import them). After, run npm run test:unit (expect 175 passing — no logic changed). Report changes.
+
+## Prompt 186
+
+how do I run a command to get into the provider app again?
+
+## Prompt 187
+
+do I need the postgresql server running or can I exit out of it to run expo for the provider app?
+
+## Prompt 188
+
+In the Narley v3 provider app (apps/provider), the login screen is not appearing when the app launches. It should: on launch with no logged-in user, show the LoginScreen (per the auth gate in App.tsx using useAuth + resolveAuthView); after a successful login it should show the bottom tabs.
+The auth gate in App.tsx looks correct: AuthenticatedApp reads useAuth(), computes resolveAuthView({ loading, user, membership }), and renders <LoginScreen /> when the view is not "tabs". initialAuthState is { user: null, loading: false }, so resolveAuthView should return "login" on launch — but the LoginScreen is not showing.
+Investigate and report the root cause. Check specifically:
+
+src/auth/useAuth.ts — does it correctly export both AuthProvider and useAuth? Does useAuth consume the context that AuthProvider provides? Is there a context mismatch or a hook that returns unexpected values (e.g. useAuth used outside the provider, or returning a non-null user)?
+screens/LoginScreen.tsx — does it actually render visible content, or could it be rendering blank/invisible (e.g. a styling issue, a crash, missing return, or an error boundary swallowing it)?
+App.tsx — is the AuthProvider wrapping correctly? Is there any runtime error when useAuth is called?
+Are there any TypeScript or runtime errors in these files that would cause a blank screen or a fallback render?
+
+Report the specific root cause and the minimal fix. Do NOT modify any tested files in src/ that have vitest tests (authState.ts, resolveAuthView.ts, login.ts, etc.) — only fix the wiring/UI files (useAuth.ts, LoginScreen.tsx, App.tsx) as needed. After proposing the fix, apply it, then run npm run test:unit and confirm all tests still pass. Report what was wrong and what you changed.
+
+## Prompt 189
+
+why is the provder app login saying network request failed?
+
+## Prompt 190
+
+how do I run the back en?
+
+## Prompt 191
+
+In the Narley v3 provider app (apps/provider), the My Posts screen's Edit and Delete buttons (and the resource detail/modal card) don't work. Wire them to the app's existing tested logic. Import from src/resources; do NOT modify any tested files in src/.
+Investigate first: read screens/MyPostsScreen.tsx, the detail/modal card component it uses, and state/ResourceStore.tsx. Report why the Edit button currently does nothing (no handler, no navigation, missing wiring, etc.).
+Then implement:
+
+View / modal card — tapping a post in My Posts opens its detail card/modal showing the resource's fields (title, category, address, phone, website, details, expiration, status).
+Edit — from the detail card, an Edit action opens an editable form pre-filled with the resource's current values (reuse the Post form fields where possible). On save:
+
+Call the existing tested updateResource(resourceId, changes, deps) from src/resources/updateResource.ts. It internally checks ownership (canEditResource), validates the expiration (EDIT-007), and rejects rename collisions (EDIT-002).
+Provide deps: resource (the current resource with organizationId), membership (the temporary ACTIVE stub { organizationId: "org_hum", status: "ACTIVE" } for now, matching the logged-in provider's org), update (a function that updates the resource in the ResourceStore — updating the same in-memory list that drives the map pins and cards), recordAuditEvent (stub returning resolved), and findActiveByTitleAndAddress (stub returning null for now).
+On { ok: true }: apply the change to the ResourceStore so the map pin and card reflect the edit; close the form. On { ok: false }: show the returned error to the user.
+Edit must save in place (EDIT-009) — same resource id, not a new pin.
+
+Delete — from the detail card, a Delete action requires a confirmation dialog (Cancel preserves it, Confirm removes it — per the ALERT-P-007 confirmation pattern). On Confirm: call the ResourceStore's removeResource(resourceId) so the resource is removed from BOTH the My Posts list AND the map pins/cards (one source of truth). Deleting must not affect other resources.
+
+Constraints (AGENTS.md): no any, no var, arrow/closure functions, accessible labels/ids on inputs and buttons, render user input only as plain <Text> (no raw HTML), theme tokens (@shared-ui/theme/theme), minimal-but-quality. Do NOT modify tested files in src/ — import and call them. After, run npm run test:unit (expect 175 passing — no logic changed) and report changes.
+
+## Prompt 192
+
+I need to cd for a terminal and go into reader app, can you give me the command
+
+## Prompt 193
+
+In the Narley v3 provider app, when the Expo app is refreshed, the user is logged out AND their created pins disappear. Investigate and confirm the cause for BOTH:
+
+Why does refreshing log the user out? Check how src/auth/useAuth.ts stores auth state — is the session persisted to any device storage (e.g. AsyncStorage/SecureStore), or is it only in-memory React state that resets on reload?
+Why do created pins disappear on refresh? Check state/ResourceStore.tsx — are resources persisted to the backend/database or device storage, or are they only in-memory React state? Is there any GET call to the backend to load saved resources on startup?
+Report specifically: is either the session or the resource list persisted anywhere durable, or do both live only in memory? Do NOT change anything — investigation only. Report findings.
+
+## Prompt 194
+
+In the Narley v3 project, add resource persistence so created pins survive an app refresh by saving to the Neon Postgres database via the existing API server (server/index.ts, which already runs Express + Prisma and has a working /login endpoint).
+Backend (server/index.ts): Add two endpoints, wiring the app's existing tested logic — do NOT reimplement business logic:
+
+POST /resources — receives a resource JSON body. Call the tested createResource(resource, provider, deps) from apps/provider/src/resources/createResource.ts with real Prisma dependencies:
+
+insert = (r) => prisma.resource.create({ data: r }) returning { id }
+findActiveByTitleAndAddress = a real prisma.resource.findFirst({ where: { title, address, status: "ACTIVE" } })
+recordAuditEvent = (e) => prisma.auditEvent.create({ data: e })
+membership = for now, a stub ACTIVE membership { status: "ACTIVE", org: { status: "VERIFIED", active: true } } (real membership fetch comes later)
+provider = { id } from the request (for now the seeded user_jacq; real session-based provider comes later)
+On { ok: true } return the created resource; on { ok: false } return the error with an appropriate status code. Ensure the resource has the required fields the schema needs (providerId, organizationId — use the seeded org_hum for now).
+
+GET /resources — return all ACTIVE resources from Postgres via prisma.resource.findMany(...), shaped to match the StoredResource type the app uses.
+
+App (apps/provider/state/ResourceStore.tsx):
+
+On mount (startup), call GET /resources (via a new function in src/api/client.ts) to hydrate the store from the database, so pins load after a refresh. Show a loading state while fetching.
+Change addResource so that creating a resource calls POST /resources (persisting to the DB) and, on success, adds the returned resource to the store. Keep the map pins and cards reading from the store.
+
+Constraints (AGENTS.md): no any, no var, arrow/closure functions, no changes to tested files in src/ (import them), render user text as plain <Text>, theme tokens. After, run npm run test:unit in apps/provider (expect 175 passing — no tested logic changed). Report changes and the exact commands to run/test.
+Note: the server is at server/index.ts in the repo ROOT (not apps/api), run with npx tsx server/index.ts. The Prisma client is imported in server/prisma.ts.
+
+## Prompt 195
+
+codex commit all the changes for each file please, then add all remaining prompts in prompts.md, In the Narley v3 provider app, submitting a resource from the Post screen fails with: "JSON Parse error: Unexpected character: <". This means the app's POST /resources call received an HTML response (starting with <) instead of JSON — typically a 404/error HTML page, which happens when the endpoint isn't found or the server returned an error page.
+Investigate and fix the root cause. Check specifically:
+
+Confirm the POST /resources and GET /resources endpoints actually exist in server/index.ts and are correctly registered (correct method, path, and that express.json() middleware is applied before them).
+Check the app's API base URL: in apps/provider/src/api/client.ts and the .env (EXPO_PUBLIC_API_URL). Confirm the app is calling the right host/port where the server actually runs (the server runs on port 4000 at server/index.ts in the repo ROOT — not apps/api). When testing on a physical phone, the URL must be the Mac's LAN IP (e.g. http://10.0.0.6:4000), not localhost.
+Determine whether the error is because: (a) the running server is stale and doesn't have the new /resources routes (needs restart), (b) the app is hitting a wrong/unreachable URL that returns HTML, or (c) the endpoint throws and returns an HTML error page.
+Verify the request body the app sends matches what the endpoint expects, and that the endpoint returns JSON in all paths (success AND error) — never HTML.
+
+Report the exact root cause. If the fix is code (wrong URL handling, missing route, non-JSON error response, missing express.json), apply the minimal fix. If the fix is operational (server must be restarted to load new routes, or the .env URL must change), state the exact commands I need to run. Do NOT modify tested files in src/. After any code change, run npm run test:unit in apps/provider (expect 175 passing) and report.
+
+Note: the API server is started with npx tsx server/index.ts from the repo root and must be restarted to pick up route changes. The Neon DATABASE_URL is set in the root .env and is valid.

@@ -7,6 +7,7 @@ import {
   type Theme as NavigationTheme,
 } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { AppHeader } from "./components/AppHeader";
 import { AlertsScreen } from "./screens/AlertsScreen";
@@ -101,18 +102,20 @@ const AuthenticatedApp = () => {
   }
 
   return (
-    <NavigationContainer theme={navigationTheme}>
-      <ResourceStoreProvider>
-        <ProviderTabs />
-      </ResourceStoreProvider>
-    </NavigationContainer>
+    <ResourceStoreProvider>
+      <ProviderTabs />
+    </ResourceStoreProvider>
   );
 };
 
 export const App = () => (
-  <AuthProvider>
-    <AuthenticatedApp />
-  </AuthProvider>
+  <SafeAreaProvider>
+    <AuthProvider>
+      <NavigationContainer theme={navigationTheme}>
+        <AuthenticatedApp />
+      </NavigationContainer>
+    </AuthProvider>
+  </SafeAreaProvider>
 );
 
 export default App;
