@@ -6,6 +6,7 @@ import { getTheme } from "@shared-ui/theme/theme";
 import { filterResourcesByZip } from "../src/resources/filterResourcesByZip";
 import { ProviderCard, type ProviderCardData } from "../components/ProviderCard";
 import { ProviderDetailModal } from "../components/ProviderDetailModal";
+import { MapPin } from "../components/MapPin";
 import { useResourceStore } from "../state/ResourceStore";
 
 const theme = getTheme(false);
@@ -76,13 +77,17 @@ export const MapScreen = () => {
         >
           {visibleResources.map((resource) => (
             <Marker
+              accessibilityLabel={`${resource.title}. ${resource.category ?? "Community resource"}`}
+              anchor={{ x: 0.5, y: 1 }}
               key={resource.id}
               coordinate={{
                 latitude: resource.latitude,
                 longitude: resource.longitude,
               }}
               title={resource.title}
-            />
+            >
+              <MapPin category={resource.category} />
+            </Marker>
           ))}
         </MapView>
       </View>

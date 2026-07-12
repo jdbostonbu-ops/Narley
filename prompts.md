@@ -1128,3 +1128,77 @@ Verify the request body the app sends matches what the endpoint expects, and tha
 Report the exact root cause. If the fix is code (wrong URL handling, missing route, non-JSON error response, missing express.json), apply the minimal fix. If the fix is operational (server must be restarted to load new routes, or the .env URL must change), state the exact commands I need to run. Do NOT modify tested files in src/. After any code change, run npm run test:unit in apps/provider (expect 175 passing) and report.
 
 Note: the API server is started with npx tsx server/index.ts from the repo root and must be restarted to pick up route changes. The Neon DATABASE_URL is set in the root .env and is valid.
+
+## Prompt 196
+
+In the Narley v3 provider app, the My Posts screen's Edit and Delete buttons don't work. Wire them to work AND persist to the Neon database (matching the resource persistence already built for create/load). Use the app's existing tested logic — do NOT reimplement or modify tested files in src/.
+
+First, investigate screens/MyPostsScreen.tsx, the detail/modal card component, state/ResourceStore.tsx, src/api/client.ts, and server/index.ts. Report why Edit currently does nothing.
+
+Backend — add two persistence endpoints to server/index.ts:
+
+PATCH /resources/:id (edit) — call the tested updateResource(resourceId, changes, deps) from apps/provider/src/resources/updateResource.ts with real Prisma deps: resource = the current resource fetched via prisma.resource.findUnique; membership = temporary ACTIVE stub { status: "ACTIVE", org: { status: "VERIFIED", active: true }, organizationId: "org_hum" }; update = prisma.resource.update; recordAuditEvent = prisma.auditEvent.create; findActiveByTitleAndAddress = real Prisma query. On success return the updated resource; on failure return JSON with a proper status code.
+
+DELETE /resources/:id (delete) — remove the resource from Postgres and return JSON { ok: true }, handling not-found with JSON.
+
+Add typed patchResource and deleteResource client functions, wire ResourceStore updateStoredResource/removeResource to persistence, and make My Posts support detail, pre-filled edit/save in place, and confirmed delete. Keep map pins/cards driven by the same store. Follow AGENTS.md constraints, do not modify tested src files, run provider unit tests, and report commands including the required server restart.
+
+## Prompt 197
+
+I am able to edit but I can't save, the message says API endppoint not found.
+
+## Prompt 198
+
+(base) jacquelinedelgado@Jacquelines-MacBook-Pro Narley % kill 27862
+kill: kill 27862 failed: no such process
+(base) jacquelinedelgado@Jacquelines-MacBook-Pro Narley %
+
+## Prompt 199
+
+In the Narley v3 provider app, screens/PostResourceScreen.tsx has a bug: after successfully submitting a resource, the form fields stay populated with the previous resource's values. When the user returns to the Post tab to create another resource, they see the old data pre-filled instead of empty fields.
+
+Fix it: after a successful submit (when addResource returns { ok: true }), reset ALL form fields to their empty/initial state — title, category (back to the default first chip or empty), custom category input, address, pinned coordinates, expiration date, phone, website, details, and clear any pinned map preview and error message. The form should be blank and ready for a new resource.
+
+Only reset on SUCCESS — if the submit fails ({ ok: false }), keep the entered values so the user can correct and retry. Follow AGENTS.md constraints, do not modify tested files in src/, run provider unit tests, and report changes.
+
+## Prompt 200
+
+On the My Posts screen while I am trying to enter information on the Details field, the keyboard hides the field while I am typing and I can't see the details field, I believe I need more scroll space.
+
+## Prompt 201
+
+I need a little more scroll space.
+
+## Prompt 202
+
+I need more scroll space on the My Posts screen as well.
+
+## Prompt 203
+
+I need a little more scroll space on the My Posts screen.
+
+## Prompt 204
+
+On the Resource card, the categories should be Red.
+
+## Prompt 205
+
+On the profile screen the labels are not the same width as the Logo, but it should be so that it looks uniform.
+
+## Prompt 206
+
+Is the weather alerts toggle wired up?
+
+## Prompt 207
+
+In the Narley v3 provider app, wire the "Weather alerts" toggle (currently UI-only, in the Profile screen) so it actually produces weather alerts, using the app's existing tested logic. Do NOT modify or reimplement tested files in src/ — import and use them.
+
+First, investigate and report the tested weather/alert logic in apps/provider/src/reports — specifically forecastTemperatureAlert, getAlertsWithSetting, and activeAlertCount — and TESTING.md's approved weather-alert spec. Then fetch Open-Meteo daily maximum Fahrenheit forecasts for New London, CT (41.3557, -72.0995), map them to the tested logic, gate and count alerts using the tested toggle behavior, display the alert on the Alerts tab and badge, and persist the toggle with device storage. If mapping is non-trivial, implement it test-first. Follow AGENTS.md constraints, do not change tested files, run provider unit tests, and report all changes and commands.
+
+## Prompt 208
+
+1. commit all changes please, 2. In the Narley v3 apps, replace the current map markers with a custom, config-driven category pin system so pins stand out from the map's default POI markers. Follow the architecture in PIN-SYSTEM.md (approved by the project owner — build it). The pin design is confirmed: a colored teardrop/map-pin shape with a white inner circle containing a colored category icon and a subtle shadow — matching the "Narley Map Pin Legend" style (bold colored pins, not the small default map dots).
+
+Create a shared resourceCategories.ts where each category defines { id, label, icon, iconColor, accessibilityLabel }: Food Bank/basket/green #22C55E; Soup Kitchen/restaurant/orange #F59E0B; Charging Station/battery-charging/blue #2563EB; Shelter/bed/purple #6B21A8; plus a default/custom star in deep green #0F4D35 labeled "Community resource". The UI must always read pin values from config and safely fall back to the default.
+
+Create reusable MapPin.tsx with the approved shape, inner circle, icon, shadow, and accessible label. Use it as a custom react-native-maps Marker child in the provider MapScreen. Synchronize cards and detail modals to the same category icon/color config. Pins must not rely on color alone. Follow AGENTS.md constraints, do not modify tested src files, run provider unit tests, report changes. 3. add all remaining prompts to prompts.md please.

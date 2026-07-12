@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import {
   Platform,
@@ -12,13 +13,17 @@ import {
 import MapView, { Marker } from "react-native-maps";
 
 import { getTheme } from "@shared-ui/theme/theme";
+import {
+  DEFAULT_RESOURCE_CATEGORY,
+  RESOURCE_CATEGORIES,
+} from "@shared-ui/resourceCategories";
+import { MapPin } from "../components/MapPin";
 import { geocodeAddress } from "../src/resources/geocodeAddress";
 import { normalizePhone } from "../src/resources/normalizePhone";
 import { useAuth } from "../src/auth/useAuth";
 import { useResourceStore } from "../state/ResourceStore";
 
 const theme = getTheme(false);
-const categories = ["Food Bank", "Soup Kitchen", "Charging Station", "Shelter"] as const;
 const CUSTOM_CATEGORY = "+ Custom";
 
 type Coordinates = {
@@ -30,7 +35,7 @@ export const PostResourceScreen = () => {
   const { addResource } = useResourceStore();
   const { user } = useAuth();
   const [title, setTitle] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>(categories[0]);
+  const [selectedCategory, setSelectedCategory] = useState<string>(RESOURCE_CATEGORIES[0].label);
   const [customCategory, setCustomCategory] = useState("");
   const [address, setAddress] = useState("");
   const [coordinates, setCoordinates] = useState<Coordinates | null>(null);
@@ -203,7 +208,7 @@ export const PostResourceScreen = () => {
     }
 
     setTitle("");
-    setSelectedCategory(categories[0]);
+    setSelectedCategory(RESOURCE_CATEGORIES[0].label);
     setCustomCategory("");
     setAddress("");
     setCoordinates(null);
@@ -239,14 +244,24 @@ export const PostResourceScreen = () => {
         <View style={styles.group}>
           <Text nativeID="resource-category-label" style={styles.label}>Category</Text>
           <View accessibilityLabelledBy="resource-category-label" style={styles.chips}>
-            {[...categories, CUSTOM_CATEGORY].map((item) => (
+            {[...RESOURCE_CATEGORIES, { ...DEFAULT_RESOURCE_CATEGORY, label: CUSTOM_CATEGORY }].map((item) => (
               <Pressable
+                accessibilityLabel={`Select ${item.accessibilityLabel} category`}
                 accessibilityRole="button"
-                key={item}
-                onPress={() => setSelectedCategory(item)}
-                style={[styles.chip, selectedCategory === item && styles.chipSelected]}
+                key={item.id}
+                onPress={() => setSelectedCategory(item.label)}
+                style={[
+                  styles.chip,
+                  { borderColor: item.iconColor },
+                  selectedCategory === item.label && { backgroundColor: item.iconColor },
+                ]}
               >
-                <Text style={styles.chipText}>{item}</Text>
+                <Ionicons
+                  color={selectedCategory === item.label ? theme.colors.textInverse : item.iconColor}
+                  name={item.icon}
+                  size={16}
+                />
+                <Text style={styles.chipText}>{item.label}</Text>
               </Pressable>
             ))}
           </View>
@@ -304,7 +319,9 @@ export const PostResourceScreen = () => {
               }}
               style={styles.previewMap}
             >
-              <Marker coordinate={coordinates} title={title.trim() || "New resource"} />
+              <Marker anchor={{ x: 0.5, y: 1 }} coordinate={coordinates} title={title.trim() || "New resource"}>
+                <MapPin category={category} />
+              </Marker>
             </MapView>
           </View>
         )}
@@ -442,12 +459,15 @@ const styles = StyleSheet.create({
   },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: theme.spacing.sm },
   chip: {
+    alignItems: "center",
     backgroundColor: theme.colors.surfaceDark,
+    borderWidth: 1,
     borderRadius: theme.radius.lg,
+    flexDirection: "row",
+    gap: 6,
     paddingHorizontal: 12,
     paddingVertical: 9,
   },
-  chipSelected: { backgroundColor: theme.colors.cta },
   chipText: { color: theme.colors.textInverse, fontWeight: "700" },
   previewMapCard: {
     borderRadius: theme.radius.xl,

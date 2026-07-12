@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { getTheme } from "@shared-ui/theme/theme";
+import { CategoryBadge } from "./CategoryBadge";
 
 export type ProviderCardData = {
   id: string;
@@ -32,7 +33,7 @@ export const ProviderCard = ({ item, onPress, actions }: ProviderCardProps) => (
   >
     {(item.category || item.status) && (
       <View style={styles.header}>
-        <Text style={styles.category}>{item.category}</Text>
+        {!!item.category && <CategoryBadge category={item.category} />}
         <Text style={styles.status}>{item.status}</Text>
       </View>
     )}
@@ -63,7 +64,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 8,
   },
-  category: { color: theme.colors.danger, fontSize: 12, fontWeight: "900" },
   status: { color: "#0F766E", fontSize: 13, fontWeight: "900" },
   title: {
     color: theme.colors.text,

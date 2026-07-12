@@ -2,6 +2,7 @@ import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-nati
 
 import { getTheme } from "@shared-ui/theme/theme";
 import type { ProviderCardData } from "./ProviderCard";
+import { CategoryBadge } from "./CategoryBadge";
 
 type ProviderDetailModalProps = {
   item: ProviderCardData | null;
@@ -30,7 +31,7 @@ export const ProviderDetailModal = ({ item, onClose, children }: ProviderDetailM
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
               {(item.category || item.status) && (
                 <View style={styles.pills}>
-                  {!!item.category && <Text style={[styles.pill, styles.category]}>{item.category}</Text>}
+                  {!!item.category && <CategoryBadge category={item.category} />}
                   {!!item.status && <Text style={[styles.pill, styles.status]}>{item.status}</Text>}
                 </View>
               )}
@@ -115,7 +116,6 @@ const styles = StyleSheet.create({
   closeText: { color: theme.colors.text, fontSize: 24, fontWeight: "900", lineHeight: 26 },
   pills: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginBottom: 14, paddingRight: 48 },
   pill: { borderRadius: 999, fontSize: 12, fontWeight: "900", overflow: "hidden", paddingHorizontal: 12, paddingVertical: 6 },
-  category: { backgroundColor: "#F2E7C9", color: "#B7791F" },
   status: { backgroundColor: "#DDF7F1", color: "#0F766E" },
   title: { color: theme.colors.text, fontSize: 24, fontWeight: "900", lineHeight: 30, marginBottom: 18, paddingRight: 34 },
   block: { marginBottom: 14 },
