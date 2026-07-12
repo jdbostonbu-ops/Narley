@@ -8,9 +8,12 @@ import {
 } from "react";
 
 import {
+  deleteResource,
   getResources,
+  patchResource,
   postResource,
   type CreateResourcePayload,
+  type UpdateResourcePayload,
 } from "../src/api/client";
 
 export type StoredResource = {
@@ -28,7 +31,11 @@ export type StoredResource = {
   organizationId: string;
 };
 
-export type StoredResourceChanges = Partial<Omit<StoredResource, "id">>;
+export type StoredResourceChanges = UpdateResourcePayload;
+
+type ResourceMutationResult =
+  | { ok: true; error?: never }
+  | { ok: false; error: string };
 
 type ResourceStoreValue = {
   resources: readonly StoredResource[];
@@ -37,11 +44,11 @@ type ResourceStoreValue = {
   addResource: (
     resource: CreateResourcePayload,
   ) => Promise<{ ok: true; resource: StoredResource } | { ok: false; error: string }>;
-  removeResource: (resourceId: string) => void;
+  removeResource: (resourceId: string) => Promise<ResourceMutationResult>;
   updateStoredResource: (
     resourceId: string,
     changes: StoredResourceChanges,
-  ) => void;
+  ) => Promise<ResourceMutationResult>;
 };
 
 const ResourceStoreContext = createContext<ResourceStoreValue | null>(null);
@@ -88,18 +95,32 @@ export const ResourceStoreProvider = ({ children }: { children: ReactNode }) => 
     setResources((current) => [...current, result.resource]);
     return { ok: true as const, resource: result.resource };
   };
-  const removeResource = (resourceId: string) => {
+  const removeResource = async (resourceId: string): Promise<ResourceMutationResult> => {
+    const result = await deleteResource(resourceId);
+
+    if (!result.ok) {
+      return result;
+    }
+
     setResources((current) => current.filter(({ id }) => id !== resourceId));
+    return { ok: true };
   };
-  const updateStoredResource = (
+  const updateStoredResource = async (
     resourceId: string,
     changes: StoredResourceChanges,
-  ) => {
+  ): Promise<ResourceMutationResult> => {
+    const result = await patchResource(resourceId, changes);
+
+    if (!result.ok) {
+      return result;
+    }
+
     setResources((current) => current.map((resource) =>
       resource.id === resourceId
-        ? { ...resource, ...changes, id: resource.id }
+        ? result.resource
         : resource
     ));
+    return { ok: true };
   };
   const value = useMemo(
     () => ({

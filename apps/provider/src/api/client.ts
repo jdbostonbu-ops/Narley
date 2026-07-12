@@ -35,6 +35,19 @@ type CreateResourceResult =
   | { ok: true; resource: ApiResource; error?: never }
   | { ok: false; resource?: never; error: string };
 
+export type UpdateResourcePayload = Partial<Omit<
+  ApiResource,
+  "id" | "status" | "organizationId"
+>>;
+
+type UpdateResourceResult =
+  | { ok: true; resource: ApiResource; error?: never }
+  | { ok: false; resource?: never; error: string };
+
+type DeleteResourceResult =
+  | { ok: true; error?: never }
+  | { ok: false; error: string };
+
 const configuredBaseUrl = process.env.EXPO_PUBLIC_API_URL;
 
 export const API_BASE_URL = configuredBaseUrl?.replace(/\/+$/, "") || "http://localhost:4000";
@@ -222,6 +235,83 @@ export const postResource = async (
     return {
       ok: false,
       error: error instanceof Error ? error.message : "Unable to create resource",
+    };
+  }
+};
+
+export const patchResource = async (
+  resourceId: string,
+  changes: UpdateResourcePayload,
+): Promise<UpdateResourceResult> => {
+  try {
+    const body = {
+      ...changes,
+      ...(Object.prototype.hasOwnProperty.call(changes, "phone")
+        ? { phone: changes.phone ?? null }
+        : {}),
+      ...(Object.prototype.hasOwnProperty.call(changes, "website")
+        ? { website: changes.website ?? null }
+        : {}),
+    };
+    const response = await fetch(`${API_BASE_URL}/resources/${resourceId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const parsedResponse = await readJsonResponse(response);
+
+    if (!parsedResponse.ok) {
+      return { ok: false, error: parsedResponse.error };
+    }
+
+    const payload = parsedResponse.payload;
+
+    if (!response.ok || !isRecord(payload)) {
+      const error = isRecord(payload) && typeof payload.error === "string"
+        ? payload.error
+        : "Unable to update resource";
+      return { ok: false, error };
+    }
+
+    const updatedResource = parseApiResource(payload.resource);
+    return updatedResource === null
+      ? { ok: false, error: "Invalid resource response" }
+      : { ok: true, resource: updatedResource };
+  } catch (error: unknown) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : "Unable to update resource",
+    };
+  }
+};
+
+export const deleteResource = async (
+  resourceId: string,
+): Promise<DeleteResourceResult> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/resources/${resourceId}`, {
+      method: "DELETE",
+    });
+    const parsedResponse = await readJsonResponse(response);
+
+    if (!parsedResponse.ok) {
+      return { ok: false, error: parsedResponse.error };
+    }
+
+    const payload = parsedResponse.payload;
+
+    if (!response.ok || !isRecord(payload) || payload.ok !== true) {
+      const error = isRecord(payload) && typeof payload.error === "string"
+        ? payload.error
+        : "Unable to delete resource";
+      return { ok: false, error };
+    }
+
+    return { ok: true };
+  } catch (error: unknown) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : "Unable to delete resource",
     };
   }
 };

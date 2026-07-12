@@ -2,6 +2,7 @@ import express, { type ErrorRequestHandler } from "express";
 import cors from "cors";
 import { login } from "../apps/provider/src/auth/login";
 import { createResource } from "../apps/provider/src/resources/createResource";
+import { updateResource } from "../apps/provider/src/resources/updateResource";
 import { prisma } from "./prisma";
 
 const app = express();
@@ -191,6 +192,159 @@ app.get("/resources", async (_req, res) => {
     });
   } catch {
     return res.status(500).json({ error: "Unable to load resources" });
+  }
+});
+
+const parseResourceChanges = (
+  value: unknown,
+): Record<string, unknown> | null => {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const changes: Record<string, unknown> = {};
+
+  for (const field of ["title", "category", "address", "phone", "website", "notes"] as const) {
+    if (typeof value[field] === "string" || value[field] === null) {
+      changes[field] = value[field];
+    }
+  }
+
+  for (const field of ["latitude", "longitude"] as const) {
+    if (typeof value[field] === "number") {
+      changes[field] = value[field];
+    }
+  }
+
+  if (Object.prototype.hasOwnProperty.call(value, "expiresAt")) {
+    changes.expiresAt = new Date(
+      typeof value.expiresAt === "string" ? value.expiresAt : Number.NaN,
+    );
+  }
+
+  return changes;
+};
+
+app.patch("/resources/:id", async (req, res) => {
+  const resourceId = req.params.id;
+  const changes = parseResourceChanges(req.body);
+
+  if (changes === null) {
+    return res.status(400).json({ error: "Invalid resource changes" });
+  }
+
+  try {
+    const currentResource = await prisma.resource.findUnique({
+      where: { id: resourceId },
+    });
+
+    if (currentResource === null) {
+      return res.status(404).json({ error: "Resource not found" });
+    }
+
+    const membership = {
+      status: "ACTIVE",
+      organizationId: "org_hum",
+      org: { status: "VERIFIED", active: true },
+    };
+    const updateResult: {
+      resource: Awaited<ReturnType<typeof prisma.resource.update>> | null;
+    } = { resource: null };
+    const result = await updateResource(resourceId, changes, {
+      resource: { organizationId: currentResource.organizationId },
+      membership,
+      update: async (id, approvedChanges) => {
+        const data = {
+          ...(typeof approvedChanges.title === "string"
+            ? { title: approvedChanges.title }
+            : {}),
+          ...(typeof approvedChanges.category === "string"
+            ? { category: approvedChanges.category }
+            : {}),
+          ...(typeof approvedChanges.address === "string"
+            ? { address: approvedChanges.address }
+            : {}),
+          ...(typeof approvedChanges.latitude === "number"
+            ? { latitude: approvedChanges.latitude }
+            : {}),
+          ...(typeof approvedChanges.longitude === "number"
+            ? { longitude: approvedChanges.longitude }
+            : {}),
+          ...(approvedChanges.expiresAt instanceof Date
+            ? { expiresAt: approvedChanges.expiresAt }
+            : {}),
+          ...(typeof approvedChanges.phone === "string" || approvedChanges.phone === null
+            ? { phone: approvedChanges.phone }
+            : {}),
+          ...(typeof approvedChanges.website === "string" || approvedChanges.website === null
+            ? { website: approvedChanges.website }
+            : {}),
+        };
+        updateResult.resource = await prisma.resource.update({
+          where: { id },
+          data,
+        });
+        return updateResult.resource;
+      },
+      insert: async () => undefined,
+      recordAuditEvent: async (event) => prisma.auditEvent.create({
+        data: { ...event, providerId: currentResource.providerId },
+      }),
+      findActiveByTitleAndAddress: async (title, address) =>
+        prisma.resource.findFirst({
+          where: {
+            title,
+            ...(address === undefined ? {} : { address }),
+            status: "ACTIVE",
+          },
+        }),
+    });
+
+    if (!result.ok) {
+      const status = result.error.includes("authorized")
+        ? 403
+        : result.error.includes("Duplicate")
+          ? 409
+          : 400;
+      return res.status(status).json({ error: result.error });
+    }
+
+    if (updateResult.resource === null) {
+      return res.status(500).json({ error: "Resource was not updated" });
+    }
+
+    return res.json({
+      resource: {
+        ...updateResult.resource,
+        notes: typeof changes.notes === "string" ? changes.notes : "",
+      },
+    });
+  } catch {
+    return res.status(500).json({ error: "Unable to update resource" });
+  }
+});
+
+app.delete("/resources/:id", async (req, res) => {
+  const resourceId = req.params.id;
+
+  try {
+    const currentResource = await prisma.resource.findUnique({
+      where: { id: resourceId },
+      select: { id: true },
+    });
+
+    if (currentResource === null) {
+      return res.status(404).json({ error: "Resource not found" });
+    }
+
+    await prisma.resource.update({
+      where: { id: resourceId },
+      data: { status: "EXPIRED" },
+    });
+
+    return res.json({ ok: true });
+  } catch {
+    return res.status(500).json({ error: "Unable to delete resource" });
   }
 });
 

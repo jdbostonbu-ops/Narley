@@ -6,9 +6,9 @@
 
 **Document Version:** 3.0.0
 
-**Status:** Draft (Pending CPA Design Approval)
+**Status:** Approved (Project owner executive decision)
 
-**Last Updated:** YYYY-MM-DD
+**Last Updated:** 2026-07-12
 
 ---
 
@@ -18,7 +18,7 @@ This document defines the architecture, behavior, accessibility requirements, an
 
 The goal is to provide a consistent, accessible, and configurable visual language for community resources displayed on the Reader and Provider maps.
 
-The pin system should allow icon and color changes without requiring application logic changes.
+The pin system must allow icon and color changes without requiring application logic changes.
 
 ---
 
@@ -28,7 +28,7 @@ The map is the primary navigation experience in Narley.
 
 Pins should allow Readers to quickly identify nearby resources while remaining understandable to users with varying literacy levels and accessibility needs.
 
-The pin system should prioritize:
+The pin system prioritizes:
 
 - Simplicity
 - Accessibility
@@ -36,68 +36,68 @@ The pin system should prioritize:
 - Consistency
 - Configurability
 
+Narley pins must stand out clearly from the map's default POI (point-of-interest) markers rendered by Apple/Google Maps.
+
 ---
 
 # Version 3 Design
 
-Version 3 introduces a standardized reusable map pin.
+Version 3 introduces a standardized, reusable map pin.
 
 Characteristics:
 
-- White pin body
-- Rounded map-pin shape
-- Category icon centered inside the pin
-- Colored category icon
-- Subtle shadow for visibility
-- Consistent size across all categories
+- Colored teardrop / map-pin shape (color is the category color)
+- White inner circle centered in the pin
+- Category icon centered inside the white circle, drawn in the category color
+- Subtle shadow for visibility and separation from the map
+- Consistent size and shape across all categories
 
-Only the icon changes between categories.
+Only the color and icon change between categories.
 
-The pin shape remains identical.
+The pin shape remains identical for every category.
 
 ---
 
-# Pending CPA Approval
+# Approval Status
 
-The architecture is approved.
+The architecture and visual design are approved by the project owner.
 
-The final icon selection and visual styling remain subject to CPA review.
+Category names, icons, and colors are defined in this document and are the single source of truth.
 
-Changing icons or colors must not require application code changes.
+Changing icons or colors must be done through the category configuration and must not require application code changes.
 
 ---
 
 # Pin Architecture
 
-Pins should be rendered from reusable components.
+Pins are rendered from reusable, configuration-driven components.
 
-Recommended architecture:
+Architecture:
 
 ```text
-resourceCategories.ts
+resourceCategories.ts   (single source of truth for categories)
 
 ↓
 
-MapPin.tsx
+MapPin.tsx              (reusable pin renderer)
 
 ↓
 
-Map Screen
+Map Screen              (renders a MapPin per resource)
 ```
 
-The UI should never contain hard-coded pin colors or icons.
+The UI must never contain hard-coded pin colors or icons. All values come from `resourceCategories.ts`.
 
 ---
 
 # Category Configuration
 
-Each resource category should define:
+Each resource category defines:
 
-- Identifier
-- Display Name
-- Icon
-- Icon Color
-- Resource Card Icon
+- Identifier (id)
+- Display Name (label)
+- Icon (vector icon name)
+- Icon / Pin Color
 - Accessibility Label
 
 Example:
@@ -112,7 +112,29 @@ Example:
 }
 ```
 
-The rendering component should consume this configuration rather than duplicating values.
+The rendering component and the Post form category chips both consume this configuration. Chips and pins must display the same icon and color for a given category.
+
+---
+
+# Version 3 Category Set
+
+The following categories are the approved Version 3 set. The Post form chips, the map pins, and the resource cards all read from this same set.
+
+| Category | id | Icon | Color |
+|----------|------|------|-------|
+| Shelter | shelter | bed | Blue `#2563EB` |
+| Soup Kitchen | soup_kitchen | restaurant | Orange `#F59E0B` |
+| Food Pantry | food_pantry | basket | Green `#22C55E` |
+| Charging Station | charging_station | battery-charging | Teal `#57C7B6` |
+| Community Center | community_center | business | Purple `#6B21A8` |
+| Library | library | book | Brown `#7C4A02` |
+| Transit | transit | bus | Yellow `#EAB308` |
+| Employment | employment | briefcase | Navy `#1E3A5F` |
+| Custom / Other | custom | star | Deep Green `#0F4D35` |
+
+The **Custom / Other** category is used for the "+ Custom" chip (resources that do not fit a preset category, such as tents, bus passes, or career fairs). It also serves as the default fallback pin.
+
+Additional categories may be added by updating this table and the configuration.
 
 ---
 
@@ -120,17 +142,17 @@ The rendering component should consume this configuration rather than duplicatin
 
 The reusable `MapPin` component is responsible for:
 
-- Drawing the pin shape.
-- Applying the white background.
-- Rendering the category icon.
-- Applying the configured icon color.
-- Applying accessibility labels.
+- Drawing the teardrop pin shape in the category color.
+- Rendering the white inner circle.
+- Rendering the category icon in the category color inside the circle.
+- Applying the subtle shadow.
+- Applying the accessibility label.
 
-Individual screens should not draw pins directly.
+Individual screens must not draw pins directly.
 
 ---
 
-# Reader Map Behavior
+# Reader and Provider Map Behavior
 
 Each resource record produces:
 
@@ -150,35 +172,15 @@ Resource Card
 Resource Detail Modal
 ```
 
-These three views represent the same resource.
+These views represent the same resource and must show the same category icon and color.
 
 ---
 
 # Card Synchronization
 
-Every category icon used on the map should also appear on the corresponding resource card.
+Every category icon and color used on a map pin must also appear on the corresponding resource card and detail modal.
 
 Readers should immediately recognize that the card and the pin represent the same resource.
-
----
-
-# Category Icons
-
-The following table represents the proposed Version 3 icon set.
-
-| Category | Icon | Icon Color |
-|----------|------|------------|
-| Shelter | Bed | Blue |
-| Food Pantry | Shopping Basket | Green |
-| Soup Kitchen | Bowl / Utensils | Orange |
-| Community Center | People / Community | Purple |
-| Library | Book | Brown |
-| Transit | Bus | Yellow |
-| Employment | Briefcase | Navy |
-| Healthcare *(if approved)* | Red Cross | Red |
-| Hospital *(if approved)* | H | Red |
-
-Additional categories may be added following CPA approval.
 
 ---
 
@@ -186,10 +188,10 @@ Additional categories may be added following CPA approval.
 
 Pins must not rely on color alone.
 
-Each pin should provide:
+Each pin provides:
 
-- Icon
-- Accessible label
+- An icon
+- An accessible label
 - Corresponding text within the resource card and modal
 
 Screen readers should announce the category when the pin receives focus.
@@ -198,9 +200,9 @@ Screen readers should announce the category when the pin receives focus.
 
 # Scalability
 
-New categories should be added by updating the category configuration rather than modifying map rendering logic.
+New categories are added by updating the category configuration (`resourceCategories.ts`) and the Version 3 Category Set table, not by modifying map rendering logic.
 
-The map should automatically support newly configured categories.
+The map automatically supports newly configured categories.
 
 ---
 
@@ -208,7 +210,7 @@ The map should automatically support newly configured categories.
 
 Pins should be lightweight.
 
-Avoid loading separate image assets for each category when vector icons can be rendered efficiently.
+Prefer vector icons over separate raster image assets per category.
 
 If platform limitations require raster assets, generated SVG or PNG files may be introduced while preserving the same configuration architecture.
 
@@ -216,55 +218,37 @@ If platform limitations require raster assets, generated SVG or PNG files may be
 
 # Error Handling
 
-If a category configuration is missing:
+If a category configuration is missing or unknown:
 
-- Display the default Narley pin.
-- Display a generic resource icon.
+- Display the default Narley pin (the Custom / Other pin: star icon, deep green).
+- Display a generic resource icon on the card.
 - Log the configuration error for development.
 
-The application should never crash because of an unknown category.
+The application must never crash because of an unknown category.
 
 ---
 
 # Business Rules
 
-The following rules apply:
-
 - Every resource has exactly one category.
-- Every category has exactly one configured icon.
+- Every category has exactly one configured icon and color.
 - Every category uses the same reusable pin shape.
-- Cards and pins always display matching icons.
+- Cards and pins always display matching icons and colors.
+- Chips, pins, and cards all read from the same category configuration.
 - Pin appearance is driven by configuration, not business logic.
 
 ---
 
-# Future Enhancements
-
-Future versions may include:
-
-- Animated highlighted pins
-- Cluster pins for dense areas
-- Temporary event pins
-- Seasonal resource overlays
-- Agency-specific category icons
-
-These enhancements require documentation and approval before implementation.
-
----
-
-# Out of Scope
-
-Version 3 does not include:
+# Out of Scope (Version 3)
 
 - Animated decorative pins
 - User-customizable pin icons
-- Multiple pin shapes
-- Category-specific pin shapes
+- Multiple or category-specific pin shapes
 - 3D pins
+- Cluster pins (may be added in a future version with approval)
 
 ---
 
 # Guiding Principle
 
-A Reader should be able to identify the type of resource at a glance using a consistent pin shape, a recognizable icon, and a synchronized resource card, regardless of language or reading ability.
-
+A Reader should be able to identify the type of resource at a glance using a consistent pin shape, a recognizable icon, a distinct category color, and a synchronized resource card — regardless of language or reading ability.

@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 8,
   },
-  category: { color: "#B7791F", fontSize: 12, fontWeight: "900" },
+  category: { color: theme.colors.danger, fontSize: 12, fontWeight: "900" },
   status: { color: "#0F766E", fontSize: 13, fontWeight: "900" },
   title: {
     color: theme.colors.text,

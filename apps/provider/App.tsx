@@ -20,6 +20,10 @@ import { ResourceStoreProvider } from "./state/ResourceStore";
 import { getTheme } from "@shared-ui/theme/theme";
 import { AuthProvider, useAuth } from "./src/auth/useAuth";
 import { resolveAuthView } from "./src/auth/resolveAuthView";
+import {
+  WeatherAlertsProvider,
+  useWeatherAlerts,
+} from "./state/WeatherAlertsStore";
 
 type ProviderTabParamList = {
   Map: undefined;
@@ -56,8 +60,11 @@ const tabIcons: Record<
   Profile: "person-circle",
 };
 
-const ProviderTabs = () => (
-  <Tab.Navigator
+const ProviderTabs = () => {
+  const { alertCount } = useWeatherAlerts();
+
+  return (
+    <Tab.Navigator
     initialRouteName="Map"
     screenOptions={({ route }) => ({
       header: AppHeader,
@@ -71,6 +78,13 @@ const ProviderTabs = () => (
       tabBarLabelStyle: {
         fontSize: theme.typography.small.fontSize,
         fontWeight: theme.typography.small.fontWeight,
+      },
+      tabBarBadge: route.name === "Alerts" && alertCount > 0
+        ? alertCount
+        : undefined,
+      tabBarBadgeStyle: {
+        backgroundColor: theme.colors.danger,
+        color: theme.colors.textInverse,
       },
       tabBarStyle: {
         backgroundColor: theme.colors.appBackground,
@@ -89,8 +103,9 @@ const ProviderTabs = () => (
       component={ProfileScreen}
       options={{ tabBarButton: () => null }}
     />
-  </Tab.Navigator>
-);
+    </Tab.Navigator>
+  );
+};
 
 const AuthenticatedApp = () => {
   const { user, loading } = useAuth();
@@ -103,7 +118,9 @@ const AuthenticatedApp = () => {
 
   return (
     <ResourceStoreProvider>
-      <ProviderTabs />
+      <WeatherAlertsProvider>
+        <ProviderTabs />
+      </WeatherAlertsProvider>
     </ResourceStoreProvider>
   );
 };

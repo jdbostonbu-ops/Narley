@@ -15,6 +15,17 @@ export const MyPostsScreen = () => {
   const [editingResource, setEditingResource] = useState<StoredResource | null>(null);
   const selectedResource = resources.find(({ id }) => id === selectedId) ?? null;
 
+  const deleteConfirmed = async (resource: StoredResource) => {
+    const result = await removeResource(resource.id);
+
+    if (!result.ok) {
+      Alert.alert("Unable to delete resource", result.error);
+      return;
+    }
+
+    setSelectedId(null);
+  };
+
   const confirmDelete = (resource: StoredResource) => {
     Alert.alert(
       "Delete resource?",
@@ -25,8 +36,7 @@ export const MyPostsScreen = () => {
           text: "Delete",
           style: "destructive",
           onPress: () => {
-            removeResource(resource.id);
-            setSelectedId(null);
+            void deleteConfirmed(resource);
           },
         },
       ],
@@ -96,7 +106,7 @@ export const MyPostsScreen = () => {
 
 const styles = StyleSheet.create({
   screen: { backgroundColor: theme.colors.appBackground, flex: 1 },
-  content: { paddingBottom: 140, paddingHorizontal: 8, paddingTop: 24 },
+  content: { paddingBottom: 300, paddingHorizontal: 8, paddingTop: 24 },
   title: {
     color: theme.colors.textInverse,
     fontSize: 32,

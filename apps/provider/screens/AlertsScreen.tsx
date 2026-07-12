@@ -1,39 +1,47 @@
 import { useState } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
 
 import { getTheme } from "@shared-ui/theme/theme";
 import { ProviderCard, type ProviderCardData } from "../components/ProviderCard";
 import { ProviderDetailModal } from "../components/ProviderDetailModal";
+import { REPORT_ALERTS } from "../constants/providerAlerts";
+import { useWeatherAlerts } from "../state/WeatherAlertsStore";
 
 const theme = getTheme(false);
 
-const alertPreview: ProviderCardData[] = [
-  {
-    id: "report-alert-preview",
-    title: "Resource information may have changed",
-    notes: "An AI-assisted provider report will appear here with its findings and confidence.",
-    metadata: "Report preview",
-  },
-];
-
 export const AlertsScreen = () => {
+  const {
+    weatherAlerts,
+    alertCount,
+    loading,
+    error,
+  } = useWeatherAlerts();
   const [selectedAlert, setSelectedAlert] = useState<ProviderCardData | null>(null);
+  const alerts = [...REPORT_ALERTS, ...weatherAlerts];
 
   return (
     <View style={styles.screen}>
       <FlatList
         contentContainerStyle={styles.content}
-        data={alertPreview}
+        data={alerts}
         keyExtractor={(item) => item.id}
         ListHeaderComponent={(
           <View style={styles.header}>
             <View style={styles.sectionHeader}>
               <Text accessibilityRole="header" style={styles.sectionTitle}>Your alerts</Text>
-              <Text accessibilityLabel={`${alertPreview.length} alerts`} style={styles.count}>
-                {alertPreview.length}
+              <Text accessibilityLabel={`${alertCount} alerts`} style={styles.count}>
+                {alertCount}
               </Text>
             </View>
             <Text style={styles.subtitle}>Reports and urgent changes that need your review.</Text>
+          </View>
+        )}
+        ListFooterComponent={(
+          <View>
+            {loading && <ActivityIndicator color={theme.colors.accent} />}
+            {error !== null && (
+              <Text accessibilityLiveRegion="polite" style={styles.error}>{error}</Text>
+            )}
           </View>
         )}
         renderItem={({ item }) => <ProviderCard item={item} onPress={() => setSelectedAlert(item)} />}
@@ -55,4 +63,11 @@ const styles = StyleSheet.create({
   sectionTitle: { color: theme.colors.textInverse, fontSize: 22, fontWeight: "900" },
   count: { color: "#CBD5E1", fontSize: 14, fontWeight: "900" },
   subtitle: { color: "#CBD5E1", fontSize: 15, lineHeight: 21, marginTop: 6 },
+  error: {
+    color: theme.colors.danger,
+    fontSize: 14,
+    fontWeight: "800",
+    marginTop: theme.spacing.md,
+    textAlign: "center",
+  },
 });

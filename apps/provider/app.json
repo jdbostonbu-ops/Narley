@@ -22,7 +22,8 @@
           "imageWidth": 224
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-secure-store"
     ],
     "experiments": {
       "reactCompiler": true

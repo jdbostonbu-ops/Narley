@@ -2,11 +2,17 @@ import { useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 
 import { getTheme } from "@shared-ui/theme/theme";
+import { useWeatherAlerts } from "../state/WeatherAlertsStore";
 
 const theme = getTheme(false);
 
 export const ProfileScreen = () => {
-  const [weatherAlerts, setWeatherAlerts] = useState(false);
+  const {
+    weatherAlertsOn,
+    setWeatherAlertsOn,
+    loading: weatherAlertsLoading,
+    error: weatherAlertsError,
+  } = useWeatherAlerts();
   const [language, setLanguage] = useState("English");
 
   return (
@@ -30,13 +36,24 @@ export const ProfileScreen = () => {
             </View>
             <Switch
               accessibilityLabel="Weather alerts"
-              ios_backgroundColor="#334155"
-              onValueChange={setWeatherAlerts}
-              thumbColor={weatherAlerts ? "#57C7B6" : "#CBD5E1"}
-              trackColor={{ false: "#334155", true: "#0F766E" }}
-              value={weatherAlerts}
+              disabled={weatherAlertsLoading}
+              ios_backgroundColor={theme.colors.surfaceDark}
+              onValueChange={(enabled) => {
+                void setWeatherAlertsOn(enabled);
+              }}
+              thumbColor={weatherAlertsOn ? theme.colors.accent : theme.colors.textMuted}
+              trackColor={{
+                false: theme.colors.surfaceDark,
+                true: theme.colors.primary,
+              }}
+              value={weatherAlertsOn}
             />
           </View>
+          {weatherAlertsError !== null && (
+            <Text accessibilityLiveRegion="polite" style={styles.preferenceError}>
+              {weatherAlertsError}
+            </Text>
+          )}
         </View>
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Language</Text>
@@ -63,7 +80,12 @@ export const ProfileScreen = () => {
 
 const styles = StyleSheet.create({
   screen: { backgroundColor: "#020617", flex: 1 },
-  content: { gap: 14, padding: 18, paddingBottom: 132 },
+  content: {
+    gap: 14,
+    paddingBottom: 132,
+    paddingHorizontal: 8,
+    paddingTop: 18,
+  },
   header: { marginBottom: 4 },
   eyebrow: { color: theme.colors.accent, fontSize: 12, fontWeight: "900", marginBottom: 6 },
   title: { color: theme.colors.textInverse, fontSize: 23, fontWeight: "900" },
@@ -74,6 +96,12 @@ const styles = StyleSheet.create({
   toggleRow: { alignItems: "center", flexDirection: "row", gap: 12, paddingVertical: 10 },
   toggleCopy: { flex: 1 },
   toggleLabel: { color: theme.colors.text, fontSize: 15, fontWeight: "900", marginBottom: 2 },
+  preferenceError: {
+    color: theme.colors.danger,
+    fontSize: 13,
+    fontWeight: "800",
+    marginTop: theme.spacing.sm,
+  },
   languages: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginBottom: 10 },
   language: { backgroundColor: theme.colors.border, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 10 },
   languageSelected: { backgroundColor: "#0F766E" },

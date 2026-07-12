@@ -202,6 +202,16 @@ export const PostResourceScreen = () => {
       return;
     }
 
+    setTitle("");
+    setSelectedCategory(categories[0]);
+    setCustomCategory("");
+    setAddress("");
+    setCoordinates(null);
+    setExpiresAt("");
+    setPhone("");
+    setNormalizedPhone(null);
+    setWebsite("");
+    setDetails("");
     setMessageKind("success");
     setMessage("Resource submitted successfully.");
     setIsSubmitting(false);

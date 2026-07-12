@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import {
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -10,7 +12,6 @@ import {
 } from "react-native";
 
 import { getTheme } from "@shared-ui/theme/theme";
-import { updateResource as updateResourceLogic } from "../src/resources/updateResource";
 import {
   type StoredResource,
   type StoredResourceChanges,
@@ -105,14 +106,7 @@ export const EditResourceModal = ({ resource, onClose }: EditResourceModalProps)
       notes: notes.trim(),
       expiresAt: parseDate(expiresAt),
     };
-    const result = await updateResourceLogic(resource.id, changes, {
-      resource: { organizationId: resource.organizationId },
-      membership: { organizationId: "org_hum", status: "ACTIVE" },
-      update: async (resourceId) => updateStoredResource(resourceId, changes),
-      insert: async () => undefined,
-      recordAuditEvent: async () => undefined,
-      findActiveByTitleAndAddress: async () => null,
-    });
+    const result = await updateStoredResource(resource.id, changes);
 
     if (!result.ok) {
       setError(result.error);
@@ -134,10 +128,17 @@ export const EditResourceModal = ({ resource, onClose }: EditResourceModalProps)
 
   return (
     <Modal animationType="slide" onRequestClose={onClose} transparent visible={resource !== null}>
-      <View style={styles.overlay}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.overlay}
+      >
         <Pressable accessibilityLabel="Close edit resource" onPress={onClose} style={styles.backdrop} />
         <View style={styles.sheet}>
-          <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          <ScrollView
+            contentContainerStyle={styles.content}
+            keyboardDismissMode="interactive"
+            keyboardShouldPersistTaps="handled"
+          >
             <View style={styles.header}>
               <Text accessibilityRole="header" style={styles.title}>Edit resource</Text>
               <Pressable accessibilityLabel="Close edit resource" accessibilityRole="button" onPress={onClose} style={styles.close}>
@@ -204,7 +205,7 @@ export const EditResourceModal = ({ resource, onClose }: EditResourceModalProps)
             </View>
           </ScrollView>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 };
@@ -213,7 +214,7 @@ const styles = StyleSheet.create({
   overlay: { flex: 1, justifyContent: "flex-end" },
   backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: theme.colors.appBackground, opacity: 0.72 },
   sheet: { backgroundColor: theme.colors.appBackground, borderTopLeftRadius: theme.radius.xl, borderTopRightRadius: theme.radius.xl, maxHeight: "92%", overflow: "hidden" },
-  content: { gap: 12, padding: theme.spacing.lg, paddingBottom: 120 },
+  content: { gap: 12, padding: theme.spacing.lg, paddingBottom: 300 },
   header: { alignItems: "center", flexDirection: "row", justifyContent: "space-between" },
   title: { color: theme.colors.textInverse, fontSize: 24, fontWeight: "900" },
   close: { alignItems: "center", backgroundColor: theme.colors.surfaceDark, borderRadius: 20, height: 40, justifyContent: "center", width: 40 },
