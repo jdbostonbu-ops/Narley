@@ -15,10 +15,10 @@ import { getTheme } from "@shared-ui/theme/theme";
 import { createResource } from "../src/resources/createResource";
 import { geocodeAddress } from "../src/resources/geocodeAddress";
 import { normalizePhone } from "../src/resources/normalizePhone";
-import { useResourceStore } from "../src/state/ResourceStore";
+import { useResourceStore } from "../state/ResourceStore";
 
 const theme = getTheme(false);
-const categories = ["Food", "Shelter", "Healthcare", "Transportation"] as const;
+const categories = ["Food Bank", "Soup Kitchen", "Charging Station", "Shelter"] as const;
 const CUSTOM_CATEGORY = "+ Custom";
 
 type Coordinates = {
@@ -64,6 +64,31 @@ export const PostResourceScreen = () => {
     if (!result.ok) {
       showError("Phone must contain exactly 10 digits.");
     }
+  };
+
+  const handleExpirationChange = (value: string) => {
+    const deletingAutoInsertedSlash =
+      value.length < expiresAt.length &&
+      expiresAt.endsWith("/") &&
+      value === expiresAt.slice(0, -1);
+    const inputDigits = value.replace(/\D/g, "").slice(0, 8);
+    const digits = deletingAutoInsertedSlash
+      ? inputDigits.slice(0, -1)
+      : inputDigits;
+
+    if (digits.length < 2) {
+      setExpiresAt(digits);
+      return;
+    }
+
+    if (digits.length < 4) {
+      setExpiresAt(`${digits.slice(0, 2)}/${digits.slice(2)}`);
+      return;
+    }
+
+    setExpiresAt(
+      `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`,
+    );
   };
 
   const handlePinAddress = async () => {
@@ -139,7 +164,17 @@ export const PostResourceScreen = () => {
       setNormalizedPhone(phoneResult.value);
     }
 
-    const expiration = new Date(`${expiresAt}T23:59:59`);
+    const expirationDigits = expiresAt.replace(/\D/g, "");
+    const expiration = expirationDigits.length === 8
+      ? new Date(
+          Number(expirationDigits.slice(4, 8)),
+          Number(expirationDigits.slice(0, 2)) - 1,
+          Number(expirationDigits.slice(2, 4)),
+          23,
+          59,
+          59,
+        )
+      : new Date(Number.NaN);
     const resource = {
       title: title.trim(),
       category,
@@ -286,13 +321,14 @@ export const PostResourceScreen = () => {
         )}
 
         <View style={styles.group}>
-          <Text nativeID="resource-expiration-label" style={styles.label}>Expiration date</Text>
+          <Text nativeID="resource-expiration-label" style={styles.label}>Expiration date (MM/DD/YYYY)</Text>
           <TextInput
             accessibilityLabel="Resource expiration date"
             accessibilityLabelledBy="resource-expiration-label"
+            keyboardType="number-pad"
             nativeID="resource-expiration-input"
-            onChangeText={setExpiresAt}
-            placeholder="YYYY-MM-DD"
+            onChangeText={handleExpirationChange}
+            placeholder="MM/DD/YYYY"
             placeholderTextColor={theme.colors.textMuted}
             style={styles.input}
             value={expiresAt}

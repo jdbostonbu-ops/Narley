@@ -14,7 +14,7 @@ import { MapScreen } from "./screens/MapScreen";
 import { MyPostsScreen } from "./screens/MyPostsScreen";
 import { PostResourceScreen } from "./screens/PostResourceScreen";
 import { ProfileScreen } from "./screens/ProfileScreen";
-import { ResourceStoreProvider } from "./src/state/ResourceStore";
+import { ResourceStoreProvider } from "./state/ResourceStore";
 import { getTheme } from "@shared-ui/theme/theme";
 
 type ProviderTabParamList = {

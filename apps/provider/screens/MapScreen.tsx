@@ -6,7 +6,7 @@ import { getTheme } from "@shared-ui/theme/theme";
 import { filterResourcesByZip } from "../src/resources/filterResourcesByZip";
 import { ProviderCard, type ProviderCardData } from "../components/ProviderCard";
 import { ProviderDetailModal } from "../components/ProviderDetailModal";
-import { useResourceStore } from "../src/state/ResourceStore";
+import { useResourceStore } from "../state/ResourceStore";
 
 const theme = getTheme(false);
 
@@ -87,7 +87,7 @@ export const MapScreen = () => {
         </MapView>
       </View>
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Your map listings</Text>
+        <Text style={styles.sectionTitle}>Nearby Resources</Text>
         <Text style={styles.count}>{visibleResources.length}</Text>
       </View>
       {visibleResources.length ? visibleResources.map((resource) => {
@@ -95,8 +95,14 @@ export const MapScreen = () => {
         return <ProviderCard item={item} key={resource.id} onPress={() => setSelectedResource(item)} />;
       }) : (
         <View style={styles.emptyCard}>
-          <Text style={styles.emptyTitle}>No resources found</Text>
-          <Text style={styles.emptyBody}>Try another city or ZIP code.</Text>
+          <Text style={styles.emptyTitle}>
+            {activeZip === null ? "No resources yet" : "No resources found"}
+          </Text>
+          <Text style={styles.emptyBody}>
+            {activeZip === null
+              ? "Resources you create from the Post screen will appear here."
+              : "Try another city or ZIP code."}
+          </Text>
         </View>
       )}
       </ScrollView>
