@@ -1,0 +1,117 @@
+// Prisma schema for Narley v3 — models match the tested logic shapes.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------- Auth / Login ----------
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  emailVerified Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+
+  memberships   Membership[]
+  resetTokens   ResetToken[]
+  auditEvents   AuditEvent[]  @relation("ProviderAudit")
+  resources     Resource[]    @relation("ProviderResources")
+}
+
+model Organization {
+  id       String  @id @default(cuid())
+  name     String
+  status   String  @default("PENDING") // VERIFIED when approved
+  active   Boolean @default(true)
+
+  memberships Membership[]
+  resources   Resource[]
+}
+
+model Membership {
+  id             String   @id @default(cuid())
+  status         String   @default("ACTIVE") // ACTIVE / REMOVED
+  userId         String
+  organizationId String
+
+  user         User         @relation(fields: [userId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@unique([userId, organizationId])
+}
+
+model ResetToken {
+  id        String    @id @default(cuid())
+  token     String    @unique
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+// ---------- Resources ----------
+
+model Resource {
+  id             String   @id @default(cuid())
+  title          String
+  category       String
+  address        String
+  latitude       Float
+  longitude      Float
+  expiresAt      DateTime
+  status         String   @default("ACTIVE") // ACTIVE / EXPIRED
+  phone          String?
+  website        String?
+  providerId     String
+  organizationId String
+  createdAt      DateTime @default(now())
+
+  provider     User         @relation("ProviderResources", fields: [providerId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
+  auditEvents  AuditEvent[]
+}
+
+model AuditEvent {
+  id         String   @id @default(cuid())
+  resourceId String
+  providerId String
+  event      String   // "created", "updated", etc.
+  timestamp  DateTime @default(now())
+
+  resource Resource @relation(fields: [resourceId], references: [id])
+  provider User     @relation("ProviderAudit", fields: [providerId], references: [id])
+}
+
+// ---------- Reports & Alerts ----------
+
+// Flow 2: provider reports another org's resource to Narley admin (permanent record)
+model ProviderReport {
+  id            String   @id @default(cuid())
+  address       String
+  providerName  String
+  providerEmail String
+  providerPhone String
+  details       String
+  createdAt     DateTime @default(now())
+}
+
+// Flow 1: reader report verified by AI, surfaced as a provider alert (transient)
+model ProviderAlert {
+  id         String   @id @default(cuid())
+  kind       String   @default("report") // "report" | "weather"
+  resourceId String?
+  address    String?
+  reason     String?  // the reader's selected reason
+  findings   String?
+  confidence String?
+  uncertain  Boolean  @default(false)
+  sources    String[] // AI source URLs
+  createdAt  DateTime @default(now())
+}

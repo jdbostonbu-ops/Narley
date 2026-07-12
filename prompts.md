@@ -878,3 +878,86 @@ make sure the screens are uniform by width as well on the reader app to match th
 ## Prompt 175
 
 add all remaining prompts in prompts.md please
+
+## Prompt 176
+
+can you tell me the the 2 weather api's used in these apps?
+
+## Prompt 177
+
+In provider app (apps/provider), wire the Post/Create Resource form to the app's existing tested logic. Import logic from src/resources; do NOT modify any files in src/resources, src/reports, src/alerts, src/auth.
+Form field fixes:
+
+Rename the "Geocode" button to "Pin Address".
+Add a "+ Custom" chip to the category picker that reveals a text input for a custom category; the entered custom value becomes the category string.
+Add an optional "Phone" field. When provided, normalize it for display using the existing normalizePhone from src/resources.
+Add an optional "Website" field — a plain optional string, no validation.
+
+Wire "Pin Address" button to the existing geocodeAddress(address, { geocode }) from src/resources/geocodeAddress.ts:
+
+Use expo-location's Location.geocodeAsync(address) as the geocode dependency (request location permission if needed; geocodeAsync returns an array — map the first result to { latitude, longitude }, or null if empty).
+On success ({ ok: true, latitude, longitude }): store the coordinates in form state and drop/update a preview pin on the map at those coordinates.
+On failure ({ ok: false }): show the error ("Invalid address") to the user.
+
+Wire "Submit Resource" button to the existing createResource(resource, provider, deps) from src/resources/createResource.ts:
+
+Build the resource object from the form: title, category, address, latitude, longitude (from Pin Address), expiresAt (from the expiration field, as a Date), plus optional phone and website.
+provider: a temporary stub { id: "provider_dev" } (auth is bypassed for now).
+deps.membership: a temporary stub verified membership { status: "ACTIVE", org: { status: "VERIFIED", active: true } }.
+deps.findActiveByTitleAndAddress: a temporary stub returning null (no dupe check yet).
+deps.insert: a TEMPORARY local insert that adds the new resource to the app's in-memory resource list (the same list that drives the map pins and Nearby Resources cards) and returns { id } — so the new pin appears on the map immediately. This is a placeholder for a real backend insert later.
+deps.recordAuditEvent: a temporary stub returning resolved.
+createResource already runs canWritePin → validateResource → dupe check → insert → audit internally. So Submit just calls createResource and handles the result: on { ok: true }, show success and add the pin; on { ok: false }, show the error string to the user.
+
+Coding constraints (must follow):
+
+No any, no var. Use arrow/closure-based functions.
+Every input has an accessible label associated via accessibilityLabel or a stable id.
+Render all user-entered strings only as plain React Native <Text> children — do not bypass RN's default text escaping.
+Minimal code, but do not sacrifice quality or readability.
+Use shared theme tokens (@shared-ui/theme/theme), no hardcoded colors.
+
+After wiring, run npm run test:unit and confirm all 164 tests still pass. Report all changes.
+
+## Prompt 178
+
+In apps/provider/screens/PostResourceScreen.tsx, improve the expiration date input with an auto-formatting mask and fix the date parsing.
+Input mask behavior (as the user types):
+
+Accept only digit characters; ignore/strip any non-digits from input.
+Auto-insert "/" separators: after 2 digits (MM/), and after 4 digits (MM/DD/), producing the display format MM/DD/YYYY.
+Limit to 8 digits maximum (so the field can only ever hold a complete MM/DD/YYYY like "07/14/2026").
+Backspace/delete should work naturally (removing digits, with slashes recomputed).
+Set the TextInput keyboardType to "number-pad" or "numeric" so users get a numeric keypad.
+Update the placeholder/label to show the format, e.g. "MM/DD/YYYY".
+Implement the mask as a controlled onChangeText handler: strip non-digits, cap at 8 digits, then re-insert the "/" at positions 2 and 4 for display.
+
+Date parsing on submit:
+
+From the masked value, extract the 8 digits and parse month (first 2), day (next 2), year (last 4).
+Construct new Date(Number(year), Number(month) - 1, Number(day), 23, 59, 59).
+If fewer than 8 digits or the resulting Date is NaN, let the existing validateResource validation handle it (show the error) — don't crash.
+Pass this valid Date as expiresAt to createResource (replace the current new Date(\${expiresAt}T23:59:59`)` on line 142, used at lines 149 and 172).
+
+Do NOT modify validateResource or anything in src/. UI-only change. Constraints: no any/var, arrow functions, accessible labels (the input keeps its id/accessibilityLabel), theme tokens. After, run npm run test:unit (expect 164 passing) and report changes.
+
+## Prompt 179
+
+In apps/provider/screens/PostResourceScreen.tsx, update the category chip list on line 21. Change the categories from ["Food", "Shelter", "Healthcare", "Transportation"] to ["Food Bank", "Soup Kitchen", "Charging Station", "Shelter"]. Rationale: "Healthcare" and "Transportation" are too broad; replace with specific, actionable community-resource categories. Keep the existing "+ Custom" chip (CUSTOM_CATEGORY) unchanged — it handles anything not in the presets (tents, bus passes, career fairs, etc.).
+Also update the mock category in screens/MyPostsScreen.tsx line 9 from "Food" to "Food Bank" for consistency (it's placeholder data).
+Do NOT modify anything in src/. UI/data-label change only. Keep constraints: no any/var, arrow functions, theme tokens. After, run npm run test:unit (expect 164 passing) and report changes.
+
+## Prompt 180
+
+In the Narley v3 provider app (apps/provider), remove the mock/sample resource pins now that real pinning via the Post form works. The map and "Nearby Resources" cards should start empty and only show resources the user actually creates.
+
+Find the hardcoded mock/sample resources array (used to seed the map markers and Nearby Resources cards) and remove the sample entries, replacing it with an empty initial list.
+Ensure the map and cards handle the empty state gracefully: an empty map (no markers) and an appropriate empty state for the Nearby Resources section (e.g. a message like "No resources yet" or just an empty list with the count showing 0).
+Keep the pin-creation flow intact: resources created via the Post form still get added to this (now initially empty) list and appear on the map and in the cards.
+Also remove or empty any mock data in MyPostsScreen if it uses hardcoded sample posts, so My Posts also starts empty (showing its empty state).
+
+Do NOT modify anything in src/. UI/data change only. Keep constraints: no any/var, arrow functions, theme tokens. After, run npm run test:unit (expect 164 passing) and report changes.
+
+## Prompt 181
+
+add all remaining prompts in prompts.md

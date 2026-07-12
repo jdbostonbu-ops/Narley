@@ -499,7 +499,6 @@ These are the cards associated with the pins and displayed below the map.
 - Card title `18/900 #17201A`, bottom `10`; primary text `16/800 #17201A`, bottom `6`; secondary `14 #4B5563`, line `20`.
 - Verification pill: intrinsic width, `#DDF7F1`, radius `999`, padding `6` vertical/`12` horizontal, bottom `10`; text `12/900 #0F766E`.
 - Weather-alert preference uses the required shared Version 3 weather-alert rule above. Other approved preference rows retain the same row geometry.
-- Language grid wraps, gap `10`, bottom `10`. Buttons `#E5E0D6`, selected `#0F766E`, radius `999`, padding `10` vertical/`14` horizontal; text `13/900 #17201A`, selected `#F8F4EA`.
 - Logout section card: width `W - 36`, auto height, `#2A1210`, radius `24`, border `1 rgba(239,68,68,0.4)`, padding `24`.
 - Logout title `18/900 #FFF7F1`, bottom `6`; explanation `14 #FCA5A5`, line `20`, bottom `14`; button intrinsic width, `#8B2E24`, radius `16`, padding `13` vertical/`18` horizontal; label `14/900 #F8F4EA`.
 - Tapping Log Out must open the native platform confirmation alert with Cancel and destructive Log Out actions. Native `Alert.alert` dialogs intentionally use OS-controlled dimensions, font, radius, and color; do not replace them with an unapproved custom card merely to force cross-platform pixel identity.

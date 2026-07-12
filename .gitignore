@@ -4,3 +4,5 @@ apps/reader/node_modules/
 apps/provider/node_modules/
 dist/
 *.log
+
+/generated/prisma
