@@ -535,3 +535,158 @@ run command to append test results for vitest reporter
 ## Prompt 105
 
 add remaining prompts in prompts md file please
+
+## Prompt 106
+
+why did I get this for the reader app?
+
+```text
+(base) jacquelinedelgado@Jacquelines-MacBook-Pro reader % react-native-maps
+zsh: command not found: react-native-maps
+```
+
+## Prompt 107
+
+```text
+(base) jacquelinedelgado@Jacquelines-MacBook-Pro reader % npx expo install react-native-
+  maps
+› Installing 1 other package using npm
+> npm install --save react-native-
+npm error code E404
+npm error 404 Not Found - GET https://registry.npmjs.org/react-native- - Not found
+zsh: command not found: maps
+```
+
+## Prompt 108
+
+do I use the same for the provider app?
+
+## Prompt 109
+
+Read the theme token files in /Users/jacquelinedelgado/Documents/Demo Projects Next Chapter/Hayn Mobile/packages/shared-ui/theme/ (colors.ts, theme.ts, spacing.ts, typography.ts, shadows.ts). Port them into the Narley v3 repo under packages/shared-ui/theme/, creating the packages/shared-ui structure if it doesn't exist. Keep the token values exactly as they are in v2. Report what you created.
+
+## Prompt 110
+
+Verify the Narley v3 monorepo workspace is set up so apps/reader and apps/provider can import from packages/shared-ui. Check the root package.json for a workspaces field including packages/*, and confirm TypeScript/Metro can resolve an import like import { getTheme } from "@shared-ui/theme/theme" (or the correct path) from within apps/reader. If the workspace or path aliases aren't set up, set them up. Then add a tiny test import in apps/reader to confirm it resolves, and report whether it works.
+
+## Prompt 111
+
+In the Narley v3 provider app (apps/provider), report the current screen/navigation structure — is there an Expo Router app/ folder with screens, or is it the default Expo starter? Then, referencing the v2 provider app at /Users/jacquelinedelgado/Documents/Demo Projects Next Chapter/Hayn Mobile/apps/provider for the intended structure and the design-theme-layout doc for the visual direction, report what navigation/tab shell v3's provider app needs (e.g. bottom tabs for Map, Post, Alerts, Profile). Don't build screens yet — just report the current state and the proposed navigation structure so we can confirm the plan.
+
+## Prompt 112
+
+run the reporter vitest for the reader app, the 71 tests are not in the md file
+
+## Prompt 113
+
+In the Narley v3 provider app (apps/provider), build the navigation tab shell only — no feature screens yet, just a navigable skeleton I can run and tap through.
+
+Structure (Expo Router, under src/app/):
+
+```text
+src/app/
+├── _layout.tsx
+└── (tabs)/
+    ├── _layout.tsx
+    ├── map.tsx
+    ├── post.tsx
+    ├── my-posts.tsx
+    ├── alerts.tsx
+    └── profile.tsx
+```
+
+Five bottom tabs: Map, Post, My Posts, Alerts, Profile. Initial tab = Map. Each tab screen for now is just a themed placeholder showing its name. Use the shared theme tokens from @shared-ui/theme/theme (getTheme). Provider visual direction per the design doc: dark operational background, white/inverse text, teal for the selected tab, gray for inactive tabs, shared spacing/typography/radius tokens. No hardcoded colors. Temporarily bypass auth. Reference the v2 provider app for tab styling/layout, but match v3's shared theme. Do not modify files under src/resources, src/reports, src/alerts, or src/auth. Report the files created and confirm the app builds.
+
+## Prompt 114
+
+expo start doesn't work npm start doesn't work if I enter npx expo start the terminal stops with Cannot find module 'expo-router/_ctx-shared' from the cached ~/.npm/_npx Expo CLI.
+
+## Prompt 115
+
+how do I open expo go?
+
+## Prompt 116
+
+how do I install expo go?
+
+## Prompt 117
+
+In apps/provider, the app.json references image paths under ./assets/images/ but that folder doesn't exist — the only assets are at the repo root assets/ folder (narley-icon-1024.png, narley-logo.png, and several SVGs). Fix the provider app.json so it only references image files that actually exist. Create apps/provider/assets/ and copy narley-icon-1024.png and narley-logo.png into it from the root assets folder. Then update app.json: set the main icon to the narley icon PNG, set the splash-screen image to a real PNG, remove the broken ios.icon override and the android adaptiveIcon references to files that don't exist (or replace with the narley icon). Only reference PNG files that exist. Report the changes and confirm the app bundles.
+
+## Prompt 118
+
+if there is node_modules in reader app does that path have to show in the .gitignore?
+
+## Prompt 119
+
+I believe node_modules is being tracked, can you add the path to .gitignore and stop the tracking
+
+## Prompt 120
+
+same thing with provider app
+
+## Prompt 121
+
+how do I cd into my root folder
+
+## Prompt 122
+
+no I want to cd in the root folder
+
+## Prompt 123
+
+can you do this please: Codex does this with Expo's official tooling, per the search — there's an expo-upgrade skill and the npx expo install --fix command that aligns all versions correctly).
+
+## Prompt 124
+
+In apps/provider/app.json, the plugins array contains entries that are not valid config plugins in Expo SDK 54, causing PluginError. Keep "expo-router" and the "expo-splash-screen" entry (with its config) intact. Remove "expo-status-bar", "expo-image", and "expo-web-browser" from the plugins array, since these are runtime packages, not config plugins in SDK 54. For "expo-font", check whether it's a valid config plugin in SDK 54 — if it causes the same error, remove it too; otherwise keep it. The goal is for npx expo start to launch without a PluginError. Report the final plugins array.
+
+## Prompt 125
+
+Edit /Users/jacquelinedelgado/Documents/Demo Projects Next Chapter/Narley/package.json to add:
+
+```json
+{
+  "name": "narley-v3",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"],
+  "overrides": {
+    "react-native": "0.81.5",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "scripts": { "...": "keep existing" },
+  "jest": { "...": "keep existing" },
+  "dependencies": { "vitest": "^4.1.10" }
+}
+```
+
+Fix the reader app — it still has Expo 57 installed despite saying 54. In the reader run npx expo install expo@~54.0.0 --fix.
+
+## Prompt 126
+
+Then force its react-native down like we did the provider:
+
+```bash
+npm install react@19.1.0 react-native@0.81.5 react-dom@19.1.0 --save-exact
+```
+
+Clean reinstall from root so overrides take effect everywhere:
+
+```bash
+cd "/Users/jacquelinedelgado/Documents/Demo Projects Next Chapter/Narley"
+rm -rf node_modules apps/provider/node_modules apps/reader/node_modules
+npm install
+```
+
+## Prompt 127
+
+In the Narley v3 provider app (apps/provider), replace the expo-router navigation with the same react-navigation + App.tsx architecture that v2 uses, because v2 runs correctly in Expo Go and v3's expo-router setup does not.
+
+First, study v2's working structure at /Users/jacquelinedelgado/Documents/Demo Projects Next Chapter/Hayn Mobile/apps/provider/ — specifically index.js, App.tsx, the screens/ folder, package.json (note main), and metro.config.js. Understand how v2 sets up registerRootComponent, NavigationContainer, and createBottomTabNavigator with the five tabs (Map, Post, My Posts, Alerts, Profile).
+
+Then convert v3's provider to match: remove the expo-router setup and src/app; change main to index.js; create index.js, App.tsx, and five themed placeholder screens; use React Navigation and the v3 shared theme; keep auth bypassed; install required navigation packages; remove EXPO_ROUTER_APP_ROOT while keeping OPENAI_API_KEY; and do not modify resources, reports, alerts, auth, or shared theme files. Report all changes and packages.
+
+## Prompt 128
+
+add remaining prompts in prompts md file please
