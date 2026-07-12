@@ -14,8 +14,11 @@ import { MapScreen } from "./screens/MapScreen";
 import { MyPostsScreen } from "./screens/MyPostsScreen";
 import { PostResourceScreen } from "./screens/PostResourceScreen";
 import { ProfileScreen } from "./screens/ProfileScreen";
+import { LoginScreen } from "./screens/LoginScreen";
 import { ResourceStoreProvider } from "./state/ResourceStore";
 import { getTheme } from "@shared-ui/theme/theme";
+import { AuthProvider, useAuth } from "./src/auth/useAuth";
+import { resolveAuthView } from "./src/auth/resolveAuthView";
 
 type ProviderTabParamList = {
   Map: undefined;
@@ -88,12 +91,28 @@ const ProviderTabs = () => (
   </Tab.Navigator>
 );
 
+const AuthenticatedApp = () => {
+  const { user, loading } = useAuth();
+  const membership = user === null ? null : { status: "ACTIVE" };
+  const view = resolveAuthView({ loading, user, membership });
+
+  if (view !== "tabs") {
+    return <LoginScreen />;
+  }
+
+  return (
+    <NavigationContainer theme={navigationTheme}>
+      <ResourceStoreProvider>
+        <ProviderTabs />
+      </ResourceStoreProvider>
+    </NavigationContainer>
+  );
+};
+
 export const App = () => (
-  <NavigationContainer theme={navigationTheme}>
-    <ResourceStoreProvider>
-      <ProviderTabs />
-    </ResourceStoreProvider>
-  </NavigationContainer>
+  <AuthProvider>
+    <AuthenticatedApp />
+  </AuthProvider>
 );
 
 export default App;
