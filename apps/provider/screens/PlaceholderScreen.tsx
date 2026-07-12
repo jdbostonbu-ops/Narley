@@ -2,13 +2,13 @@ import { SafeAreaView, StyleSheet, Text, View } from "react-native";
 
 import { getTheme } from "@shared-ui/theme/theme";
 
-type TabPlaceholderProps = {
+type PlaceholderScreenProps = {
   title: string;
 };
 
 const theme = getTheme(false);
 
-export const TabPlaceholder = ({ title }: TabPlaceholderProps) => (
+export const PlaceholderScreen = ({ title }: PlaceholderScreenProps) => (
   <SafeAreaView style={styles.screen}>
     <View style={styles.panel}>
       <Text accessibilityRole="header" style={styles.title}>
