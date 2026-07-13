@@ -1202,3 +1202,263 @@ First, investigate and report the tested weather/alert logic in apps/provider/sr
 Create a shared resourceCategories.ts where each category defines { id, label, icon, iconColor, accessibilityLabel }: Food Bank/basket/green #22C55E; Soup Kitchen/restaurant/orange #F59E0B; Charging Station/battery-charging/blue #2563EB; Shelter/bed/purple #6B21A8; plus a default/custom star in deep green #0F4D35 labeled "Community resource". The UI must always read pin values from config and safely fall back to the default.
 
 Create reusable MapPin.tsx with the approved shape, inner circle, icon, shadow, and accessible label. Use it as a custom react-native-maps Marker child in the provider MapScreen. Synchronize cards and detail modals to the same category icon/color config. Pins must not rely on color alone. Follow AGENTS.md constraints, do not modify tested src files, run provider unit tests, report changes. 3. add all remaining prompts to prompts.md please.
+
+## Prompt 209
+
+Read the root AGENTS.md and TESTING.md, then follow their rules. Make the reader auth-view resolver pass GREEN by creating apps/reader/src/auth/resolveReaderAuthView.ts with typed loading/auth/verify/tabs precedence. Do not modify the test or other files. State npm run test:unit.
+
+## Prompt 210
+
+Why am I getting the npm lifecycle test:unit failure errors from the reader workspace and Vitest command?
+
+## Prompt 211
+
+Read the root rules and make readerLogin.vitest.test.ts GREEN. Create typed readerLogin with injected user lookup/password verification, generic invalid-credential errors, and a session containing userId and emailVerified. Do not modify tests or other files.
+
+## Prompt 212
+
+Read the root rules and make readerSignup.vitest.test.ts GREEN. Validate the password before hashing, reject existing accounts, hash/create an unverified reader, and return a discriminated result. Do not modify tests or other files.
+
+## Prompt 213
+
+Check the logo assets: the Reader Expo app shows the Expo logo instead of the Narley house logo. Find which house-logo asset should replace it.
+
+## Prompt 214
+
+The Provider app does not have that logo problem, which is why I mentioned it.
+
+## Prompt 215
+
+Make verifyReaderEmailCode.vitest.test.ts GREEN with typed, single-use, unexpired code verification that marks the email verified and consumes the code only on success.
+
+## Prompt 216
+
+Run the Vitest reporter so it appends results, then make generateVerificationCode.vitest.test.ts GREEN with a random six-character uppercase-letter/digit code. Do not modify tests or other files.
+
+## Prompt 217
+
+Run the Vitest reporter to append the test results.
+
+## Prompt 218
+
+The report only shows 71 tests, but I have 91 passing.
+
+## Prompt 219
+
+The file did not change; test results are supposed to append to PASS-FAIL.md.
+
+## Prompt 220
+
+What destination did you append to before appending to the correct destination?
+
+## Prompt 221
+
+Did you remove that incorrectly created file?
+
+## Prompt 222
+
+Remove that log. All results must stay in PASS-FAIL.md.
+
+## Prompt 223
+
+Add reader signup, verify, and login endpoints to server/index.ts using the tested Reader auth logic, Prisma, bcrypt, VerificationCode, and Resend. Create server/email.ts, return JSON on every path, run both app suites, and provide curl commands plus restart instructions.
+
+## Prompt 224
+
+Repoint all three reader-auth endpoints from prisma.user to the separate prisma.reader table. Do not touch Provider endpoints or tested src files. Run both suites and remind me to restart the server.
+
+## Prompt 225
+
+Replace the Reader Map screen's hardcoded resources with GET /resources data, shared visibility filtering, real pins/cards, loading and empty states, and tested ZIP filtering when available. Add a typed Reader API client and root-server URL handling.
+
+## Prompt 226
+
+Bridge the single root .env API URL into both Expo apps with app.config.js. Update Provider and Reader API clients to read Constants.expoConfig.extra.apiUrl with localhost fallback. Do not create per-app .env files.
+
+## Prompt 227
+
+Do I need to install expo-constants?
+
+## Prompt 228
+
+Remove the Tomorrow, 3 Days, 1 Week, and Custom reminder chips from the Reader resource modal. Custom reminder should use separate date and time inputs rather than a free-form string.
+
+## Prompt 229
+
+Make the reminder modal scroll so the keyboard does not cover date/time fields. Use conventional MM/DD/YYYY and prepopulate/automatically format slashes and the time colon so users enter only digits.
+
+## Prompt 230
+
+Commit all changes.
+
+## Prompt 231
+
+Investigate only: determine whether Save and Remind in the Reader resource modal are combined or separate, what each action does, whether tested save/reminder logic is wired, whether actions are independent, and where data persists.
+
+## Prompt 232
+
+Investigate prerequisites for database-backed saved resources and device notifications: Prisma SavedResource, expo-notifications installation, Reader auth session/UI, exact tested save/reminder signatures, and Reader API-client endpoints/base URL. Report only.
+
+## Prompt 233
+
+Build Reader authentication screens and a persisted useReaderAuth session, add typed signup/verify/login API calls, gate App.tsx with resolveReaderAuthView, keep one navigation root, and wire Profile logout. Run Reader tests and explain testing.
+
+## Prompt 234
+
+Wire per-user saved resources to the SavedResource Prisma table and logged-in Reader. Add POST/GET/DELETE endpoints, typed client calls, independent Save and Remind buttons, tested local list transforms, and a database-backed Saved screen.
+
+## Prompt 235
+
+Investigate only why Save reports success but does not persist/show: inspect server route, readerId, client request/base URL, response handling, and Saved screen loading. Report the exact root cause.
+
+## Prompt 236
+
+If a card is saved, its label is supposed to appear on the Saved screen, correct?
+
+## Prompt 237
+
+Correct: it says resource saved, but the Saved screen is empty.
+
+## Prompt 238
+
+Fix SavedScreen.tsx to fetch database records on mount and every tab focus with useFocusEffect, use the logged-in readerId, persist deletion, and show loading/empty states.
+
+## Prompt 239
+
+Commit all changes.
+
+## Prompt 240
+
+The reminder time input does not indicate AM or PM.
+
+## Prompt 241
+
+Wire the independent Remind button to real expo-notifications using tested validateReminder/scheduleReminder logic. Convert MM/DD/YYYY and displayed time to tested YYYY-MM-DD/24-hour formats, handle permissions/errors, configure Expo, run tests, and explain device testing limitations.
+
+## Prompt 242
+
+Investigate only whether Reader and Provider weather/NWS cards disappear on expiry: trace sources, expiry fields/filtering, refresh behavior, and exact current disappearance conditions in both apps.
+
+## Prompt 243
+
+Is the Provider app wired to live NWS fetching?
+
+## Prompt 244
+
+What line would I add ALERT-R-006 to in TESTING.md?
+
+## Prompt 245
+
+I need the exact line number.
+
+## Prompt 246
+
+Make isAlertExpired.vitest.test.ts GREEN for temperature and NWS alert shapes per ALERT-R-006, with typed arrow functions and no test changes.
+
+## Prompt 247
+
+Make filterActiveAlerts.vitest.test.ts GREEN by importing isAlertExpired and non-mutatingly filtering a readonly alert union. Do not reimplement expiry logic or modify tests.
+
+## Prompt 248
+
+Wire tested filterActiveAlerts into the Reader Alerts pipeline before normalization, refresh/re-evaluate on focus, preserve the empty state, and run Reader tests.
+
+## Prompt 249
+
+Make Reader weather alerts use actual device location. Add expo-location helper, coordinate-aware Open-Meteo, live NWS fetch through tested nwsAlerts, toggle gating, expiry filtering, refresh-on-focus, and permission-denied state.
+
+## Prompt 250
+
+Did you install expo-location?
+
+## Prompt 251
+
+Is the Reader Weather Alerts toggle wired to the weather-alert APIs?
+
+## Prompt 252
+
+Are both weather APIs wired to the Reader app?
+
+## Prompt 253
+
+Investigate only why Provider shows a New London Open-Meteo heat alert while Reader shows none. Compare coordinates/location permission, exact forecast parameters/data shape, threshold logic, toggle gating, and swallowed errors.
+
+## Prompt 254
+
+Fix the date-only timezone bug in tested isAlertExpired. Date-only temperature alerts remain active through their date and following Eastern day, expiring at the start of day +2; full timestamps retain +24h behavior and NWS remains unchanged.
+
+## Prompt 255
+
+Is Open-Meteo wired to the Reader app?
+
+## Prompt 256
+
+Investigate why Provider shows a weather alert at the same physical location but Reader does not.
+
+## Prompt 257
+
+What location is the Provider app using to produce the alert?
+
+## Prompt 258
+
+Add temporary [Narley] diagnostic logs to Reader location acquisition, WeatherAlertsStore refresh/results/failures, and Open-Meteo request/response/errors. Explain how to view them in Metro.
+
+## Prompt 259
+
+Remove every temporary [Narley] diagnostic log from apps/reader without changing alert behavior. Confirm none remain and run Reader tests.
+
+## Prompt 260
+
+Investigate only the Provider weather-alert system: independent tested logic, expiry, focus refresh, hardcoded location and expo-location config, NWS wiring, Open-Meteo parameters/cache, swallowed errors, store assembly, and Alerts consumption.
+
+## Prompt 261
+
+Read codex.md, then add Provider weather refresh-on-focus using useFocusEffect and the store's existing refresh function, gated by the Weather Alerts toggle. Run Provider tests and explain testing.
+
+## Prompt 262
+
+Add Provider weather expiry filtering by importing Reader filterActiveAlerts before normalization. Keep focus refresh and make badge counts reflect only active alerts.
+
+## Prompt 263
+
+Replace Provider's hardcoded New London weather coordinates with expo-location device coordinates, make fetchForecast coordinate-aware, handle denied location, add the app plugin, and preserve toggle/expiry/focus behavior.
+
+## Prompt 264
+
+Investigate and fix why a valid future date-only heat alert for 2026-07-15 disappears on 2026-07-13 after Provider expiry filtering. Check import version, raw shape, ordering, and add a RED test first if isAlertExpired is wrong.
+
+## Prompt 265
+
+What file did you change?
+
+## Prompt 266
+
+Replace Provider's hardcoded weather location with real device location, without modifying tested files or breaking fetchForecast tests. Update store and expo-location plugin, then run tests.
+
+## Prompt 267
+
+Wire live Provider NWS alerts using the Reader fetchNwsAlerts and device coordinates. Feed results through existing expiry/normalization/badge flow, gate by the toggle, and handle empty/error cases correctly.
+
+## Prompt 268
+
+Fix Provider's swallowed weather-fetch failures: consume the failures array, distinguish real empty results from errors, expose an ALERT-R-005-style error/retry state, and preserve toggle/expiry/focus behavior.
+
+## Prompt 269
+
+Do you have an image of the teardrop category pins used by the Provider app?
+
+## Prompt 270
+
+Generate one PNG showing all category pins so I can see them together.
+
+## Prompt 271
+
+How are the pins made? I need to show Claude.
+
+## Prompt 272
+
+Update the shared map-pin system: refine the rotated-square geometry into a clean teardrop and add Employment, Housing, Recovery, Mental Health, and Medical Clinic with exact colors/icons. Add an iconSet discriminator for Ionicons/MaterialCommunityIcons and ensure both apps render the shared config/component. Do not use PNGs.
+
+## Prompt 273
+
+Fix the Provider Map screen's non-working City/ZIP search. Report the root cause first, reuse tested geocoding/filter logic, geocode city or ZIP input, move the MapView, apply ZIP filtering, handle errors accessibly, run Provider tests, append all remaining prompts to prompts.md, and commit all changes.

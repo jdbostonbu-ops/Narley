@@ -8,6 +8,10 @@ type Location = {
 type NwsFeature = Parameters<typeof nwsAlerts>[0][number];
 type NwsAlert = ReturnType<typeof nwsAlerts>[number];
 
+type FetchNwsAlertsOptions = {
+  throwOnError?: boolean;
+};
+
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
 
@@ -29,6 +33,7 @@ const isNwsFeature = (value: unknown): value is NwsFeature => {
 
 export const fetchNwsAlerts = async (
   location: Location,
+  options: FetchNwsAlertsOptions = {},
 ): Promise<NwsAlert[]> => {
   try {
     const latitude = encodeURIComponent(String(location.latitude));
@@ -44,17 +49,29 @@ export const fetchNwsAlerts = async (
     );
 
     if (!response.ok) {
+      if (options.throwOnError) {
+        throw new Error("Unable to load NWS alerts");
+      }
+
       return [];
     }
 
     const payload: unknown = await response.json();
 
     if (!isRecord(payload) || !Array.isArray(payload.features)) {
+      if (options.throwOnError) {
+        throw new Error("Invalid NWS alerts response");
+      }
+
       return [];
     }
 
     return nwsAlerts(payload.features.filter(isNwsFeature));
-  } catch {
+  } catch (error: unknown) {
+    if (options.throwOnError) {
+      throw error;
+    }
+
     return [];
   }
 };

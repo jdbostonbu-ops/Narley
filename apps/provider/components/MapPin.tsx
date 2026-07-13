@@ -1,14 +1,18 @@
-import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, View } from "react-native";
 
 import { getResourceCategory } from "@shared-ui/resourceCategories";
 import { getTheme } from "@shared-ui/theme/theme";
+import { ResourceCategoryIcon } from "./ResourceCategoryIcon";
 
 type MapPinProps = {
   category: string | undefined;
 };
 
 const theme = getTheme(false);
+const PIN_SIZE = 46;
+const PIN_ROUNDED_RADIUS = PIN_SIZE / 2;
+const PIN_POINT_RADIUS = 3;
+const INNER_CIRCLE_SIZE = 34;
 
 export const MapPin = ({ category }: MapPinProps) => {
   const categoryConfig = getResourceCategory(category);
@@ -21,9 +25,9 @@ export const MapPin = ({ category }: MapPinProps) => {
     >
       <View style={[styles.pin, { backgroundColor: categoryConfig.iconColor }]}>
         <View style={styles.innerCircle}>
-          <Ionicons
+          <ResourceCategoryIcon
+            category={categoryConfig}
             color={categoryConfig.iconColor}
-            name={categoryConfig.icon}
             size={20}
           />
         </View>
@@ -41,22 +45,22 @@ const styles = StyleSheet.create({
   pin: {
     ...theme.shadows.floating,
     alignItems: "center",
-    borderBottomLeftRadius: 6,
-    borderBottomRightRadius: 24,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    height: 46,
+    borderBottomLeftRadius: PIN_ROUNDED_RADIUS,
+    borderBottomRightRadius: PIN_POINT_RADIUS,
+    borderTopLeftRadius: PIN_ROUNDED_RADIUS,
+    borderTopRightRadius: PIN_ROUNDED_RADIUS,
+    height: PIN_SIZE,
     justifyContent: "center",
     transform: [{ rotate: "45deg" }],
-    width: 46,
+    width: PIN_SIZE,
   },
   innerCircle: {
     alignItems: "center",
     backgroundColor: theme.colors.surface,
-    borderRadius: 17,
-    height: 34,
+    borderRadius: INNER_CIRCLE_SIZE / 2,
+    height: INNER_CIRCLE_SIZE,
     justifyContent: "center",
     transform: [{ rotate: "-45deg" }],
-    width: 34,
+    width: INNER_CIRCLE_SIZE,
   },
 });

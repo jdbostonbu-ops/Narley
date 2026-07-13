@@ -930,6 +930,8 @@ Reader Alerts load live regional data from the Open-Meteo API using the Reader�
 
 The Reader setting is labeled Weather Alerts and controls only Open-Meteo weather alerts. Reader weather alerts are delivered and displayed only when Weather Alerts is on. When Weather Alerts is off, weather alerts do not appear on the Reader Alerts page and no new weather alert notification is delivered. The test must verify both states and confirm that the saved setting is honored after the app restarts.
 
+Alerts come in automatically based on the user's location — the reader does NOT type in a ZIP code. The app determines where the user is and shows alerts for that location, automatically. So this is GPS-based (automatic device location), not manual ZIP entry.
+
 Required V3 correction
 
 Version 2 uses hardcoded sample cards.
@@ -954,6 +956,14 @@ No active alerts produces a clear empty state.
 ALERT-R-005 — Error state
 
 Listener or network failure produces an error state and retry path.
+
+ALERT-R-006 — Alert expiry and removal
+Weather and NWS alert cards are removed automatically when they expire; there is no manual delete for weather/NWS alerts.
+
+NWS warnings expire at the NWS-provided expires timestamp. Once expires is in the past, the alert is removed.
+Open-Meteo temperature alerts (heat ≥91°F, cold ≤32°F) have no built-in expiry and are removed 24 hours after the alert's expected date.
+The Alerts screen re-fetches on focus and removes any alerts that have expired relative to the current time.
+An expired alert must not remain visible after a refresh. (Applies to both Reader and Provider weather alerts.)
 
 # 16. Provider Alerts and Community Intelligence
 ALERT-P-001 — Live Provider alerts

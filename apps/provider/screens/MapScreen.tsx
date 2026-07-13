@@ -1,9 +1,11 @@
-import { useState } from "react";
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { useRef, useState } from "react";
+import * as Location from "expo-location";
+import { ActivityIndicator, Alert, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import MapView, { Marker, type Region } from "react-native-maps";
 
 import { getTheme } from "@shared-ui/theme/theme";
 import { filterResourcesByZip } from "../src/resources/filterResourcesByZip";
+import { geocodeAddress } from "../src/resources/geocodeAddress";
 import { ProviderCard, type ProviderCardData } from "../components/ProviderCard";
 import { ProviderDetailModal } from "../components/ProviderDetailModal";
 import { MapPin } from "../components/MapPin";
@@ -17,26 +19,77 @@ const initialRegion: Region = {
   latitudeDelta: 0.05,
   longitudeDelta: 0.05,
 };
+const searchRegionDelta = 0.08;
 
 export const MapScreen = () => {
   const { resources, loading, error } = useResourceStore();
+  const mapRef = useRef<MapView | null>(null);
   const [searchText, setSearchText] = useState("");
   const [activeZip, setActiveZip] = useState<string | null>(null);
+  const [searchMessage, setSearchMessage] = useState<string | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
   const [selectedResource, setSelectedResource] = useState<ProviderCardData | null>(null);
   const visibleResources = activeZip === null
     ? resources
     : filterResourcesByZip(resources, activeZip);
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     const query = searchText.trim();
 
-    if (/^\d{5}$/.test(query)) {
-      setActiveZip(query);
+    if (query.length === 0) {
+      setSearchMessage("Enter a city, state, or ZIP code.");
       return;
     }
 
-    // TODO: Add city geocoding when the search service is connected.
-    setActiveZip(null);
+    setIsSearching(true);
+    setSearchMessage(null);
+
+    try {
+      if (Platform.OS === "android") {
+        const currentPermission = await Location.getForegroundPermissionsAsync();
+        const permission = currentPermission.status === "granted"
+          ? currentPermission
+          : await Location.requestForegroundPermissionsAsync();
+
+        if (permission.status !== "granted") {
+          setSearchMessage("Location permission is required to search the map.");
+          return;
+        }
+      }
+
+      const result = await geocodeAddress(query, {
+        geocode: async (locationQuery) => {
+          const matches = await Location.geocodeAsync(locationQuery);
+          const firstMatch = matches[0];
+
+          return firstMatch === undefined
+            ? null
+            : {
+                latitude: firstMatch.latitude,
+                longitude: firstMatch.longitude,
+              };
+        },
+      });
+
+      if (!result.ok) {
+        setSearchMessage(result.error ?? "Unable to search for that location. Try again.");
+        return;
+      }
+
+      const zip = /^\d{5}$/.test(query) ? query : null;
+      setActiveZip(zip);
+      mapRef.current?.animateToRegion({
+        latitude: result.latitude,
+        longitude: result.longitude,
+        latitudeDelta: searchRegionDelta,
+        longitudeDelta: searchRegionDelta,
+      }, 500);
+      setSearchMessage(`Map centered on ${query}.`);
+    } catch {
+      setSearchMessage("Unable to search for that location. Try again.");
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   return (
@@ -51,8 +104,11 @@ export const MapScreen = () => {
         <TextInput
           accessibilityLabel="Search resources by city or ZIP code"
           autoCapitalize="words"
+          editable={!isSearching}
           onChangeText={setSearchText}
-          onSubmitEditing={handleSearch}
+          onSubmitEditing={() => {
+            void handleSearch();
+          }}
           placeholder="City or ZIP code"
           placeholderTextColor={theme.colors.textMuted}
           returnKeyType="search"
@@ -62,17 +118,24 @@ export const MapScreen = () => {
         <Pressable
           accessibilityLabel="Search resources"
           accessibilityRole="button"
-          onPress={handleSearch}
-          style={styles.searchButton}
+          disabled={isSearching}
+          onPress={() => {
+            void handleSearch();
+          }}
+          style={[styles.searchButton, isSearching && styles.searchButtonDisabled]}
         >
-          <Text style={styles.searchButtonText}>Search</Text>
+          <Text style={styles.searchButtonText}>{isSearching ? "Searching…" : "Search"}</Text>
         </Pressable>
       </View>
+      {searchMessage !== null && (
+        <Text accessibilityLiveRegion="polite" style={styles.searchMessage}>{searchMessage}</Text>
+      )}
 
       <View style={styles.mapCard}>
         <MapView
-          accessibilityLabel="Map of sample resources near New London, Connecticut"
+          accessibilityLabel="Map of provider resources"
           initialRegion={initialRegion}
+          ref={mapRef}
           style={styles.map}
         >
           {visibleResources.map((resource) => (
@@ -177,10 +240,19 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 18,
   },
+  searchButtonDisabled: {
+    opacity: 0.65,
+  },
   searchButtonText: {
     color: theme.colors.textInverse,
     fontSize: 15,
     fontWeight: "900",
+  },
+  searchMessage: {
+    color: theme.colors.textInverse,
+    fontSize: 14,
+    marginBottom: 14,
+    marginTop: -4,
   },
   mapCard: {
     borderRadius: 24,

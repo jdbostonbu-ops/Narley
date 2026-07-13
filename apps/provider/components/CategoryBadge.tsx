@@ -1,8 +1,8 @@
-import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, Text, View } from "react-native";
 
 import { getResourceCategory } from "@shared-ui/resourceCategories";
 import { getTheme } from "@shared-ui/theme/theme";
+import { ResourceCategoryIcon } from "./ResourceCategoryIcon";
 
 type CategoryBadgeProps = {
   category: string;
@@ -18,7 +18,11 @@ export const CategoryBadge = ({ category }: CategoryBadgeProps) => {
       accessibilityLabel={categoryConfig.accessibilityLabel}
       style={[styles.badge, { borderColor: categoryConfig.iconColor }]}
     >
-      <Ionicons color={categoryConfig.iconColor} name={categoryConfig.icon} size={15} />
+      <ResourceCategoryIcon
+        category={categoryConfig}
+        color={categoryConfig.iconColor}
+        size={15}
+      />
       <Text style={[styles.label, { color: categoryConfig.iconColor }]}>{category}</Text>
     </View>
   );

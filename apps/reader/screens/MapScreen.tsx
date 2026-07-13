@@ -9,6 +9,7 @@ import { ResourceDetailModal } from '@/components/resource-detail-modal';
 import { READER_SCREEN_INSET } from '@/constants/layout';
 import { getResources } from '@/api/client';
 import { getTheme } from '@shared-ui/theme/theme';
+import { MapPin } from '../../provider/components/MapPin';
 import { filterResourcesByZip } from '../../provider/src/resources/filterResourcesByZip';
 import { getReaderVisibleResources } from '../../provider/src/resources/getReaderVisibleResources';
 
@@ -99,7 +100,7 @@ export const MapScreen = () => {
         <Text style={styles.stateBody}>Loading resources…</Text>
       </View> : <>
         <View style={styles.mapCard}>
-          <MapView accessibilityLabel="Map of nearby resources" initialRegion={region} style={styles.map}>{displayedResources.map((item) => <Marker accessibilityLabel={`${item.title}. ${item.category}`} coordinate={{ latitude: item.latitude!, longitude: item.longitude! }} key={item.id} onPress={() => setSelected(item)} title={item.title} />)}</MapView>
+          <MapView accessibilityLabel="Map of nearby resources" initialRegion={region} style={styles.map}>{displayedResources.map((item) => <Marker accessibilityLabel={`${item.title}. ${item.category}`} anchor={{ x: 0.5, y: 1 }} coordinate={{ latitude: item.latitude!, longitude: item.longitude! }} key={item.id} onPress={() => setSelected(item)} title={item.title}><MapPin category={item.category} /></Marker>)}</MapView>
         </View>
         <View style={styles.sectionHeader}><Text style={styles.sectionTitle}>Nearby resources</Text><Text style={styles.count}>{displayedResources.length}</Text></View>
         {displayedResources.length === 0 ? <View style={styles.stateCard}>

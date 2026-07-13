@@ -18,6 +18,7 @@ import {
   RESOURCE_CATEGORIES,
 } from "@shared-ui/resourceCategories";
 import { MapPin } from "../components/MapPin";
+import { ResourceCategoryIcon } from "../components/ResourceCategoryIcon";
 import { geocodeAddress } from "../src/resources/geocodeAddress";
 import { normalizePhone } from "../src/resources/normalizePhone";
 import { useAuth } from "../src/auth/useAuth";
@@ -256,9 +257,9 @@ export const PostResourceScreen = () => {
                   selectedCategory === item.label && { backgroundColor: item.iconColor },
                 ]}
               >
-                <Ionicons
+                <ResourceCategoryIcon
+                  category={item}
                   color={selectedCategory === item.label ? theme.colors.textInverse : item.iconColor}
-                  name={item.icon}
                   size={16}
                 />
                 <Text style={styles.chipText}>{item.label}</Text>

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useState } from "react";
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
 
 import { getTheme } from "@shared-ui/theme/theme";
@@ -15,9 +16,16 @@ export const AlertsScreen = () => {
     alertCount,
     loading,
     error,
+    refreshWeatherAlerts,
   } = useWeatherAlerts();
   const [selectedAlert, setSelectedAlert] = useState<ProviderCardData | null>(null);
   const alerts = [...REPORT_ALERTS, ...weatherAlerts];
+
+  useFocusEffect(
+    useCallback(() => {
+      void refreshWeatherAlerts();
+    }, [refreshWeatherAlerts]),
+  );
 
   return (
     <View style={styles.screen}>

@@ -2,17 +2,23 @@ import { mapOpenMeteoForecast } from "./mapOpenMeteoForecast";
 
 type Forecast = NonNullable<ReturnType<typeof mapOpenMeteoForecast>>;
 
-const OPEN_METEO_URL =
-  "https://api.open-meteo.com/v1/forecast" +
-  "?latitude=41.3557" +
-  "&longitude=-72.0995" +
-  "&daily=temperature_2m_max" +
-  "&temperature_unit=fahrenheit" +
-  "&forecast_days=7" +
-  "&timezone=America%2FNew_York";
+type Location = {
+  latitude: number;
+  longitude: number;
+};
 
-export const fetchForecast = async (): Promise<Forecast> => {
-  const response = await fetch(OPEN_METEO_URL);
+export const fetchForecast = async (location: Location): Promise<Forecast> => {
+  const latitude = encodeURIComponent(String(location.latitude));
+  const longitude = encodeURIComponent(String(location.longitude));
+  const url =
+    "https://api.open-meteo.com/v1/forecast" +
+    `?latitude=${latitude}` +
+    `&longitude=${longitude}` +
+    "&daily=temperature_2m_max" +
+    "&temperature_unit=fahrenheit" +
+    "&forecast_days=7" +
+    "&timezone=auto";
+  const response = await fetch(url);
 
   if (!response.ok) {
     throw new Error("Unable to load weather forecast");
