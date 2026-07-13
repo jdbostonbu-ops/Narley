@@ -1,15 +1,23 @@
 import {
+  useCallback,
   createContext,
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
 import * as SecureStore from "expo-secure-store";
 
+import { fetchNwsAlerts } from "../src/alerts/fetchNwsAlerts";
+import { fetchOpenMeteoForecast } from "../src/alerts/fetchOpenMeteoForecast";
+import { filterActiveAlerts } from "../src/alerts/filterActiveAlerts";
+import { forecastTemperatureAlert } from "../src/alerts/forecastTemperatureAlert";
 import { getAlertsWithSetting } from "../src/alerts/getAlertsWithSetting";
-import { fetchForecast } from "../../provider/src/weather/fetchForecast";
+import type { Alert } from "../src/alerts/isAlertExpired";
+import { normalizeAlert } from "../src/alerts/normalizeAlert";
+import { getUserLocation } from "../src/location/getUserLocation";
 
 export type ReaderWeatherAlert = {
   id: string;
@@ -21,6 +29,7 @@ export type ReaderWeatherAlert = {
 type WeatherAlertsValue = {
   weatherAlertsOn: boolean;
   setWeatherAlertsOn: (enabled: boolean) => Promise<void>;
+  refreshWeatherAlerts: () => Promise<void>;
   weatherAlerts: readonly ReaderWeatherAlert[];
   alertCount: number;
   loading: boolean;
@@ -28,8 +37,6 @@ type WeatherAlertsValue = {
 };
 
 const WEATHER_ALERTS_KEY = "reader.weatherAlerts.enabled";
-const NEW_LONDON = { latitude: 41.3557, longitude: -72.0995 };
-const NEW_LONDON_ZIP = "06320";
 const WeatherAlertsContext = createContext<WeatherAlertsValue | null>(null);
 
 export const WeatherAlertsProvider = ({ children }: { children: ReactNode }) => {
@@ -37,22 +44,60 @@ export const WeatherAlertsProvider = ({ children }: { children: ReactNode }) => 
   const [weatherAlerts, setWeatherAlerts] = useState<readonly ReaderWeatherAlert[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const restoredSetting = useRef(false);
+  const weatherAlertsOnRef = useRef(false);
 
-  const loadWeatherAlerts = async (enabled: boolean) => {
+  const loadWeatherAlerts = useCallback(async (enabled: boolean): Promise<void> => {
     setLoading(true);
     setError(null);
 
     try {
-      const result = await getAlertsWithSetting(
-        NEW_LONDON,
-        NEW_LONDON_ZIP,
+      if (!enabled) {
+        setWeatherAlerts([]);
+        return;
+      }
+
+      const location = await getUserLocation();
+
+      if (location === null) {
+        setWeatherAlerts([]);
+        setError(
+          "Weather alerts need location access. Enable location permission to view alerts near you.",
+        );
+        return;
+      }
+
+      const rawAlerts: Alert[] = [];
+      const locationLabel =
+        `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`;
+
+      await getAlertsWithSetting(
+        location,
+        locationLabel,
         enabled,
         {
-          fetchWeather: async () => fetchForecast(),
-          fetchNws: async () => [],
+          fetchWeather: async (currentLocation) => {
+            const forecast = await fetchOpenMeteoForecast(currentLocation);
+            const temperatureAlert = forecastTemperatureAlert(forecast);
+
+            if (temperatureAlert.alert) {
+              rawAlerts.push(temperatureAlert);
+            }
+
+            return forecast;
+          },
+          fetchNws: async (currentLocation) => {
+            const alerts = await fetchNwsAlerts(currentLocation);
+            rawAlerts.push(...alerts);
+            return [];
+          },
         },
       );
-      setWeatherAlerts(result.alerts.map((alert) => ({
+
+      const activeAlerts = filterActiveAlerts(rawAlerts, new Date())
+        .map((alert) => normalizeAlert(alert, locationLabel));
+
+      setWeatherAlerts(activeAlerts.map((alert) => ({
         id: `weather-${alert.title}-${alert.time}`,
         title: alert.title,
         message: alert.advice === null
@@ -66,7 +111,7 @@ export const WeatherAlertsProvider = ({ children }: { children: ReactNode }) => 
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -80,6 +125,8 @@ export const WeatherAlertsProvider = ({ children }: { children: ReactNode }) => 
           return;
         }
 
+        weatherAlertsOnRef.current = enabled;
+        restoredSetting.current = true;
         setWeatherAlertsOnState(enabled);
         await loadWeatherAlerts(enabled);
       } catch {
@@ -95,9 +142,10 @@ export const WeatherAlertsProvider = ({ children }: { children: ReactNode }) => 
     return () => {
       active = false;
     };
-  }, []);
+  }, [loadWeatherAlerts]);
 
   const setWeatherAlertsOn = async (enabled: boolean) => {
+    weatherAlertsOnRef.current = enabled;
     setWeatherAlertsOnState(enabled);
 
     try {
@@ -109,17 +157,33 @@ export const WeatherAlertsProvider = ({ children }: { children: ReactNode }) => 
     await loadWeatherAlerts(enabled);
   };
 
+  const refreshWeatherAlerts = useCallback(async (): Promise<void> => {
+    if (!restoredSetting.current) {
+      return;
+    }
+
+    await loadWeatherAlerts(weatherAlertsOnRef.current);
+  }, [loadWeatherAlerts]);
+
   const alertCount = weatherAlertsOn ? weatherAlerts.length : 0;
   const value = useMemo(
     () => ({
       weatherAlertsOn,
       setWeatherAlertsOn,
+      refreshWeatherAlerts,
       weatherAlerts,
       alertCount,
       loading,
       error,
     }),
-    [weatherAlertsOn, weatherAlerts, alertCount, loading, error],
+    [
+      weatherAlertsOn,
+      refreshWeatherAlerts,
+      weatherAlerts,
+      alertCount,
+      loading,
+      error,
+    ],
   );
 
   return (

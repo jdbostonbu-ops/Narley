@@ -1,4 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -11,7 +13,19 @@ const emergencyTheme = getTheme(true);
 
 export const AlertsScreen = () => {
   const insets = useSafeAreaInsets();
-  const { weatherAlerts, alertCount, loading, error } = useWeatherAlerts();
+  const {
+    weatherAlerts,
+    alertCount,
+    loading,
+    error,
+    refreshWeatherAlerts,
+  } = useWeatherAlerts();
+
+  useFocusEffect(
+    useCallback(() => {
+      void refreshWeatherAlerts();
+    }, [refreshWeatherAlerts]),
+  );
 
   return (
     <View style={styles.screen}>
@@ -25,7 +39,7 @@ export const AlertsScreen = () => {
         ) : (
           <View style={styles.emptyCard}>
             <Text style={styles.emptyTitle}>No active weather alerts</Text>
-            <Text style={styles.emptyBody}>Weather alerts for New London will appear here when enabled.</Text>
+            <Text style={styles.emptyBody}>Weather alerts near you will appear here when enabled.</Text>
           </View>
         )}
         ListFooterComponent={error === null ? null : (
@@ -37,7 +51,7 @@ export const AlertsScreen = () => {
               <Text accessibilityRole="header" style={styles.title}>Alerts</Text>
               <Text accessibilityLabel={`${alertCount} alerts`} style={styles.count}>{alertCount}</Text>
             </View>
-            <Text style={styles.subtitle}>Important weather updates for New London.</Text>
+            <Text style={styles.subtitle}>Important weather updates near your current location.</Text>
           </View>
         )}
         renderItem={({ item }) => (

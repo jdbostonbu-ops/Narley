@@ -33,7 +33,13 @@
       ],
       "expo-font",
       "expo-secure-store",
-      "expo-notifications"
+      "expo-notifications",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow Narley to use your location to show nearby weather alerts."
+        }
+      ]
     ],
     "experiments": {
       "reactCompiler": true
