@@ -1,5 +1,6 @@
 import "react-native-gesture-handler";
 
+import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import {
   DarkTheme,
@@ -16,6 +17,8 @@ import { MyPostsScreen } from "./screens/MyPostsScreen";
 import { PostResourceScreen } from "./screens/PostResourceScreen";
 import { ProfileScreen } from "./screens/ProfileScreen";
 import { LoginScreen } from "./screens/LoginScreen";
+import { ProviderConfirmResetScreen } from "./screens/ProviderConfirmResetScreen";
+import { ProviderRequestResetScreen } from "./screens/ProviderRequestResetScreen";
 import { ResourceStoreProvider } from "./state/ResourceStore";
 import { getTheme } from "@shared-ui/theme/theme";
 import { AuthProvider, useAuth } from "./src/auth/useAuth";
@@ -107,13 +110,51 @@ const ProviderTabs = () => {
   );
 };
 
+type ProviderAuthScreen = "login" | "request-reset" | "confirm-reset";
+
+const ProviderAuthFlow = () => {
+  const [screen, setScreen] = useState<ProviderAuthScreen>("login");
+  const [notice, setNotice] = useState("");
+
+  if (screen === "request-reset") {
+    return (
+      <ProviderRequestResetScreen
+        onBackToLogin={() => setScreen("login")}
+        onEnterCode={() => setScreen("confirm-reset")}
+      />
+    );
+  }
+
+  if (screen === "confirm-reset") {
+    return (
+      <ProviderConfirmResetScreen
+        onBack={() => setScreen("request-reset")}
+        onResetComplete={() => {
+          setNotice("Your password has been reset. Log in with your new password.");
+          setScreen("login");
+        }}
+      />
+    );
+  }
+
+  return (
+    <LoginScreen
+      notice={notice}
+      onForgotPassword={() => {
+        setNotice("");
+        setScreen("request-reset");
+      }}
+    />
+  );
+};
+
 const AuthenticatedApp = () => {
   const { user, loading } = useAuth();
   const membership = user === null ? null : { status: "ACTIVE" };
   const view = resolveAuthView({ loading, user, membership });
 
   if (view !== "tabs") {
-    return <LoginScreen />;
+    return <ProviderAuthFlow />;
   }
 
   return (

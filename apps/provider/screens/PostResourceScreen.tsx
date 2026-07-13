@@ -225,7 +225,12 @@ export const PostResourceScreen = () => {
 
   return (
     <View style={styles.screen}>
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        automaticallyAdjustKeyboardInsets
+        contentContainerStyle={styles.content}
+        keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
+        keyboardShouldPersistTaps="handled"
+      >
         <Text accessibilityRole="header" style={styles.title}>Post a resource</Text>
 
         <View style={styles.group}>
@@ -421,7 +426,7 @@ const styles = StyleSheet.create({
   screen: { backgroundColor: theme.colors.appBackground, flex: 1 },
   content: {
     gap: theme.spacing.md,
-    paddingBottom: 120,
+    paddingBottom: 300,
     paddingHorizontal: theme.spacing.sm,
     paddingTop: theme.spacing.md,
   },

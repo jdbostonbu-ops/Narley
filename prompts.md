@@ -1462,3 +1462,139 @@ Update the shared map-pin system: refine the rotated-square geometry into a clea
 ## Prompt 273
 
 Fix the Provider Map screen's non-working City/ZIP search. Report the root cause first, reuse tested geocoding/filter logic, geocode city or ZIP input, move the MapView, apply ZIP filtering, handle errors accessibly, run Provider tests, append all remaining prompts to prompts.md, and commit all changes.
+
+## Prompt 274
+
+Do I have both weather APIs wired to the Reader and Provider apps now?
+
+## Prompt 275
+
+Is OpenAI wired up in the apps? If so, which app uses it?
+
+## Prompt 276
+
+Wire the Provider app to display database-backed AI-verified report alerts. Add JSON GET /provider/alerts, a safely parsed typed getProviderAlerts client, real report cards refreshed on mount/focus, separate report and weather sections, loading and “No reports yet” states, and a combined report/weather badge count. Run Provider tests and note that the server must restart.
+
+## Prompt 277
+
+The Provider ZIP search works. Investigate and report whether the Reader app needs the same city/ZIP geocoding and map-recentering attention. Do not change code.
+
+## Prompt 278
+
+Give me the command to restart the server.
+
+## Prompt 279
+
+On the Provider +Post screen, add more scroll space because the map preview makes the form longer and the phone keyboard slightly hides the Details field.
+
+## Prompt 280
+
+Wire the Reader Profile feedback button to https://tally.so/r/yP1q28. Add a slight click animation that briefly expands the button before navigating to the link.
+
+## Prompt 281
+
+Complete Reader Map city/ZIP search. Add tested geocoding, recenter the MapView, retain tested ZIP filtering, support city/state and city-name queries, and show searching, empty-input, and location-not-found states. Run Reader tests and explain testing.
+
+## Prompt 282
+
+Build the Reader resource Report card. Map the five tested REPORT_REASONS into accessible single-select options, validate through createReport, submit through submitReport and a typed POST /reports client call, show success/errors, and keep failures open for retry. Run Reader tests and note the server requirement.
+
+## Prompt 283
+
+Give me a command to restart the server.
+
+## Prompt 284
+
+Fix Reader map geocoding returning “Location not found” for New Haven, CT, New London, CT, and ZIP codes. Add temporary [Narley] diagnostics for URL/raw response/failure branch, identify and fix encoding/query/parsing or provider limitations, retain visible resources, remove diagnostics afterward, and run Reader tests.
+
+## Prompt 285
+
+Add the same animated Tally feedback button to the Provider Profile, approximately where it appears on the Reader Profile, using the same link and expansion animation.
+
+## Prompt 286
+
+While a Reader report is submitting, add a separate message below the Submitting button: “This may take up to 38 seconds, please wait”.
+
+## Prompt 287
+
+Add all remaining prompts to prompts.md and run the Vitest reporter for both apps so both results append to PASS-FAIL.md.
+
+## Prompt 288
+
+Investigate and explain what callOpenAI currently does: which model it uses, whether web search is enabled or model-decided, the exact verification instructions/input, and whether OpenAI selects report categories or receives the Reader’s selected reason.
+
+## Prompt 289
+
+Improve server/openai.ts so AI report verification investigates the organization’s root cause and overall current status instead of only the surface symptom. Increase web-search context to high, research closure/merger/relocation/funding loss, keep confidence honest and the strict JSON contract, log OpenAI errors, and explain live testing after a server restart.
+
+## Prompt 290
+
+Include the reported resource title in the OpenAI verification input. Look up the Resource by resourceId in /reports, preserve the tested verifyReaderReport contract through dependency injection, center the prompt on the named organization and address, retain high search context and strict JSON, run tests, and note restart requirements.
+
+## Prompt 291
+
+Add Provider password reset end to end using the tested requestPasswordReset, confirmPasswordReset, and password policy. Add JSON request/confirm endpoints with Prisma ResetToken and Resend dependencies, typed Provider API methods, accessible request/confirm screens, masked password eye toggle, policy hints, generic anti-enumeration response, and login-flow navigation. Run Provider tests and note the server restart.
+
+## Prompt 292
+
+Implement ALERT-P-007 so providers can delete AI-verified report alerts. Add DELETE /provider/alerts/:id, a typed client method, an accessible confirmed destructive action on report cards, immediate shared-state and badge updates, graceful failure behavior, and no manual deletion for weather alerts. Run Provider tests and note restart requirements.
+
+## Prompt 293
+
+Strengthen AI report verification against stale authoritative evidence. Make the prompt date-aware for 2026, require source/event dates and post-evidence closure searches, prevent old 2022–2023 directories and press releases from proving current operation, tie confidence strictly to recent evidence, retain title/high search/strict JSON/error logging, and test after restart.
+
+## Prompt 294
+
+Add Reader password reset using a separate ReaderResetToken Prisma model and Reader relation while reusing the Provider’s tested dependency-injected reset logic and password policy. Add Reader-table endpoints, Resend email, typed API methods, accessible request/confirm screens, masked password toggle, policy hints, migration instructions, Reader tests, and restart instructions.
+
+## Prompt 295
+
+Add temporary [Narley] diagnostics for undelivered Reader password-reset email without changing logic. Log the received email, Reader lookup result, Resend recipient/from address, full success response, and full error; then explain restarting and reproducing so logs can be pasted.
+
+## Prompt 296
+
+Replace raw resource IDs in Provider report-alert headings with the human-readable resource title. Add ProviderAlert.resourceTitle with migration instructions, persist it during /reports creation, return/enrich it through GET /provider/alerts, update typed parsing and UI fallbacks, continue passing title to OpenAI, run Provider tests, and note restart requirements.
+
+## Prompt 297
+
+Reframe AI report verification at the organization level rather than the address/building level. Use the resource title as the primary identity, research agency-wide dissolution and operational status across all programs/locations, treat property sales and phone listings as supporting signals, prioritize recent organization-level evidence, preserve strict JSON/high search/error logging, and test after restart.
+
+## Prompt 298
+
+Add [Narley] diagnostics for report verification rejection without changing behavior. Log raw OpenAI output, full OpenAI errors, parse success/failure with specific schema/JSON reasons and raw content, and validateAiResult success/failure details so a restarted server reveals exactly where a report is rejected.
+
+## Prompt 299
+
+Fix the Reader report card showing “Unable to verify report” after a successful submission. Correct success-response interpretation, clear stale errors, use independent error/success state, show a success confirmation, close the form only on success, keep failures open, and run Reader tests without modifying tested logic.
+
+## Prompt 300
+
+Strengthen AI verification to distinguish persistent records from active operation. Treat ProPublica, Charity Navigator, LinkedIn, procurement plans, directories, phone listings, and re-indexed timestamps as weak historical evidence; require explicit closure searches and genuine recent operational proof; let credible closure evidence override persistent listings; keep high search and strict JSON; restart afterward.
+
+## Prompt 301
+
+Teach AI verification to combine multiple independent closure signals. A closed map listing, employee/forum shutdown report, and sold/vacated property can jointly support medium/high-confidence closure even without indexed formal news or dissolution filings; absence of formal coverage must not imply operation. Preserve strict JSON.
+
+## Prompt 302
+
+Investigate whether report reasons receive different verification behavior. Trace the reason from Reader selection through /reports and callOpenAI, determine whether any reason-specific branching exists, explain model-decided web search without tool_choice, and conclude whether differing sources result from explicit handling or the same prompt being steered differently. Report only.
+
+## Prompt 303
+
+Make AI verification consistent regardless of report reason. Replace the prompt with the same mandatory full investigation every time: closure news/filings, employee and community shutdown mentions, real-estate evidence, closed map listings, phone status, and genuine current service evidence. Apply fixed persistent-record, recency, closure-signal, confidence, and conflict rules while retaining strict JSON and restart instructions.
+
+## Prompt 304
+
+Make AI verification honest about its search limitations. When a closure report has any independent closure signal, prohibit high-confidence operating; unless clear closure evidence exists, require low-confidence conflicting-evidence findings, current-status uncertainty, explicit web-search limitations, dated closure/operating signals, and human review. Persistent-listing volume must never outweigh first-hand shutdown evidence.
+
+## Prompt 305
+
+Treat the Reader’s community report as the primary first-hand real-time evidence and web research only as supporting context. Prevent stale internet records from confidently contradicting closure reports, require exact low-confidence conflict framing and provider-review guidance when closure signals exist, reserve high confidence for clear recent evidence, keep strict JSON, run tests, and restart.
+
+## Prompt 306
+
+Investigate who currently receives Provider report alerts. Examine ProviderAlert recipient fields, Resource ownership, /reports creation, GET /provider/alerts filtering and authentication, the Provider client request, and conclude whether alerts are global or pin-owner scoped. Report the exact missing authentication, recipient, filtering, authorization, migration, and backfill work needed for owner-only alerts. Do not modify files.
+
+## Prompt 307
+
+Add all remaining prompts to prompts.md and commit all current project changes.

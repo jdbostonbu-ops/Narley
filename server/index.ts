@@ -3,6 +3,10 @@ import cors from "cors";
 import bcrypt from "bcrypt";
 import { login } from "../apps/provider/src/auth/login";
 import { validatePassword } from "../apps/provider/src/auth/passwordPolicy";
+import {
+  confirmPasswordReset,
+  requestPasswordReset,
+} from "../apps/provider/src/auth/passwordReset";
 import { generateVerificationCode } from "../apps/reader/src/auth/generateVerificationCode";
 import { readerLogin } from "../apps/reader/src/auth/readerLogin";
 import { readerSignup } from "../apps/reader/src/auth/readerSignup";
@@ -12,7 +16,11 @@ import { updateResource } from "../apps/provider/src/resources/updateResource";
 import { verifyReaderReport } from "../apps/provider/src/reports/verifyReaderReport";
 import { callOpenAI } from "./openai";
 import { prisma } from "./prisma";
-import { sendVerificationEmail } from "./email";
+import {
+  sendPasswordResetEmail,
+  sendReaderPasswordResetEmail,
+  sendVerificationEmail,
+} from "./email";
 
 const app = express();
 app.use(cors());
@@ -21,6 +29,212 @@ app.use(express.json());
 // Health check — confirms the server is up
 app.get("/health", (_req, res) => {
   res.json({ ok: true });
+});
+
+const RESET_REQUEST_MESSAGE =
+  "If that email is registered, a reset link is on its way.";
+
+const providerPasswordResetDependencies = {
+  findUserByEmail: (email: string) =>
+    prisma.user.findUnique({
+      where: { email },
+      select: { id: true, email: true },
+    }),
+  saveResetToken: (userId: string, token: string, expiresAt: Date) =>
+    prisma.resetToken.create({
+      data: { userId, token, expiresAt },
+    }),
+  sendResetEmail: (email: string, token: string) =>
+    sendPasswordResetEmail(email, token),
+  findResetToken: (token: string) =>
+    prisma.resetToken.findUnique({
+      where: { token },
+      select: { userId: true, expiresAt: true, usedAt: true },
+    }),
+  updatePassword: (userId: string, passwordHash: string) =>
+    prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash },
+    }),
+  consumeResetToken: (token: string) =>
+    prisma.resetToken.update({
+      where: { token },
+      data: { usedAt: new Date() },
+    }),
+  invalidateSessions: (_userId: string): Promise<void> => Promise.resolve(),
+};
+
+app.post("/request-reset", async (req, res) => {
+  const email = typeof req.body?.email === "string" ? req.body.email.trim() : "";
+
+  try {
+    const result = await requestPasswordReset(
+      email,
+      providerPasswordResetDependencies,
+    );
+    return res.json(result);
+  } catch (error: unknown) {
+    console.error("Provider password-reset request failed:", error);
+    return res.json({ message: RESET_REQUEST_MESSAGE });
+  }
+});
+
+app.post("/confirm-reset", async (req, res) => {
+  const token = typeof req.body?.token === "string" ? req.body.token.trim() : "";
+  const newPassword = typeof req.body?.newPassword === "string"
+    ? req.body.newPassword
+    : "";
+  const passwordValidation = validatePassword(newPassword);
+
+  if (!passwordValidation.valid) {
+    return res.status(400).json({
+      success: false,
+      error: passwordValidation.errors.join(" "),
+    });
+  }
+
+  if (token.length === 0) {
+    return res.status(400).json({
+      success: false,
+      error: "Reset link is invalid or expired",
+    });
+  }
+
+  try {
+    const result = await confirmPasswordReset(
+      { token, newPassword },
+      providerPasswordResetDependencies,
+    );
+
+    return result.success
+      ? res.json(result)
+      : res.status(400).json({
+        success: false,
+        error: "Reset link is invalid or expired",
+      });
+  } catch (error: unknown) {
+    console.error("Provider password-reset confirmation failed:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Unable to reset password",
+    });
+  }
+});
+
+const readerPasswordResetDependencies = {
+  findUserByEmail: async (email: string) => {
+    const reader = await prisma.reader.findUnique({
+      where: { email },
+      select: { id: true, email: true },
+    });
+
+    console.log(
+      "[Narley] Reader password reset lookup:",
+      reader === null ? "not found" : reader.id,
+    );
+    return reader;
+  },
+  saveResetToken: (readerId: string, token: string, expiresAt: Date) =>
+    prisma.readerResetToken.create({
+      data: { readerId, token, expiresAt },
+    }),
+  sendResetEmail: async (email: string, token: string) => {
+    console.log("[Narley] Calling Resend for reader password reset:", {
+      recipient: email,
+      from: "onboarding@resend.dev",
+    });
+
+    try {
+      await sendReaderPasswordResetEmail(email, token);
+      console.log("[Narley] Reader password reset Resend call completed successfully");
+    } catch (error: unknown) {
+      console.error("[Narley] Reader password reset Resend call failed:", error);
+      throw error;
+    }
+  },
+  findResetToken: async (token: string) => {
+    const resetToken = await prisma.readerResetToken.findUnique({
+      where: { token },
+      select: { readerId: true, expiresAt: true, usedAt: true },
+    });
+
+    return resetToken === null
+      ? null
+      : {
+        userId: resetToken.readerId,
+        expiresAt: resetToken.expiresAt,
+        usedAt: resetToken.usedAt,
+      };
+  },
+  updatePassword: (readerId: string, passwordHash: string) =>
+    prisma.reader.update({
+      where: { id: readerId },
+      data: { passwordHash },
+    }),
+  consumeResetToken: (token: string) =>
+    prisma.readerResetToken.update({
+      where: { token },
+      data: { usedAt: new Date() },
+    }),
+  invalidateSessions: (_readerId: string): Promise<void> => Promise.resolve(),
+};
+
+app.post("/reader/request-reset", async (req, res) => {
+  const email = typeof req.body?.email === "string" ? req.body.email.trim() : "";
+  console.log("[Narley] /reader/request-reset email received:", email);
+
+  try {
+    const result = await requestPasswordReset(
+      email,
+      readerPasswordResetDependencies,
+    );
+    return res.json(result);
+  } catch (error: unknown) {
+    console.error("Reader password-reset request failed:", error);
+    return res.json({ message: RESET_REQUEST_MESSAGE });
+  }
+});
+
+app.post("/reader/confirm-reset", async (req, res) => {
+  const token = typeof req.body?.token === "string" ? req.body.token.trim() : "";
+  const newPassword = typeof req.body?.newPassword === "string"
+    ? req.body.newPassword
+    : "";
+  const passwordValidation = validatePassword(newPassword);
+
+  if (!passwordValidation.valid) {
+    return res.status(400).json({
+      success: false,
+      error: passwordValidation.errors.join(" "),
+    });
+  }
+
+  if (token.length === 0) {
+    return res.status(400).json({
+      success: false,
+      error: "Reset link is invalid or expired",
+    });
+  }
+
+  try {
+    const result = await confirmPasswordReset(
+      { token, newPassword },
+      readerPasswordResetDependencies,
+    );
+
+    return result.success
+      ? res.json(result)
+      : res.status(400).json({
+        success: false,
+        error: "Reset link is invalid or expired",
+      });
+  } catch (error: unknown) {
+    console.error("Reader password-reset confirmation failed:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Unable to reset password",
+    });
+  }
 });
 
 type ReaderReport = {
@@ -59,13 +273,27 @@ app.post("/reports", async (req, res) => {
   } = { promise: null };
 
   try {
+    const resource = await prisma.resource.findUnique({
+      where: { id: report.resourceId },
+      select: { title: true },
+    });
+
+    if (resource === null) {
+      return res.status(404).json({ ok: false, error: "Resource not found" });
+    }
+
     const result = await verifyReaderReport(report, {
-      callOpenAI,
+      callOpenAI: (readerReport) =>
+        callOpenAI({
+          ...readerReport,
+          title: resource.title,
+        }),
       createProviderAlert: (alert) => {
         alertCreation.promise = prisma.providerAlert.create({
           data: {
             kind: "report",
             resourceId: alert.resourceId,
+            resourceTitle: resource.title,
             address: alert.address,
             reason: alert.report.reason,
             findings: alert.findings,
@@ -87,6 +315,70 @@ app.post("/reports", async (req, res) => {
     return res.status(201).json({ ok: true });
   } catch {
     return res.status(500).json({ ok: false, error: "Unable to verify report" });
+  }
+});
+
+app.get("/provider/alerts", async (_req, res) => {
+  try {
+    const alerts = await prisma.providerAlert.findMany({
+      where: { kind: "report" },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        kind: true,
+        resourceId: true,
+        resourceTitle: true,
+        address: true,
+        reason: true,
+        findings: true,
+        confidence: true,
+        uncertain: true,
+        sources: true,
+        createdAt: true,
+      },
+    });
+
+    const missingTitleResourceIds = alerts.flatMap((alert) =>
+      alert.resourceTitle === null && alert.resourceId !== null
+        ? [alert.resourceId]
+        : []);
+    const resources = missingTitleResourceIds.length === 0
+      ? []
+      : await prisma.resource.findMany({
+        where: { id: { in: missingTitleResourceIds } },
+        select: { id: true, title: true },
+      });
+    const resourceTitles = new Map(
+      resources.map((resource) => [resource.id, resource.title]),
+    );
+    const alertsWithTitles = alerts.map((alert) => ({
+      ...alert,
+      resourceTitle: alert.resourceTitle ??
+        (alert.resourceId === null ? null : resourceTitles.get(alert.resourceId) ?? null),
+    }));
+
+    return res.json({ alerts: alertsWithTitles });
+  } catch {
+    return res.status(500).json({
+      alerts: [],
+      error: "Unable to load provider alerts",
+    });
+  }
+});
+
+app.delete("/provider/alerts/:id", async (req, res) => {
+  try {
+    await prisma.providerAlert.delete({
+      where: { id: req.params.id },
+    });
+
+    return res.json({ ok: true });
+  } catch (error: unknown) {
+    console.error("Unable to delete provider alert:", error);
+    return res.status(500).json({
+      ok: false,
+      error: "Unable to delete provider alert",
+    });
   }
 });
 

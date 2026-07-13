@@ -16,22 +16,29 @@ import { forecastTemperatureAlert } from "../../reader/src/alerts/forecastTemper
 import { getAlertsWithSetting } from "../../reader/src/alerts/getAlertsWithSetting";
 import type { Alert } from "../../reader/src/alerts/isAlertExpired";
 import { normalizeAlert } from "../../reader/src/alerts/normalizeAlert";
+import {
+  deleteProviderAlert,
+  getProviderAlerts,
+  type ProviderReportAlert,
+} from "../src/api/client";
 import { getUserLocation } from "../src/location/getUserLocation";
 import { activeAlertCount } from "../src/reports/activeAlertCount";
 import { fetchForecast } from "../src/weather/fetchForecast";
-import {
-  REPORT_ALERTS,
-  type ProviderAlertCard,
-} from "../constants/providerAlerts";
+import type { ProviderAlertCard } from "../constants/providerAlerts";
 
 type WeatherAlertsValue = {
   weatherAlertsOn: boolean;
   setWeatherAlertsOn: (enabled: boolean) => Promise<void>;
   refreshWeatherAlerts: () => Promise<void>;
+  refreshReportAlerts: () => Promise<void>;
+  deleteReportAlert: (id: string) => Promise<void>;
   weatherAlerts: readonly ProviderAlertCard[];
+  reportAlerts: readonly ProviderReportAlert[];
   alertCount: number;
   loading: boolean;
   error: string | null;
+  reportsLoading: boolean;
+  reportsError: string | null;
 };
 
 const WEATHER_ALERTS_KEY = "provider.weatherAlerts.enabled";
@@ -40,8 +47,11 @@ const WeatherAlertsContext = createContext<WeatherAlertsValue | null>(null);
 export const WeatherAlertsProvider = ({ children }: { children: ReactNode }) => {
   const [weatherAlertsOn, setWeatherAlertsOnState] = useState(false);
   const [weatherAlerts, setWeatherAlerts] = useState<readonly ProviderAlertCard[]>([]);
+  const [reportAlerts, setReportAlerts] = useState<readonly ProviderReportAlert[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [reportsLoading, setReportsLoading] = useState(true);
+  const [reportsError, setReportsError] = useState<string | null>(null);
   const restoredSetting = useRef(false);
   const weatherAlertsOnRef = useRef(false);
 
@@ -122,6 +132,21 @@ export const WeatherAlertsProvider = ({ children }: { children: ReactNode }) => 
     }
   }, []);
 
+  const loadReportAlerts = useCallback(async (): Promise<void> => {
+    setReportsLoading(true);
+    setReportsError(null);
+
+    const result = await getProviderAlerts();
+
+    if (result.ok) {
+      setReportAlerts(result.alerts);
+    } else {
+      setReportsError(result.error);
+    }
+
+    setReportsLoading(false);
+  }, []);
+
   useEffect(() => {
     let active = true;
 
@@ -153,6 +178,10 @@ export const WeatherAlertsProvider = ({ children }: { children: ReactNode }) => 
     };
   }, [loadWeatherAlerts]);
 
+  useEffect(() => {
+    void loadReportAlerts();
+  }, [loadReportAlerts]);
+
   const setWeatherAlertsOn = async (enabled: boolean) => {
     weatherAlertsOnRef.current = enabled;
     setWeatherAlertsOnState(enabled);
@@ -174,25 +203,53 @@ export const WeatherAlertsProvider = ({ children }: { children: ReactNode }) => 
     await loadWeatherAlerts(true);
   }, [loadWeatherAlerts]);
 
-  const alertsForCount = [...REPORT_ALERTS, ...weatherAlerts];
+  const refreshReportAlerts = useCallback(async (): Promise<void> => {
+    await loadReportAlerts();
+  }, [loadReportAlerts]);
+
+  const deleteReportAlert = useCallback(async (id: string): Promise<void> => {
+    setReportsError(null);
+    const result = await deleteProviderAlert(id);
+
+    if (!result.ok) {
+      setReportsError(result.error);
+      return;
+    }
+
+    setReportAlerts((currentAlerts) =>
+      currentAlerts.filter((alert) => alert.id !== id));
+  }, []);
+
+  const reportAlertsForCount = reportAlerts.map(() => ({ kind: "report" }));
+  const alertsForCount = [...reportAlertsForCount, ...weatherAlerts];
   const alertCount = activeAlertCount(alertsForCount, weatherAlertsOn);
   const value = useMemo(
     () => ({
       weatherAlertsOn,
       setWeatherAlertsOn,
       refreshWeatherAlerts,
+      refreshReportAlerts,
+      deleteReportAlert,
       weatherAlerts,
+      reportAlerts,
       alertCount,
       loading,
       error,
+      reportsLoading,
+      reportsError,
     }),
     [
       weatherAlertsOn,
       refreshWeatherAlerts,
+      refreshReportAlerts,
+      deleteReportAlert,
       weatherAlerts,
+      reportAlerts,
       alertCount,
       loading,
       error,
+      reportsLoading,
+      reportsError,
     ],
   );
 

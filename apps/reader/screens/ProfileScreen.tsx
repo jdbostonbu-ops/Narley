@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Alert, Modal, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { Alert, Animated, Linking, Modal, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getTheme } from '@shared-ui/theme/theme';
@@ -9,6 +9,7 @@ import { useWeatherAlerts } from '../state/WeatherAlertsStore';
 
 const theme = getTheme(false);
 const emergencyTheme = getTheme(true);
+const FEEDBACK_URL = 'https://tally.so/r/yP1q28';
 
 export const ProfileScreen = () => {
   const insets = useSafeAreaInsets();
@@ -20,6 +21,41 @@ export const ProfileScreen = () => {
     error: weatherAlertsError,
   } = useWeatherAlerts();
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [feedbackOpening, setFeedbackOpening] = useState(false);
+  const feedbackScale = useRef(new Animated.Value(1)).current;
+
+  const handleFeedback = () => {
+    if (feedbackOpening) {
+      return;
+    }
+
+    setFeedbackOpening(true);
+    Animated.sequence([
+      Animated.timing(feedbackScale, {
+        duration: 100,
+        toValue: 1.04,
+        useNativeDriver: true,
+      }),
+      Animated.timing(feedbackScale, {
+        duration: 100,
+        toValue: 1,
+        useNativeDriver: true,
+      }),
+    ]).start(({ finished }) => {
+      if (!finished) {
+        setFeedbackOpening(false);
+        return;
+      }
+
+      void Linking.openURL(FEEDBACK_URL)
+        .catch(() => {
+          Alert.alert('Unable to open feedback', 'Please try again in a moment.');
+        })
+        .finally(() => {
+          setFeedbackOpening(false);
+        });
+    });
+  };
 
   return <View style={styles.screen}>
     <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 160, paddingTop: insets.top + 18 }]}>
@@ -27,7 +63,7 @@ export const ProfileScreen = () => {
       <Text style={styles.subtitle}>Your settings, safety preferences, and account.</Text>
       <View style={styles.identity}><View style={styles.avatar}><Text style={styles.initial}>N</Text></View><View><Text style={styles.name}>Narley Reader</Text><Text style={styles.role}>Community member</Text><Text style={styles.verified}>VERIFIED ACCOUNT</Text></View></View>
       <View style={styles.section}><Text style={styles.sectionTitle}>Safety</Text><View style={[styles.weatherCard, weatherAlertsOn && styles.weatherActive]}><View style={styles.toggleRow}><Text style={styles.weatherTitle}>Weather alerts</Text><Switch accessibilityLabel="Weather alerts" disabled={weatherAlertsLoading} ios_backgroundColor={theme.colors.textMuted} onValueChange={(enabled) => { void setWeatherAlertsOn(enabled); }} thumbColor={weatherAlertsOn ? emergencyTheme.colors.primary : theme.colors.primary} trackColor={{ false: theme.colors.textMuted, true: emergencyTheme.colors.accent }} value={weatherAlertsOn} /></View><Text style={styles.description}>Notifications for severe weather, shelter changes, closures, and urgent community conditions.</Text>{weatherAlertsOn && <Text style={styles.activeBadge}>ACTIVE</Text>}{weatherAlertsError !== null && <Text accessibilityLiveRegion="polite" style={styles.preferenceError}>{weatherAlertsError}</Text>}</View></View>
-      <View style={styles.section}><Text style={styles.sectionTitle}>Preferences</Text><Pressable style={styles.menuRow}><Text style={styles.menuTitle}>Language</Text><Text style={styles.menuValue}>English</Text></Pressable><Pressable onPress={() => setAboutOpen(true)} style={[styles.menuRow, theme.shadows.card]}><Text style={styles.menuTitle}>About Narley</Text><Text style={styles.chevron}>›</Text></Pressable><Pressable style={styles.feedback}><Text style={styles.feedbackText}>Send feedback</Text></Pressable></View>
+      <View style={styles.section}><Text style={styles.sectionTitle}>Preferences</Text><Pressable style={styles.menuRow}><Text style={styles.menuTitle}>Language</Text><Text style={styles.menuValue}>English</Text></Pressable><Pressable onPress={() => setAboutOpen(true)} style={[styles.menuRow, theme.shadows.card]}><Text style={styles.menuTitle}>About Narley</Text><Text style={styles.chevron}>›</Text></Pressable><Animated.View style={{ transform: [{ scale: feedbackScale }] }}><Pressable accessibilityHint="Opens the Narley feedback form" accessibilityLabel="Send feedback" accessibilityRole="link" disabled={feedbackOpening} onPress={handleFeedback} style={styles.feedback}><Text style={styles.feedbackText}>Send feedback</Text></Pressable></Animated.View></View>
       <View style={styles.section}><Text style={styles.sectionTitle}>Account</Text><View style={styles.accountCard}><Text style={styles.accountTitle}>Signed in</Text><Text style={styles.email}>{email ?? 'Reader account'}</Text></View></View>
       <Pressable accessibilityLabel="Log out" accessibilityRole="button" onPress={() => Alert.alert('Log out?', 'You will need to sign in again to access saved resources.', [{ text: 'Cancel', style: 'cancel' }, { text: 'Log Out', onPress: () => { void logout(); }, style: 'destructive' }])} style={styles.logout}><Text style={styles.logoutText}>Log Out</Text></Pressable>
     </ScrollView>

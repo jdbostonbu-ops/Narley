@@ -13,19 +13,45 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useReaderAuth } from "../src/auth/useReaderAuth";
+import { ReaderConfirmResetScreen } from "./ReaderConfirmResetScreen";
+import { ReaderRequestResetScreen } from "./ReaderRequestResetScreen";
 import { ReaderSignupScreen } from "./ReaderSignupScreen";
 import { readerAuthStyles as styles, readerAuthTheme as theme } from "./readerAuthStyles";
 
+type ReaderAuthScreenView = "login" | "signup" | "request-reset" | "confirm-reset";
+
 export const ReaderAuthScreen = () => {
   const { login, submitting } = useReaderAuth();
-  const [showSignup, setShowSignup] = useState(false);
+  const [view, setView] = useState<ReaderAuthScreenView>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
 
-  if (showSignup) {
-    return <ReaderSignupScreen onBackToLogin={() => setShowSignup(false)} />;
+  if (view === "signup") {
+    return <ReaderSignupScreen onBackToLogin={() => setView("login")} />;
+  }
+
+  if (view === "request-reset") {
+    return (
+      <ReaderRequestResetScreen
+        onBackToLogin={() => setView("login")}
+        onEnterCode={() => setView("confirm-reset")}
+      />
+    );
+  }
+
+  if (view === "confirm-reset") {
+    return (
+      <ReaderConfirmResetScreen
+        onBack={() => setView("request-reset")}
+        onResetComplete={() => {
+          setNotice("Your password has been reset. Log in with your new password.");
+          setView("login");
+        }}
+      />
+    );
   }
 
   const handleLogin = async () => {
@@ -100,13 +126,26 @@ export const ReaderAuthScreen = () => {
             </View>
 
             <View accessibilityLiveRegion="polite" style={styles.errorArea}>
+              {notice.length > 0 && <Text style={styles.success}>{notice}</Text>}
               {error.length > 0 && <Text style={styles.error}>{error}</Text>}
             </View>
 
             <Pressable accessibilityLabel="Log in" accessibilityRole="button" disabled={submitting} onPress={() => { void handleLogin(); }} style={[styles.primaryButton, submitting && styles.disabled]}>
               {submitting ? <ActivityIndicator color={theme.colors.textInverse} /> : <Text style={styles.primaryButtonText}>Log In</Text>}
             </Pressable>
-            <Pressable accessibilityLabel="Create a reader account" accessibilityRole="button" disabled={submitting} onPress={() => setShowSignup(true)} style={styles.secondaryButton}>
+            <Pressable
+              accessibilityLabel="Forgot reader password"
+              accessibilityRole="button"
+              disabled={submitting}
+              onPress={() => {
+                setNotice("");
+                setView("request-reset");
+              }}
+              style={styles.secondaryButton}
+            >
+              <Text style={styles.secondaryButtonText}>Forgot password?</Text>
+            </Pressable>
+            <Pressable accessibilityLabel="Create a reader account" accessibilityRole="button" disabled={submitting} onPress={() => setView("signup")} style={styles.secondaryButton}>
               <Text style={styles.secondaryButtonText}>Create an account</Text>
             </Pressable>
           </View>

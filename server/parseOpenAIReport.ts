@@ -42,15 +42,54 @@ export const parseOpenAIReport = (content: string): OpenAIReportResult => {
       !Array.isArray(parsed.sources) ||
       !parsed.sources.every(isSource)
     ) {
+      const failures: string[] = [];
+
+      if (!isRecord(parsed)) {
+        failures.push("response is not a JSON object");
+      } else {
+        if (!hasExactKeys(parsed, ["findings", "confidence", "sources"])) {
+          failures.push(
+            `expected exactly findings, confidence, and sources; received keys: ${Object.keys(parsed).join(", ")}`,
+          );
+        }
+
+        if (typeof parsed.findings !== "string") {
+          failures.push("findings is missing or is not a string");
+        } else if (parsed.findings.trim().length === 0) {
+          failures.push("findings is empty");
+        }
+
+        if (!isConfidence(parsed.confidence)) {
+          failures.push(
+            `confidence must be high, medium, or low; received: ${String(parsed.confidence)}`,
+          );
+        }
+
+        if (!Array.isArray(parsed.sources)) {
+          failures.push("sources is missing or is not an array");
+        } else if (!parsed.sources.every(isSource)) {
+          failures.push("one or more sources is not an exact object with a non-empty url");
+        }
+      }
+
+      console.error("[Narley] OpenAI report parsing rejected the response:", {
+        failures,
+        rawContent: content,
+      });
       return INVALID_RESULT;
     }
 
+    console.log("[Narley] OpenAI report parsing succeeded");
     return {
       findings: parsed.findings.trim(),
       confidence: parsed.confidence,
       sources: parsed.sources.map(({ url }) => ({ url })),
     };
-  } catch {
+  } catch (error: unknown) {
+    console.error("[Narley] OpenAI report parsing failed because JSON is invalid:", {
+      error,
+      rawContent: content,
+    });
     return INVALID_RESULT;
   }
 };

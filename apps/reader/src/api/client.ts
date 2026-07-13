@@ -28,6 +28,14 @@ export type ReaderLoginApiResult = {
   error?: string;
 };
 
+export type ReaderRequestResetApiResult =
+  | { ok: true; message: string; error?: never }
+  | { ok: false; message?: never; error: string };
+
+export type ReaderConfirmResetApiResult =
+  | { success: true; error?: never }
+  | { success: false; error: string };
+
 export type SavedResourceInput = {
   resourceId: string;
   title: string;
@@ -43,6 +51,16 @@ export type SavedResourceRecord = SavedResourceInput & {
   id: string;
   readerId: string;
   savedAt: Date;
+};
+
+export type ReaderReportInput = {
+  resourceId: string;
+  address: string;
+  reason: string;
+};
+
+export type PostReportResult = {
+  ok: true;
 };
 
 const configuredApiUrl = Constants.expoConfig?.extra?.apiUrl;
@@ -170,6 +188,80 @@ export const postReaderLogin = async (
   }
 
   return { error: "Unable to log in" };
+};
+
+export const postReaderRequestReset = async (
+  email: string,
+): Promise<ReaderRequestResetApiResult> => {
+  const response = await postJson("/reader/request-reset", { email });
+
+  if (!response.ok) {
+    return { ok: false, error: response.error };
+  }
+
+  if (
+    response.responseOk &&
+    isRecord(response.payload) &&
+    typeof response.payload.message === "string"
+  ) {
+    return { ok: true, message: response.payload.message };
+  }
+
+  const error = isRecord(response.payload) && typeof response.payload.error === "string"
+    ? response.payload.error
+    : "Unable to request password reset";
+  return { ok: false, error };
+};
+
+export const postReaderConfirmReset = async (
+  token: string,
+  newPassword: string,
+): Promise<ReaderConfirmResetApiResult> => {
+  const response = await postJson("/reader/confirm-reset", { token, newPassword });
+
+  if (!response.ok) {
+    return { success: false, error: response.error };
+  }
+
+  if (
+    response.responseOk &&
+    isRecord(response.payload) &&
+    response.payload.success === true
+  ) {
+    return { success: true };
+  }
+
+  const error = isRecord(response.payload) && typeof response.payload.error === "string"
+    ? response.payload.error
+    : "Reset link is invalid or expired";
+  return { success: false, error };
+};
+
+export const postReport = async (
+  report: ReaderReportInput,
+): Promise<PostReportResult> => {
+  const response = await postJson("/reports", {
+    resourceId: report.resourceId,
+    address: report.address,
+    reason: report.reason,
+  });
+
+  if (!response.ok) {
+    throw new Error(response.error);
+  }
+
+  if (
+    response.responseOk &&
+    isRecord(response.payload) &&
+    (response.payload.ok === true || response.payload.success === true)
+  ) {
+    return { ok: true };
+  }
+
+  const error = isRecord(response.payload) && typeof response.payload.error === "string"
+    ? response.payload.error
+    : "Unable to submit report";
+  throw new Error(error);
 };
 
 const parseResource = (value: unknown): ApiResource | null => {

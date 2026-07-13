@@ -1,10 +1,14 @@
 import { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { getTheme } from '@shared-ui/theme/theme';
 import { useSavedResources } from '../../state/SavedResourcesStore';
+import { postReport } from '../api/client';
 import { scheduleResourceNotification } from '../notifications/scheduleNotification';
 import { scheduleReminder } from '../reminders/scheduleReminder';
+import { createReport } from '../reports/createReport';
+import { REPORT_REASONS, type ReportReason } from '../reports/reportReason';
+import { submitReport } from '../reports/submitReport';
 import type { ReaderResource } from './resource-card';
 
 const theme = getTheme(false);
@@ -81,6 +85,23 @@ export const ResourceDetailModal = ({ item, onClose, showReport = false, showSav
   const [saveMessage, setSaveMessage] = useState('');
   const [reminding, setReminding] = useState(false);
   const [reminderMessage, setReminderMessage] = useState('');
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportReason, setReportReason] = useState<ReportReason | ''>('');
+  const [reportError, setReportError] = useState('');
+  const [reportSuccess, setReportSuccess] = useState('');
+  const [reportSubmitting, setReportSubmitting] = useState(false);
+
+  const closeReportForm = () => {
+    setReportOpen(false);
+    setReportReason('');
+    setReportError('');
+    setReportSuccess('');
+  };
+
+  const handleClose = () => {
+    closeReportForm();
+    onClose();
+  };
 
   const handleSave = async () => {
     if (item === null) {
@@ -124,13 +145,59 @@ export const ResourceDetailModal = ({ item, onClose, showReport = false, showSav
     }
   };
 
+  const handleSubmitReport = async () => {
+    if (item === null) {
+      return;
+    }
+
+    setReportError('');
+    setReportSuccess('');
+    const createdReport = createReport({
+      resourceId: item.id,
+      address: item.address,
+      reason: reportReason,
+    });
+
+    if (!createdReport.ok) {
+      setReportError(createdReport.error);
+      return;
+    }
+
+    setReportSubmitting(true);
+
+    try {
+      const result = await submitReport(createdReport.report, {
+        submit: postReport,
+      });
+
+      if (!result.ok) {
+        setReportError(result.error);
+        return;
+      }
+
+      setReportError('');
+      setReportSuccess(result.message);
+      setReportReason('');
+      setReportOpen(false);
+    } catch (reportError: unknown) {
+      setReportSuccess('');
+      setReportError(
+        reportError instanceof Error
+          ? reportError.message
+          : 'Unable to submit report',
+      );
+    } finally {
+      setReportSubmitting(false);
+    }
+  };
+
   return (
-    <Modal animationType="fade" onRequestClose={onClose} transparent visible={item !== null}>
+    <Modal animationType="fade" onRequestClose={handleClose} transparent visible={item !== null}>
       <View style={styles.overlay}>
-        <Pressable accessibilityLabel="Close resource details" onPress={onClose} style={styles.backdrop} />
+        <Pressable accessibilityLabel="Close resource details" onPress={handleClose} style={styles.backdrop} />
         {!!item && <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={theme.spacing.sm} style={styles.wrapper}>
           <View style={styles.card}>
-            <Pressable accessibilityLabel="Close resource details" accessibilityRole="button" onPress={onClose} style={styles.close}><Text style={styles.closeText}>×</Text></Pressable>
+            <Pressable accessibilityLabel="Close resource details" accessibilityRole="button" onPress={handleClose} style={styles.close}><Text style={styles.closeText}>×</Text></Pressable>
             <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={styles.content} keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
               <Text style={styles.category}>{item.category}</Text>
               <Text accessibilityRole="header" style={styles.title}>{item.title}</Text>
@@ -142,14 +209,50 @@ export const ResourceDetailModal = ({ item, onClose, showReport = false, showSav
                 {showReport && <Pressable
                   accessibilityLabel="Report this resource"
                   accessibilityRole="button"
-                  onPress={() => Alert.alert(
-                    'Report this resource?',
-                    'Send this resource for review if its information appears incorrect or unavailable.',
-                    [{ text: 'Cancel', style: 'cancel' }, { text: 'Report', style: 'destructive' }],
-                  )}
+                  onPress={() => {
+                    setReportError('');
+                    setReportSuccess('');
+                    setReportOpen(true);
+                  }}
                   style={styles.report}
                 ><Text style={styles.reportText}>Report</Text></Pressable>}
               </View>
+              {reportOpen && <View accessibilityLabel={`Report ${item.title}`} style={styles.reportForm}>
+                <Text accessibilityRole="header" style={styles.reportFormTitle}>Report this resource</Text>
+                <Text style={styles.reportResource}>{item.title}</Text>
+                <Text style={styles.reportAddress}>{item.address}</Text>
+                <Text nativeID="report-reason-label" style={styles.reportPrompt}>What needs attention?</Text>
+                <View accessibilityLabelledBy="report-reason-label" style={styles.reportReasons}>
+                  {REPORT_REASONS.map((reason, index) => {
+                    const selected = reportReason === reason;
+
+                    return <Pressable
+                      accessibilityLabel={reason}
+                      accessibilityRole="radio"
+                      accessibilityState={{ checked: selected }}
+                      key={reason}
+                      nativeID={`report-reason-${index}`}
+                      onPress={() => {
+                        setReportReason(reason);
+                        setReportError('');
+                      }}
+                      style={[styles.reportReason, selected && styles.reportReasonSelected]}
+                    >
+                      <View style={[styles.radioOuter, selected && styles.radioOuterSelected]}>
+                        {selected && <View style={styles.radioInner} />}
+                      </View>
+                      <Text style={[styles.reportReasonText, selected && styles.reportReasonTextSelected]}>{reason}</Text>
+                    </Pressable>;
+                  })}
+                </View>
+                {reportError.length > 0 && <Text accessibilityLiveRegion="polite" style={styles.reportError}>{reportError}</Text>}
+                <View style={styles.reportFormActions}>
+                  <Pressable accessibilityLabel="Cancel report" accessibilityRole="button" disabled={reportSubmitting} nativeID="cancel-report-button" onPress={closeReportForm} style={styles.reportCancel}><Text style={styles.reportCancelText}>Cancel</Text></Pressable>
+                  <Pressable accessibilityLabel="Submit report" accessibilityRole="button" disabled={reportSubmitting} nativeID="submit-report-button" onPress={() => { void handleSubmitReport(); }} style={[styles.reportSubmit, reportSubmitting && styles.disabled]}><Text style={styles.reportSubmitText}>{reportSubmitting ? 'Submitting…' : 'Submit report'}</Text></Pressable>
+                </View>
+                {reportSubmitting && <Text accessibilityLiveRegion="polite" style={styles.reportWaitMessage}>This may take up to 38 seconds, please wait</Text>}
+              </View>}
+              {!reportOpen && reportSuccess.length > 0 && <Text accessibilityLiveRegion="polite" style={styles.reportSuccess}>{reportSuccess}</Text>}
               <Text style={styles.reminderLabel}>Reminder</Text>
               <View style={styles.reminderFields}>
                 <View style={styles.reminderField}>
@@ -230,6 +333,27 @@ const styles = StyleSheet.create({
   secondaryText: { color: '#FFFFFF', fontSize: 14, fontWeight: '700' },
   report: { backgroundColor: '#8B2E24', borderRadius: 16, marginTop: 10, paddingHorizontal: 18, paddingVertical: 14 },
   reportText: { color: theme.colors.textInverse, fontSize: 14, fontWeight: '900' },
+  reportForm: { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, borderRadius: theme.radius.lg, borderWidth: 1, marginTop: theme.spacing.lg, padding: theme.spacing.md },
+  reportFormTitle: { color: theme.colors.text, fontSize: 20, fontWeight: '900' },
+  reportResource: { color: theme.colors.text, fontSize: 16, fontWeight: '800', marginTop: theme.spacing.sm },
+  reportAddress: { color: theme.colors.textMuted, fontSize: 13, marginTop: theme.spacing.xs },
+  reportPrompt: { color: theme.colors.text, fontSize: 14, fontWeight: '900', marginTop: theme.spacing.lg },
+  reportReasons: { gap: theme.spacing.sm, marginTop: theme.spacing.sm },
+  reportReason: { alignItems: 'center', borderColor: theme.colors.border, borderRadius: theme.radius.md, borderWidth: 1, flexDirection: 'row', minHeight: 50, padding: theme.spacing.sm },
+  reportReasonSelected: { backgroundColor: theme.colors.background, borderColor: theme.colors.primary },
+  radioOuter: { alignItems: 'center', borderColor: theme.colors.textMuted, borderRadius: 10, borderWidth: 2, height: 20, justifyContent: 'center', marginRight: theme.spacing.sm, width: 20 },
+  radioOuterSelected: { borderColor: theme.colors.primary },
+  radioInner: { backgroundColor: theme.colors.primary, borderRadius: 5, height: 10, width: 10 },
+  reportReasonText: { color: theme.colors.text, flex: 1, fontSize: 14, lineHeight: 20 },
+  reportReasonTextSelected: { fontWeight: '800' },
+  reportError: { color: theme.colors.danger, fontSize: 13, fontWeight: '800', marginTop: theme.spacing.sm },
+  reportSuccess: { color: theme.colors.success, fontSize: 14, fontWeight: '900', marginTop: theme.spacing.md, textAlign: 'center' },
+  reportFormActions: { flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.md },
+  reportCancel: { alignItems: 'center', borderColor: theme.colors.border, borderRadius: theme.radius.md, borderWidth: 1, flex: 1, justifyContent: 'center', minHeight: 48 },
+  reportCancelText: { color: theme.colors.text, fontSize: 14, fontWeight: '900' },
+  reportSubmit: { alignItems: 'center', backgroundColor: theme.colors.danger, borderRadius: theme.radius.md, flex: 1, justifyContent: 'center', minHeight: 48, paddingHorizontal: theme.spacing.sm },
+  reportSubmitText: { color: theme.colors.textInverse, fontSize: 14, fontWeight: '900' },
+  reportWaitMessage: { color: theme.colors.textMuted, fontSize: 13, fontWeight: '700', lineHeight: 19, marginTop: theme.spacing.sm, textAlign: 'center' },
   reminderLabel: { color: theme.colors.text, fontSize: 14, fontWeight: '900', marginBottom: 8, marginTop: 18 },
   reminderFields: { flexDirection: 'row', gap: theme.spacing.sm },
   reminderField: { flex: 1 },

@@ -15,9 +15,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { getTheme } from "@shared-ui/theme/theme";
 import { useAuth } from "../src/auth/useAuth";
 
+type LoginScreenProps = {
+  notice: string;
+  onForgotPassword: () => void;
+};
+
 const theme = getTheme(false);
 
-export const LoginScreen = () => {
+export const LoginScreen = ({ notice, onForgotPassword }: LoginScreenProps) => {
   const { loading, login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -96,6 +101,7 @@ export const LoginScreen = () => {
           </View>
 
           <View accessibilityLiveRegion="polite" style={styles.errorArea}>
+            {notice.length > 0 && <Text style={styles.success}>{notice}</Text>}
             {error.length > 0 && <Text style={styles.error}>{error}</Text>}
           </View>
 
@@ -109,6 +115,16 @@ export const LoginScreen = () => {
             {loading
               ? <ActivityIndicator color={theme.colors.textInverse} />
               : <Text style={styles.loginButtonText}>Log In</Text>}
+          </Pressable>
+
+          <Pressable
+            accessibilityLabel="Forgot provider password"
+            accessibilityRole="button"
+            disabled={loading}
+            onPress={onForgotPassword}
+            style={styles.forgotButton}
+          >
+            <Text style={styles.forgotText}>Forgot password?</Text>
           </Pressable>
         </View>
       </KeyboardAvoidingView>
@@ -182,6 +198,12 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     lineHeight: 20,
   },
+  success: {
+    color: theme.colors.success,
+    fontSize: 14,
+    fontWeight: "800",
+    lineHeight: 20,
+  },
   loginButton: {
     alignItems: "center",
     backgroundColor: theme.colors.cta,
@@ -195,6 +217,16 @@ const styles = StyleSheet.create({
     color: theme.colors.textInverse,
     fontSize: 16,
     fontWeight: "900",
+  },
+  forgotButton: {
+    alignItems: "center",
+    marginTop: theme.spacing.md,
+    padding: theme.spacing.sm,
+  },
+  forgotText: {
+    color: theme.colors.accent,
+    fontSize: 15,
+    fontWeight: "800",
   },
   disabled: { opacity: 0.6 },
 });

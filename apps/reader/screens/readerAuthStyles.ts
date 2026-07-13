@@ -89,6 +89,34 @@ export const readerAuthStyles = StyleSheet.create({
     fontWeight: "800",
     lineHeight: 20,
   },
+  success: {
+    color: readerAuthTheme.colors.success,
+    fontSize: 14,
+    fontWeight: "800",
+    lineHeight: 20,
+  },
+  policyCard: {
+    backgroundColor: readerAuthTheme.colors.surfaceDark,
+    borderRadius: readerAuthTheme.radius.sm,
+    marginBottom: readerAuthTheme.spacing.md,
+    padding: readerAuthTheme.spacing.md,
+  },
+  policyTitle: {
+    color: readerAuthTheme.colors.textInverse,
+    fontSize: 14,
+    fontWeight: "900",
+    marginBottom: readerAuthTheme.spacing.sm,
+  },
+  policyText: {
+    color: readerAuthTheme.colors.textMuted,
+    fontSize: 13,
+    lineHeight: 20,
+  },
+  policySuccess: {
+    color: readerAuthTheme.colors.success,
+    fontSize: 13,
+    fontWeight: "800",
+  },
   primaryButton: {
     alignItems: "center",
     backgroundColor: readerAuthTheme.colors.cta,

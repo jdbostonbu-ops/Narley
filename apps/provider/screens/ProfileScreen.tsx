@@ -1,10 +1,11 @@
-import { useState } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
+import { useRef, useState } from "react";
+import { Alert, Animated, Linking, Pressable, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 
 import { getTheme } from "@shared-ui/theme/theme";
 import { useWeatherAlerts } from "../state/WeatherAlertsStore";
 
 const theme = getTheme(false);
+const FEEDBACK_URL = "https://tally.so/r/yP1q28";
 
 export const ProfileScreen = () => {
   const {
@@ -14,6 +15,41 @@ export const ProfileScreen = () => {
     error: weatherAlertsError,
   } = useWeatherAlerts();
   const [language, setLanguage] = useState("English");
+  const [feedbackOpening, setFeedbackOpening] = useState(false);
+  const feedbackScale = useRef(new Animated.Value(1)).current;
+
+  const handleFeedback = () => {
+    if (feedbackOpening) {
+      return;
+    }
+
+    setFeedbackOpening(true);
+    Animated.sequence([
+      Animated.timing(feedbackScale, {
+        duration: 100,
+        toValue: 1.04,
+        useNativeDriver: true,
+      }),
+      Animated.timing(feedbackScale, {
+        duration: 100,
+        toValue: 1,
+        useNativeDriver: true,
+      }),
+    ]).start(({ finished }) => {
+      if (!finished) {
+        setFeedbackOpening(false);
+        return;
+      }
+
+      void Linking.openURL(FEEDBACK_URL)
+        .catch(() => {
+          Alert.alert("Unable to open feedback", "Please try again in a moment.");
+        })
+        .finally(() => {
+          setFeedbackOpening(false);
+        });
+    });
+  };
 
   return (
     <View style={styles.screen}>
@@ -65,6 +101,18 @@ export const ProfileScreen = () => {
             ))}
           </View>
         </View>
+        <Animated.View style={{ transform: [{ scale: feedbackScale }] }}>
+          <Pressable
+            accessibilityHint="Opens the Narley feedback form"
+            accessibilityLabel="Send feedback"
+            accessibilityRole="link"
+            disabled={feedbackOpening}
+            onPress={handleFeedback}
+            style={styles.feedback}
+          >
+            <Text style={styles.feedbackText}>Send feedback</Text>
+          </Pressable>
+        </Animated.View>
         <View style={styles.logoutCard}>
           <Text style={styles.logoutTitle}>Log out</Text>
           <Text style={styles.logoutBody}>Sign out of this provider account on this device.</Text>
@@ -107,6 +155,15 @@ const styles = StyleSheet.create({
   languageSelected: { backgroundColor: "#0F766E" },
   languageText: { color: theme.colors.text, fontSize: 13, fontWeight: "900" },
   languageTextSelected: { color: theme.colors.textInverse },
+  feedback: {
+    ...theme.shadows.card,
+    alignItems: "center",
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.radius.md,
+    paddingVertical: 14,
+    width: "100%",
+  },
+  feedbackText: { color: theme.colors.textInverse, fontSize: 15, fontWeight: "900" },
   logoutCard: { backgroundColor: "#2A1210", borderColor: "rgba(239,68,68,0.4)", borderRadius: 24, borderWidth: 1, padding: 24 },
   logoutTitle: { color: "#FFF7F1", fontSize: 18, fontWeight: "900", marginBottom: 6 },
   logoutBody: { color: "#FCA5A5", fontSize: 14, lineHeight: 20, marginBottom: 14 },

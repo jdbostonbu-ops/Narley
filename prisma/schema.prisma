@@ -104,16 +104,17 @@ model ProviderReport {
 
 // Flow 1: reader report verified by AI, surfaced as a provider alert (transient)
 model ProviderAlert {
-  id         String   @id @default(cuid())
-  kind       String   @default("report") // "report" | "weather"
-  resourceId String?
-  address    String?
-  reason     String?  // the reader's selected reason
-  findings   String?
-  confidence String?
-  uncertain  Boolean  @default(false)
-  sources    String[] // AI source URLs
-  createdAt  DateTime @default(now())
+  id            String   @id @default(cuid())
+  kind          String   @default("report") // "report" | "weather"
+  resourceId    String?
+  resourceTitle String?
+  address       String?
+  reason        String?  // the reader's selected reason
+  findings      String?
+  confidence    String?
+  uncertain     Boolean  @default(false)
+  sources       String[] // AI source URLs
+  createdAt     DateTime @default(now())
 }
 
 model VerificationCode {
@@ -134,7 +135,8 @@ model Reader {
   emailVerified Boolean  @default(false)
   createdAt     DateTime @default(now())
 
-  savedResources SavedResource[]
+  savedResources     SavedResource[]
+  readerResetTokens ReaderResetToken[]
 }
 
 model SavedResource {
@@ -153,4 +155,13 @@ model SavedResource {
   reader Reader @relation(fields: [readerId], references: [id])
 
   @@unique([readerId, resourceId])
+}
+
+model ReaderResetToken {
+  id        String    @id @default(cuid())
+  token     String    @unique
+  readerId  String
+  expiresAt DateTime
+  usedAt    DateTime?
+  reader    Reader    @relation(fields: [readerId], references: [id])
 }
