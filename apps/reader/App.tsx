@@ -14,6 +14,10 @@ import { AlertsScreen } from "./screens/AlertsScreen";
 import { MapScreen } from "./screens/MapScreen";
 import { ProfileScreen } from "./screens/ProfileScreen";
 import { SavedScreen } from "./screens/SavedScreen";
+import {
+  WeatherAlertsProvider,
+  useWeatherAlerts,
+} from "./state/WeatherAlertsStore";
 
 type ReaderTabParamList = {
   Map: undefined;
@@ -48,8 +52,11 @@ const tabIcons: Record<
   Profile: "person-circle",
 };
 
-const ReaderTabs = () => (
-  <Tab.Navigator
+const ReaderTabs = () => {
+  const { alertCount } = useWeatherAlerts();
+
+  return (
+    <Tab.Navigator
     initialRouteName="Map"
     screenOptions={({ route }) => ({
       headerShown: false,
@@ -58,6 +65,13 @@ const ReaderTabs = () => (
       tabBarIcon: ({ color, size }) => (
         <Ionicons color={color} name={tabIcons[route.name]} size={size + 3} />
       ),
+      tabBarBadge: route.name === "Alerts" && alertCount > 0
+        ? alertCount
+        : undefined,
+      tabBarBadgeStyle: {
+        backgroundColor: theme.colors.danger,
+        color: theme.colors.textInverse,
+      },
       tabBarLabelStyle: {
         fontSize: theme.typography.small.fontSize,
         fontWeight: theme.typography.small.fontWeight,
@@ -75,13 +89,16 @@ const ReaderTabs = () => (
     <Tab.Screen component={AlertsScreen} name="Alerts" />
     <Tab.Screen component={SavedScreen} name="Saved" />
     <Tab.Screen component={ProfileScreen} name="Profile" />
-  </Tab.Navigator>
-);
+    </Tab.Navigator>
+  );
+};
 
 export const App = () => (
   <SafeAreaProvider>
     <NavigationContainer theme={navigationTheme}>
-      <ReaderTabs />
+      <WeatherAlertsProvider>
+        <ReaderTabs />
+      </WeatherAlertsProvider>
     </NavigationContainer>
   </SafeAreaProvider>
 );

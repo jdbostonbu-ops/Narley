@@ -1,3 +1,5 @@
+import Constants from "expo-constants";
+
 export type LoginResponse = {
   session?: {
     userId: string;
@@ -48,7 +50,9 @@ type DeleteResourceResult =
   | { ok: true; error?: never }
   | { ok: false; error: string };
 
-const configuredBaseUrl = process.env.EXPO_PUBLIC_API_URL;
+const configuredApiUrl = Constants.expoConfig?.extra?.apiUrl;
+const configuredBaseUrl =
+  typeof configuredApiUrl === "string" ? configuredApiUrl : undefined;
 
 export const API_BASE_URL = configuredBaseUrl?.replace(/\/+$/, "") || "http://localhost:4000";
 

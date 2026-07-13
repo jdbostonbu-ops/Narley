@@ -1,11 +1,18 @@
 import express, { type ErrorRequestHandler } from "express";
 import cors from "cors";
+import bcrypt from "bcrypt";
 import { login } from "../apps/provider/src/auth/login";
+import { validatePassword } from "../apps/provider/src/auth/passwordPolicy";
+import { generateVerificationCode } from "../apps/reader/src/auth/generateVerificationCode";
+import { readerLogin } from "../apps/reader/src/auth/readerLogin";
+import { readerSignup } from "../apps/reader/src/auth/readerSignup";
+import { verifyReaderEmailCode } from "../apps/reader/src/auth/verifyReaderEmailCode";
 import { createResource } from "../apps/provider/src/resources/createResource";
 import { updateResource } from "../apps/provider/src/resources/updateResource";
 import { verifyReaderReport } from "../apps/provider/src/reports/verifyReaderReport";
 import { callOpenAI } from "./openai";
 import { prisma } from "./prisma";
+import { sendVerificationEmail } from "./email";
 
 const app = express();
 app.use(cors());
@@ -104,6 +111,176 @@ app.post("/login", async (req, res) => {
   }
 
   return res.json({ session: result.session });
+});
+
+type ReaderAuthCredentials = {
+  email: string;
+  password: string;
+};
+
+const parseReaderAuthCredentials = (
+  value: unknown,
+): ReaderAuthCredentials | null => {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  if (typeof value.email !== "string" || typeof value.password !== "string") {
+    return null;
+  }
+
+  return {
+    email: value.email,
+    password: value.password,
+  };
+};
+
+app.post("/reader/signup", async (req, res) => {
+  const credentials = parseReaderAuthCredentials(req.body);
+
+  if (credentials === null) {
+    return res.status(400).json({
+      ok: false,
+      error: "Email and password are required",
+    });
+  }
+
+  try {
+    const result = await readerSignup(credentials, {
+      validatePassword,
+      findUserByEmail: async (email) =>
+        prisma.reader.findUnique({ where: { email } }),
+      hashPassword: async (password) => bcrypt.hash(password, 12),
+      createUser: async ({ email, passwordHash }) =>
+        prisma.reader.create({
+          data: {
+            email,
+            passwordHash,
+            emailVerified: false,
+          },
+          select: {
+            id: true,
+            email: true,
+            emailVerified: true,
+          },
+        }),
+    });
+
+    if (!result.ok) {
+      const status = result.error === "An account with this email already exists"
+        ? 409
+        : 400;
+      return res.status(status).json(result);
+    }
+
+    const code = generateVerificationCode();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
+    await prisma.verificationCode.create({
+      data: {
+        email: credentials.email,
+        code,
+        expiresAt,
+        usedAt: null,
+      },
+    });
+    await sendVerificationEmail(credentials.email, code);
+
+    return res.status(201).json(result);
+  } catch {
+    return res.status(500).json({
+      ok: false,
+      error: "Unable to create reader account",
+    });
+  }
+});
+
+type ReaderVerificationRequest = {
+  email: string;
+  code: string;
+};
+
+const parseReaderVerificationRequest = (
+  value: unknown,
+): ReaderVerificationRequest | null => {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  if (typeof value.email !== "string" || typeof value.code !== "string") {
+    return null;
+  }
+
+  return {
+    email: value.email,
+    code: value.code,
+  };
+};
+
+app.post("/reader/verify", async (req, res) => {
+  const input = parseReaderVerificationRequest(req.body);
+
+  if (input === null) {
+    return res.status(400).json({ ok: false });
+  }
+
+  try {
+    const result = await verifyReaderEmailCode(input, {
+      findCode: async (email, code) =>
+        prisma.verificationCode.findFirst({
+          where: { email, code },
+          orderBy: { createdAt: "desc" },
+        }),
+      markEmailVerified: async (email) => {
+        await prisma.reader.update({
+          where: { email },
+          data: { emailVerified: true },
+        });
+      },
+      consumeCode: async (email, code) => {
+        await prisma.verificationCode.updateMany({
+          where: { email, code },
+          data: { usedAt: new Date() },
+        });
+      },
+    });
+
+    if (!result.ok) {
+      return res.status(400).json(result);
+    }
+
+    return res.json(result);
+  } catch {
+    return res.status(500).json({
+      ok: false,
+      error: "Unable to verify reader email",
+    });
+  }
+});
+
+app.post("/reader/login", async (req, res) => {
+  const credentials = parseReaderAuthCredentials(req.body);
+
+  if (credentials === null) {
+    return res.status(400).json({ error: "Email and password are required" });
+  }
+
+  try {
+    const result = await readerLogin(credentials, {
+      findUserByEmail: async (email) =>
+        prisma.reader.findUnique({ where: { email } }),
+      verifyPassword: async (password, passwordHash) =>
+        bcrypt.compare(password, passwordHash),
+    });
+
+    if (result.error !== undefined) {
+      return res.status(401).json({ error: result.error });
+    }
+
+    return res.json({ session: result.session });
+  } catch {
+    return res.status(500).json({ error: "Unable to log in reader" });
+  }
 });
 
 type ResourceRequest = {

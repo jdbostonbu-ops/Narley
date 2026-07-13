@@ -1,26 +1,66 @@
-import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useState } from 'react';
+import { Alert, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { getTheme } from '@shared-ui/theme/theme';
 import type { ReaderResource } from './resource-card';
 
 const theme = getTheme(false);
 
-export function ResourceDetailModal({ item, onClose, showReport = false }: { item: ReaderResource | null; onClose: () => void; showReport?: boolean }) {
+const formatReminderDate = (value: string): string => {
+  const digits = value.replace(/\D/g, '').slice(0, 8);
+
+  if (digits.length < 2) {
+    return digits;
+  }
+
+  if (digits.length === 2) {
+    return `${digits}/`;
+  }
+
+  if (digits.length < 4) {
+    return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  }
+
+  if (digits.length === 4) {
+    return `${digits.slice(0, 2)}/${digits.slice(2)}/`;
+  }
+
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+};
+
+const formatReminderTime = (value: string): string => {
+  const digits = value.replace(/\D/g, '').slice(0, 4);
+
+  if (digits.length < 2) {
+    return digits;
+  }
+
+  if (digits.length === 2) {
+    return `${digits}:`;
+  }
+
+  return `${digits.slice(0, 2)}:${digits.slice(2)}`;
+};
+
+export const ResourceDetailModal = ({ item, onClose, showReport = false }: { item: ReaderResource | null; onClose: () => void; showReport?: boolean }) => {
+  const [reminderDate, setReminderDate] = useState('');
+  const [reminderTime, setReminderTime] = useState('');
+
   return (
     <Modal animationType="fade" onRequestClose={onClose} transparent visible={item !== null}>
       <View style={styles.overlay}>
         <Pressable accessibilityLabel="Close resource details" onPress={onClose} style={styles.backdrop} />
-        {!!item && <View style={styles.wrapper}>
+        {!!item && <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={theme.spacing.sm} style={styles.wrapper}>
           <View style={styles.card}>
             <Pressable accessibilityLabel="Close resource details" accessibilityRole="button" onPress={onClose} style={styles.close}><Text style={styles.closeText}>×</Text></Pressable>
-            <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+            <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={styles.content} keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
               <Text style={styles.category}>{item.category}</Text>
               <Text accessibilityRole="header" style={styles.title}>{item.title}</Text>
               <Text style={styles.notes}>{item.notes}</Text>
               <Text style={styles.address}>{item.address}</Text>
               <View style={styles.actions}>
-                <Pressable style={styles.primary}><Text style={styles.primaryText}>Directions</Text></Pressable>
-                <Pressable style={styles.secondary}><Text style={styles.secondaryText}>Share</Text></Pressable>
+                <Pressable accessibilityLabel="Get directions to this resource" accessibilityRole="button" style={styles.primary}><Text style={styles.primaryText}>Directions</Text></Pressable>
+                <Pressable accessibilityLabel="Share this resource" accessibilityRole="button" style={styles.secondary}><Text style={styles.secondaryText}>Share</Text></Pressable>
                 {showReport && <Pressable
                   accessibilityLabel="Report this resource"
                   accessibilityRole="button"
@@ -33,23 +73,51 @@ export function ResourceDetailModal({ item, onClose, showReport = false }: { ite
                 ><Text style={styles.reportText}>Report</Text></Pressable>}
               </View>
               <Text style={styles.reminderLabel}>Reminder</Text>
-              <View style={styles.chips}>
-                {['Tomorrow', '3 days', '1 week'].map((label) => <Pressable key={label} style={styles.chip}><Text style={styles.chipText}>{label}</Text></Pressable>)}
+              <View style={styles.reminderFields}>
+                <View style={styles.reminderField}>
+                  <Text style={styles.inputLabel}>Date</Text>
+                  <TextInput
+                    accessibilityLabel="Reminder date"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    keyboardType="number-pad"
+                    maxLength={10}
+                    onChangeText={(value) => setReminderDate(formatReminderDate(value))}
+                    placeholder="MM/DD/YYYY"
+                    placeholderTextColor={theme.colors.textMuted}
+                    style={styles.reminderInput}
+                    value={reminderDate}
+                  />
+                </View>
+                <View style={styles.reminderField}>
+                  <Text style={styles.inputLabel}>Time</Text>
+                  <TextInput
+                    accessibilityLabel="Reminder time"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    keyboardType="number-pad"
+                    maxLength={5}
+                    onChangeText={(value) => setReminderTime(formatReminderTime(value))}
+                    placeholder="HH:MM"
+                    placeholderTextColor={theme.colors.textMuted}
+                    style={styles.reminderInput}
+                    value={reminderTime}
+                  />
+                </View>
               </View>
-              <TextInput placeholder="Custom reminder" placeholderTextColor={theme.colors.textMuted} style={styles.customInput} />
-              <Pressable style={styles.save}><Text style={styles.saveText}>Save + Remind</Text></Pressable>
+              <Pressable accessibilityLabel="Save resource and reminder" accessibilityRole="button" style={styles.save}><Text style={styles.saveText}>Save + Remind</Text></Pressable>
             </ScrollView>
           </View>
-        </View>}
+        </KeyboardAvoidingView>}
       </View>
     </Modal>
   );
-}
+};
 
 const styles = StyleSheet.create({
   overlay: { flex: 1, justifyContent: 'flex-end' },
   backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.45)' },
-  wrapper: { paddingBottom: 100, paddingHorizontal: 14 },
+  wrapper: { flex: 1, justifyContent: 'flex-end', paddingBottom: 100, paddingHorizontal: 14 },
   card: { ...theme.shadows.floating, backgroundColor: theme.colors.background, borderColor: 'rgba(255,255,255,0.06)', borderRadius: 24, borderWidth: 1, marginHorizontal: 16, marginTop: 70, maxHeight: '92%', overflow: 'hidden' },
   content: { padding: 24, paddingBottom: 42, paddingTop: 32 },
   close: { alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.08)', borderRadius: 19, height: 38, justifyContent: 'center', position: 'absolute', right: 14, top: 14, width: 38, zIndex: 2 },
@@ -66,10 +134,10 @@ const styles = StyleSheet.create({
   report: { backgroundColor: '#8B2E24', borderRadius: 16, marginTop: 10, paddingHorizontal: 18, paddingVertical: 14 },
   reportText: { color: theme.colors.textInverse, fontSize: 14, fontWeight: '900' },
   reminderLabel: { color: theme.colors.text, fontSize: 14, fontWeight: '900', marginBottom: 8, marginTop: 18 },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: { backgroundColor: '#374151', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 9 },
-  chipText: { color: '#FFFFFF', fontWeight: '700' },
-  customInput: { backgroundColor: '#FFFFFF', borderColor: theme.colors.border, borderRadius: 12, borderWidth: 1, color: theme.colors.text, marginTop: 10, padding: 12 },
+  reminderFields: { flexDirection: 'row', gap: theme.spacing.sm },
+  reminderField: { flex: 1 },
+  inputLabel: { color: theme.colors.text, fontSize: 13, fontWeight: '800', marginBottom: theme.spacing.xs },
+  reminderInput: { backgroundColor: theme.colors.background, borderColor: theme.colors.border, borderRadius: 12, borderWidth: 1, color: theme.colors.text, minHeight: 48, paddingHorizontal: 12, paddingVertical: 10 },
   save: { alignItems: 'center', backgroundColor: '#16A34A', borderRadius: 16, marginTop: 14, paddingHorizontal: 18, paddingVertical: 16 },
   saveText: { color: '#FFFFFF', fontSize: 16, fontWeight: '900' },
 });
