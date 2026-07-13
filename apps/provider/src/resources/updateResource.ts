@@ -69,15 +69,27 @@ export const updateResource = async (
 
   if (Object.prototype.hasOwnProperty.call(changes, "expiresAt")) {
     const expiresAt = changes.expiresAt;
+    const now = new Date();
 
     if (
       !(expiresAt instanceof Date) ||
       Number.isNaN(expiresAt.getTime()) ||
-      expiresAt.getTime() < Date.now()
+      expiresAt.getTime() < now.getTime()
     ) {
       return {
         ok: false,
         error: "Expiration date must be a valid future date.",
+      };
+    }
+
+    const oneYearFromNow = new Date(now);
+    oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
+
+    if (expiresAt.getTime() > oneYearFromNow.getTime()) {
+      return {
+        ok: false,
+        error:
+          "Resources can be active for a maximum of 1 year. Choose a date within 1 year — you can extend again later by posting a new pin.",
       };
     }
   }
