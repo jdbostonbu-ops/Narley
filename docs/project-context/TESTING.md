@@ -380,6 +380,8 @@ A required expiration date must be present.
 Invalid dates are rejected.
 Past dates are rejected.
 
+POST-010 — Expiration edits capped at one year: When a provider edits a resource's expiration date, the new date must be a valid future date no more than one year from the date of the edit. Attempts to set an expiration beyond one year are rejected and the provider sees the message: "Resources can be active for a maximum of 1 year. Choose a date within 1 year — you can extend again later by posting a new pin." Editing within one year remains allowed (extending a pin).
+
 POST-011 — Status contract
 
 Behavior

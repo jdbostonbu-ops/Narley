@@ -167,6 +167,7 @@ export const EditResourceModal = ({ resource, onClose }: EditResourceModalProps)
               <TextInput
                 accessibilityLabel="Expiration date"
                 accessibilityLabelledBy="edit-expiration-label"
+                accessibilityHint="Choose a future date no more than one year away"
                 editable={!saving}
                 keyboardType="number-pad"
                 nativeID="edit-expiration-input"
@@ -176,6 +177,15 @@ export const EditResourceModal = ({ resource, onClose }: EditResourceModalProps)
                 style={styles.input}
                 value={expiresAt}
               />
+              {error.length > 0 && (
+                <Text
+                  accessibilityLiveRegion="polite"
+                  nativeID="edit-resource-error"
+                  style={styles.error}
+                >
+                  {error}
+                </Text>
+              )}
             </View>
 
             <View style={styles.group}>
@@ -192,8 +202,6 @@ export const EditResourceModal = ({ resource, onClose }: EditResourceModalProps)
                 value={notes}
               />
             </View>
-
-            {error.length > 0 && <Text accessibilityLiveRegion="polite" style={styles.error}>{error}</Text>}
 
             <View style={styles.actions}>
               <Pressable accessibilityLabel="Save resource changes" accessibilityRole="button" disabled={saving} onPress={handleSave} style={[styles.action, styles.save, saving && styles.disabled]}>

@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import MapView, { Marker, type Region } from 'react-native-maps';
+import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BrandHeader } from '@/components/brand-header';
@@ -33,10 +34,12 @@ export const MapScreen = () => {
     ? resources
     : filterResourcesByZip(resources, activeZip);
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     let mounted = true;
 
     const loadResources = async () => {
+      setLoading(true);
+
       try {
         const loadedResources = await getResources();
         const visibleResources = getReaderVisibleResources(
@@ -79,7 +82,7 @@ export const MapScreen = () => {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, []));
 
   const handleSearch = async () => {
     const trimmedQuery = query.trim();

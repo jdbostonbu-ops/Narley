@@ -826,7 +826,10 @@ app.post("/resources", async (req, res) => {
 app.get("/resources", async (_req, res) => {
   try {
     const resources = await prisma.resource.findMany({
-      where: { status: "ACTIVE" },
+      where: {
+        status: "ACTIVE",
+        expiresAt: { gt: new Date() },
+      },
       orderBy: { createdAt: "asc" },
     });
 

@@ -6,6 +6,7 @@ import MapView, { Marker, type Region } from "react-native-maps";
 import { getTheme } from "@shared-ui/theme/theme";
 import { filterResourcesByZip } from "../src/resources/filterResourcesByZip";
 import { geocodeAddress } from "../src/resources/geocodeAddress";
+import { getReaderVisibleResources } from "../src/resources/getReaderVisibleResources";
 import { ProviderCard, type ProviderCardData } from "../components/ProviderCard";
 import { ProviderDetailModal } from "../components/ProviderDetailModal";
 import { MapPin } from "../components/MapPin";
@@ -29,9 +30,13 @@ export const MapScreen = () => {
   const [searchMessage, setSearchMessage] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedResource, setSelectedResource] = useState<ProviderCardData | null>(null);
+  const expirationVisibleResources = getReaderVisibleResources(
+    resources,
+    new Date(),
+  );
   const visibleResources = activeZip === null
-    ? resources
-    : filterResourcesByZip(resources, activeZip);
+    ? expirationVisibleResources
+    : filterResourcesByZip(expirationVisibleResources, activeZip);
 
   const handleSearch = async () => {
     const query = searchText.trim();

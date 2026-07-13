@@ -15,6 +15,7 @@ import {
   type CreateResourcePayload,
   type UpdateResourcePayload,
 } from "../src/api/client";
+import { getReaderVisibleResources } from "../src/resources/getReaderVisibleResources";
 
 export type StoredResource = {
   id: string;
@@ -69,7 +70,7 @@ export const ResourceStoreProvider = ({ children }: { children: ReactNode }) => 
       }
 
       if (result.ok) {
-        setResources(result.resources);
+        setResources(getReaderVisibleResources(result.resources, new Date()));
         setError(null);
       } else {
         setError(result.error);
@@ -92,7 +93,9 @@ export const ResourceStoreProvider = ({ children }: { children: ReactNode }) => 
       return result;
     }
 
-    setResources((current) => [...current, result.resource]);
+    setResources((current) =>
+      getReaderVisibleResources([...current, result.resource], new Date()),
+    );
     return { ok: true as const, resource: result.resource };
   };
   const removeResource = async (resourceId: string): Promise<ResourceMutationResult> => {
@@ -115,11 +118,14 @@ export const ResourceStoreProvider = ({ children }: { children: ReactNode }) => 
       return result;
     }
 
-    setResources((current) => current.map((resource) =>
-      resource.id === resourceId
-        ? result.resource
-        : resource
-    ));
+    setResources((current) =>
+      getReaderVisibleResources(
+        current.map((resource) =>
+          resource.id === resourceId ? result.resource : resource,
+        ),
+        new Date(),
+      ),
+    );
     return { ok: true };
   };
   const value = useMemo(
