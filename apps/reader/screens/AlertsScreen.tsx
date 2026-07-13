@@ -10,10 +10,10 @@ const alerts = [
   { id: 'resource', emergency: false, icon: 'i', title: 'Resource information', message: 'Changes to nearby resource availability will appear here.', metadata: 'Resource update' },
 ];
 
-export default function AlertsScreen() {
+export const AlertsScreen = () => {
   const insets = useSafeAreaInsets();
   return <View style={styles.screen}><FlatList contentContainerStyle={[styles.content, { paddingTop: insets.top + 18 }]} data={alerts} ItemSeparatorComponent={() => <View style={{ height: 14 }} />} keyExtractor={(item) => item.id} ListHeaderComponent={<View><Text accessibilityRole="header" style={styles.title}>Alerts</Text><Text style={styles.subtitle}>Important updates for your location and saved resources.</Text></View>} renderItem={({ item }) => <View style={[styles.card, item.emergency ? styles.emergencyCard : styles.infoCard]}><View style={[styles.icon, item.emergency ? styles.emergencyIcon : styles.infoIcon]}><Text style={styles.iconText}>{item.icon}</Text></View><View style={styles.body}><Text style={styles.cardTitle}>{item.title}</Text><Text style={styles.message}>{item.message}</Text><Text style={styles.metadata}>{item.metadata}</Text></View></View>} /></View>;
-}
+};
 
 const styles = StyleSheet.create({
   screen: { backgroundColor: theme.colors.appBackground, flex: 1 }, content: { paddingBottom: 120, paddingHorizontal: READER_SCREEN_INSET },

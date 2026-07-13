@@ -16,7 +16,7 @@ export const readerResources: ReaderResource[] = [
   { id: 'meal-1', category: 'Meals', status: 'Open', title: 'Community Meal Program', notes: 'Prepared meals available during posted service hours.', address: '106 Truman Street, New London, CT 06320', latitude: 41.3632, longitude: -72.1058 },
 ];
 
-export default function MapScreen() {
+export const MapScreen = () => {
   const insets = useSafeAreaInsets();
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<ReaderResource | null>(null);
@@ -36,7 +36,7 @@ export default function MapScreen() {
     </ScrollView>
     <ResourceDetailModal item={selected} onClose={() => setSelected(null)} showReport />
   </View>;
-}
+};
 
 const styles = StyleSheet.create({
   screen: { backgroundColor: theme.colors.appBackground, flex: 1 },

@@ -7,7 +7,7 @@ import { READER_SCREEN_INSET } from '@/constants/layout';
 
 const theme = getTheme(false);
 
-export default function ProfileScreen() {
+export const ProfileScreen = () => {
   const insets = useSafeAreaInsets();
   const [weatherAlerts, setWeatherAlerts] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -24,7 +24,7 @@ export default function ProfileScreen() {
     </ScrollView>
     <Modal animationType="fade" onRequestClose={() => setAboutOpen(false)} transparent visible={aboutOpen}><View style={styles.modalOverlay}><View style={styles.aboutCard}><View style={styles.aboutHeader}><Text style={styles.aboutTitle}>About Narley</Text><Pressable accessibilityLabel="Close About Narley" onPress={() => setAboutOpen(false)} style={styles.aboutClose}><Text style={styles.aboutCloseText}>×</Text></Pressable></View><ScrollView><Text style={styles.aboutSection}>COMMUNITY RESOURCES</Text><Text style={styles.aboutBody}>Narley helps people find practical community resources and timely local updates.</Text><Text style={styles.aboutSection}>OUR APPROACH</Text><Text style={styles.aboutBody}>Information is organized for quick scanning and direct action during stressful situations.</Text><Text style={styles.version}>Version 3</Text></ScrollView></View></View></Modal>
   </View>;
-}
+};
 
 const styles = StyleSheet.create({
   screen: { backgroundColor: theme.colors.appBackground, flex: 1 }, content: { paddingHorizontal: READER_SCREEN_INSET }, title: { color: theme.colors.textInverse, fontSize: 32, fontWeight: '900', marginBottom: 4 }, subtitle: { color: '#9CA3AF', fontSize: 15, marginBottom: 18 },

@@ -3,9 +3,9 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 import { getTheme } from '@shared-ui/theme/theme';
 
 const theme = getTheme(false);
-const logo = require('../../../provider/assets/narley-icon-1024.png');
+const logo = require('../../assets/images/icon.png');
 
-export function BrandHeader() {
+export const BrandHeader = () => {
   return (
     <View style={styles.card}>
       <View style={styles.glow} />
@@ -18,7 +18,7 @@ export function BrandHeader() {
       </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   card: { backgroundColor: theme.colors.primary, borderRadius: 28, marginBottom: 18, overflow: 'hidden', paddingHorizontal: 20, paddingVertical: 22, width: '100%' },

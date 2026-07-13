@@ -3,6 +3,8 @@ import cors from "cors";
 import { login } from "../apps/provider/src/auth/login";
 import { createResource } from "../apps/provider/src/resources/createResource";
 import { updateResource } from "../apps/provider/src/resources/updateResource";
+import { verifyReaderReport } from "../apps/provider/src/reports/verifyReaderReport";
+import { callOpenAI } from "./openai";
 import { prisma } from "./prisma";
 
 const app = express();
@@ -12,6 +14,73 @@ app.use(express.json());
 // Health check — confirms the server is up
 app.get("/health", (_req, res) => {
   res.json({ ok: true });
+});
+
+type ReaderReport = {
+  resourceId: string;
+  address: string;
+  reason: string;
+};
+
+const parseReaderReport = (value: unknown): ReaderReport | null => {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const fields = [value.resourceId, value.address, value.reason];
+
+  if (!fields.every((field) => typeof field === "string" && field.trim().length > 0)) {
+    return null;
+  }
+
+  return {
+    resourceId: String(value.resourceId).trim(),
+    address: String(value.address).trim(),
+    reason: String(value.reason).trim(),
+  };
+};
+
+app.post("/reports", async (req, res) => {
+  const report = parseReaderReport(req.body);
+
+  if (report === null) {
+    return res.status(400).json({ error: "resourceId, address, and reason are required" });
+  }
+
+  const alertCreation: {
+    promise: ReturnType<typeof prisma.providerAlert.create> | null;
+  } = { promise: null };
+
+  try {
+    const result = await verifyReaderReport(report, {
+      callOpenAI,
+      createProviderAlert: (alert) => {
+        alertCreation.promise = prisma.providerAlert.create({
+          data: {
+            kind: "report",
+            resourceId: alert.resourceId,
+            address: alert.address,
+            reason: alert.report.reason,
+            findings: alert.findings,
+            confidence: alert.confidence,
+            uncertain: alert.uncertain,
+            sources: alert.sources.map(({ url }) => url),
+          },
+        });
+
+        return alertCreation.promise;
+      },
+    });
+
+    if (!result.ok || alertCreation.promise === null) {
+      return res.status(422).json({ ok: false, error: "Report could not be verified" });
+    }
+
+    await alertCreation.promise;
+    return res.status(201).json({ ok: true });
+  } catch {
+    return res.status(500).json({ ok: false, error: "Unable to verify report" });
+  }
 });
 
 // POST /login — wires the tested login() to a real Prisma lookup
