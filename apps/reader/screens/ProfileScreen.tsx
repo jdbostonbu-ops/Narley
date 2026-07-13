@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getTheme } from '@shared-ui/theme/theme';
 import { READER_SCREEN_INSET } from '@/constants/layout';
+import { useReaderAuth } from '@/auth/useReaderAuth';
 import { useWeatherAlerts } from '../state/WeatherAlertsStore';
 
 const theme = getTheme(false);
@@ -11,6 +12,7 @@ const emergencyTheme = getTheme(true);
 
 export const ProfileScreen = () => {
   const insets = useSafeAreaInsets();
+  const { email, logout } = useReaderAuth();
   const {
     weatherAlertsOn,
     setWeatherAlertsOn,
@@ -26,8 +28,8 @@ export const ProfileScreen = () => {
       <View style={styles.identity}><View style={styles.avatar}><Text style={styles.initial}>N</Text></View><View><Text style={styles.name}>Narley Reader</Text><Text style={styles.role}>Community member</Text><Text style={styles.verified}>VERIFIED ACCOUNT</Text></View></View>
       <View style={styles.section}><Text style={styles.sectionTitle}>Safety</Text><View style={[styles.weatherCard, weatherAlertsOn && styles.weatherActive]}><View style={styles.toggleRow}><Text style={styles.weatherTitle}>Weather alerts</Text><Switch accessibilityLabel="Weather alerts" disabled={weatherAlertsLoading} ios_backgroundColor={theme.colors.textMuted} onValueChange={(enabled) => { void setWeatherAlertsOn(enabled); }} thumbColor={weatherAlertsOn ? emergencyTheme.colors.primary : theme.colors.primary} trackColor={{ false: theme.colors.textMuted, true: emergencyTheme.colors.accent }} value={weatherAlertsOn} /></View><Text style={styles.description}>Notifications for severe weather, shelter changes, closures, and urgent community conditions.</Text>{weatherAlertsOn && <Text style={styles.activeBadge}>ACTIVE</Text>}{weatherAlertsError !== null && <Text accessibilityLiveRegion="polite" style={styles.preferenceError}>{weatherAlertsError}</Text>}</View></View>
       <View style={styles.section}><Text style={styles.sectionTitle}>Preferences</Text><Pressable style={styles.menuRow}><Text style={styles.menuTitle}>Language</Text><Text style={styles.menuValue}>English</Text></Pressable><Pressable onPress={() => setAboutOpen(true)} style={[styles.menuRow, theme.shadows.card]}><Text style={styles.menuTitle}>About Narley</Text><Text style={styles.chevron}>›</Text></Pressable><Pressable style={styles.feedback}><Text style={styles.feedbackText}>Send feedback</Text></Pressable></View>
-      <View style={styles.section}><Text style={styles.sectionTitle}>Account</Text><View style={styles.accountCard}><Text style={styles.accountTitle}>Signed in</Text><Text style={styles.email}>reader@example.com</Text></View></View>
-      <Pressable onPress={() => Alert.alert('Log out?', 'You will need to sign in again to access saved resources.', [{ text: 'Cancel', style: 'cancel' }, { text: 'Log Out', style: 'destructive' }])} style={styles.logout}><Text style={styles.logoutText}>Log Out</Text></Pressable>
+      <View style={styles.section}><Text style={styles.sectionTitle}>Account</Text><View style={styles.accountCard}><Text style={styles.accountTitle}>Signed in</Text><Text style={styles.email}>{email ?? 'Reader account'}</Text></View></View>
+      <Pressable accessibilityLabel="Log out" accessibilityRole="button" onPress={() => Alert.alert('Log out?', 'You will need to sign in again to access saved resources.', [{ text: 'Cancel', style: 'cancel' }, { text: 'Log Out', onPress: () => { void logout(); }, style: 'destructive' }])} style={styles.logout}><Text style={styles.logoutText}>Log Out</Text></Pressable>
     </ScrollView>
     <Modal animationType="fade" onRequestClose={() => setAboutOpen(false)} transparent visible={aboutOpen}><View style={styles.modalOverlay}><View style={styles.aboutCard}><View style={styles.aboutHeader}><Text style={styles.aboutTitle}>About Narley</Text><Pressable accessibilityLabel="Close About Narley" onPress={() => setAboutOpen(false)} style={styles.aboutClose}><Text style={styles.aboutCloseText}>×</Text></Pressable></View><ScrollView><Text style={styles.aboutSection}>COMMUNITY RESOURCES</Text><Text style={styles.aboutBody}>Narley helps people find practical community resources and timely local updates.</Text><Text style={styles.aboutSection}>OUR APPROACH</Text><Text style={styles.aboutBody}>Information is organized for quick scanning and direct action during stressful situations.</Text><Text style={styles.version}>Version 3</Text></ScrollView></View></View></Modal>
   </View>;

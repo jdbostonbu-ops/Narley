@@ -7,17 +7,23 @@ import {
   NavigationContainer,
   type Theme as NavigationTheme,
 } from "@react-navigation/native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { getTheme } from "@shared-ui/theme/theme";
 import { AlertsScreen } from "./screens/AlertsScreen";
 import { MapScreen } from "./screens/MapScreen";
 import { ProfileScreen } from "./screens/ProfileScreen";
+import { ReaderAuthScreen } from "./screens/ReaderAuthScreen";
+import { ReaderVerifyScreen } from "./screens/ReaderVerifyScreen";
 import { SavedScreen } from "./screens/SavedScreen";
+import { resolveReaderAuthView } from "./src/auth/resolveReaderAuthView";
+import { ReaderAuthProvider, useReaderAuth } from "./src/auth/useReaderAuth";
 import {
   WeatherAlertsProvider,
   useWeatherAlerts,
 } from "./state/WeatherAlertsStore";
+import { SavedResourcesProvider } from "./state/SavedResourcesStore";
 
 type ReaderTabParamList = {
   Map: undefined;
@@ -93,14 +99,59 @@ const ReaderTabs = () => {
   );
 };
 
-export const App = () => (
-  <SafeAreaProvider>
-    <NavigationContainer theme={navigationTheme}>
+const ReaderAuthGate = () => {
+  const { loading, user } = useReaderAuth();
+  const view = resolveReaderAuthView({ loading, user });
+
+  if (view === "loading") {
+    return (
+      <View accessibilityLabel="Loading reader session" style={styles.loadingScreen}>
+        <ActivityIndicator color={theme.colors.accent} size="large" />
+        <Text style={styles.loadingText}>Loading…</Text>
+      </View>
+    );
+  }
+
+  if (view === "auth") {
+    return <ReaderAuthScreen />;
+  }
+
+  if (view === "verify") {
+    return <ReaderVerifyScreen />;
+  }
+
+  return (
+    <SavedResourcesProvider>
       <WeatherAlertsProvider>
         <ReaderTabs />
       </WeatherAlertsProvider>
-    </NavigationContainer>
+    </SavedResourcesProvider>
+  );
+};
+
+export const App = () => (
+  <SafeAreaProvider>
+    <ReaderAuthProvider>
+      <NavigationContainer theme={navigationTheme}>
+        <ReaderAuthGate />
+      </NavigationContainer>
+    </ReaderAuthProvider>
   </SafeAreaProvider>
 );
 
 export default App;
+
+const styles = StyleSheet.create({
+  loadingScreen: {
+    alignItems: "center",
+    backgroundColor: theme.colors.appBackground,
+    flex: 1,
+    justifyContent: "center",
+  },
+  loadingText: {
+    color: theme.colors.textInverse,
+    fontSize: 15,
+    fontWeight: "800",
+    marginTop: theme.spacing.sm,
+  },
+});

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { getTheme } from '@shared-ui/theme/theme';
+import { useSavedResources } from '../../state/SavedResourcesStore';
 import type { ReaderResource } from './resource-card';
 
 const theme = getTheme(false);
@@ -42,9 +43,24 @@ const formatReminderTime = (value: string): string => {
   return `${digits.slice(0, 2)}:${digits.slice(2)}`;
 };
 
-export const ResourceDetailModal = ({ item, onClose, showReport = false }: { item: ReaderResource | null; onClose: () => void; showReport?: boolean }) => {
+export const ResourceDetailModal = ({ item, onClose, showReport = false, showSave = true }: { item: ReaderResource | null; onClose: () => void; showReport?: boolean; showSave?: boolean }) => {
+  const { save } = useSavedResources();
   const [reminderDate, setReminderDate] = useState('');
   const [reminderTime, setReminderTime] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
+
+  const handleSave = async () => {
+    if (item === null) {
+      return;
+    }
+
+    setSaving(true);
+    setSaveMessage('');
+    const result = await save(item);
+    setSaving(false);
+    setSaveMessage(result.ok ? 'Resource saved.' : result.error);
+  };
 
   return (
     <Modal animationType="fade" onRequestClose={onClose} transparent visible={item !== null}>
@@ -105,7 +121,11 @@ export const ResourceDetailModal = ({ item, onClose, showReport = false }: { ite
                   />
                 </View>
               </View>
-              <Pressable accessibilityLabel="Save resource and reminder" accessibilityRole="button" style={styles.save}><Text style={styles.saveText}>Save + Remind</Text></Pressable>
+              <View style={styles.saveActions}>
+                {showSave && <Pressable accessibilityLabel="Save resource" accessibilityRole="button" disabled={saving} onPress={() => { void handleSave(); }} style={[styles.save, saving && styles.disabled]}><Text style={styles.saveText}>{saving ? 'Saving…' : 'Save'}</Text></Pressable>}
+                <Pressable accessibilityLabel="Set reminder" accessibilityRole="button" style={styles.remind}><Text style={styles.remindText}>Remind</Text></Pressable>
+              </View>
+              {saveMessage.length > 0 && <Text accessibilityLiveRegion="polite" style={styles.saveMessage}>{saveMessage}</Text>}
             </ScrollView>
           </View>
         </KeyboardAvoidingView>}
@@ -138,6 +158,11 @@ const styles = StyleSheet.create({
   reminderField: { flex: 1 },
   inputLabel: { color: theme.colors.text, fontSize: 13, fontWeight: '800', marginBottom: theme.spacing.xs },
   reminderInput: { backgroundColor: theme.colors.background, borderColor: theme.colors.border, borderRadius: 12, borderWidth: 1, color: theme.colors.text, minHeight: 48, paddingHorizontal: 12, paddingVertical: 10 },
-  save: { alignItems: 'center', backgroundColor: '#16A34A', borderRadius: 16, marginTop: 14, paddingHorizontal: 18, paddingVertical: 16 },
+  saveActions: { flexDirection: 'row', gap: theme.spacing.sm, marginTop: 14 },
+  save: { alignItems: 'center', backgroundColor: theme.colors.cta, borderRadius: 16, flex: 1, paddingHorizontal: 18, paddingVertical: 16 },
   saveText: { color: '#FFFFFF', fontSize: 16, fontWeight: '900' },
+  remind: { alignItems: 'center', backgroundColor: theme.colors.primary, borderRadius: 16, flex: 1, paddingHorizontal: 18, paddingVertical: 16 },
+  remindText: { color: theme.colors.textInverse, fontSize: 16, fontWeight: '900' },
+  saveMessage: { color: theme.colors.text, fontSize: 14, fontWeight: '800', marginTop: theme.spacing.sm, textAlign: 'center' },
+  disabled: { opacity: 0.6 },
 });

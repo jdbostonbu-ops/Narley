@@ -283,6 +283,124 @@ app.post("/reader/login", async (req, res) => {
   }
 });
 
+type SavedResourceRequest = {
+  readerId: string;
+  resource: {
+    resourceId: string;
+    title: string;
+    category: string;
+    address: string;
+    latitude: number;
+    longitude: number;
+    notes?: string;
+    status?: string;
+  };
+};
+
+const parseSavedResourceRequest = (
+  value: unknown,
+): SavedResourceRequest | null => {
+  if (!isRecord(value) || !isRecord(value.resource)) {
+    return null;
+  }
+
+  const resource = value.resource;
+
+  if (
+    typeof value.readerId !== "string" ||
+    typeof resource.resourceId !== "string" ||
+    typeof resource.title !== "string" ||
+    typeof resource.category !== "string" ||
+    typeof resource.address !== "string" ||
+    typeof resource.latitude !== "number" ||
+    !Number.isFinite(resource.latitude) ||
+    typeof resource.longitude !== "number" ||
+    !Number.isFinite(resource.longitude) ||
+    (resource.notes !== undefined && typeof resource.notes !== "string") ||
+    (resource.status !== undefined && typeof resource.status !== "string")
+  ) {
+    return null;
+  }
+
+  return {
+    readerId: value.readerId,
+    resource: {
+      resourceId: resource.resourceId,
+      title: resource.title,
+      category: resource.category,
+      address: resource.address,
+      latitude: resource.latitude,
+      longitude: resource.longitude,
+      ...(typeof resource.notes === "string" ? { notes: resource.notes } : {}),
+      ...(typeof resource.status === "string" ? { status: resource.status } : {}),
+    },
+  };
+};
+
+app.post("/reader/saved", async (req, res) => {
+  const request = parseSavedResourceRequest(req.body);
+
+  if (request === null) {
+    return res.status(400).json({ error: "Invalid saved resource data" });
+  }
+
+  const data = {
+    readerId: request.readerId,
+    ...request.resource,
+  };
+
+  try {
+    try {
+      const savedResource = await prisma.savedResource.create({ data });
+      return res.status(201).json({ savedResource });
+    } catch (error: unknown) {
+      const existingSavedResource = await prisma.savedResource.findUnique({
+        where: {
+          readerId_resourceId: {
+            readerId: request.readerId,
+            resourceId: request.resource.resourceId,
+          },
+        },
+      });
+
+      if (existingSavedResource !== null) {
+        return res.json({ savedResource: existingSavedResource });
+      }
+
+      throw error;
+    }
+  } catch {
+    return res.status(500).json({ error: "Unable to save resource" });
+  }
+});
+
+app.get("/reader/saved", async (req, res) => {
+  const readerId = req.query.readerId;
+
+  if (typeof readerId !== "string" || readerId.length === 0) {
+    return res.status(400).json({ error: "readerId is required" });
+  }
+
+  try {
+    const savedResources = await prisma.savedResource.findMany({
+      where: { readerId },
+      orderBy: { savedAt: "desc" },
+    });
+    return res.json({ savedResources });
+  } catch {
+    return res.status(500).json({ error: "Unable to load saved resources" });
+  }
+});
+
+app.delete("/reader/saved/:id", async (req, res) => {
+  try {
+    await prisma.savedResource.delete({ where: { id: req.params.id } });
+    return res.json({ ok: true });
+  } catch {
+    return res.status(500).json({ error: "Unable to delete saved resource" });
+  }
+});
+
 type ResourceRequest = {
   title: string;
   category: string;

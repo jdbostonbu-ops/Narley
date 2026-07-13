@@ -133,4 +133,24 @@ model Reader {
   passwordHash  String
   emailVerified Boolean  @default(false)
   createdAt     DateTime @default(now())
+
+  savedResources SavedResource[]
+}
+
+model SavedResource {
+  id         String   @id @default(cuid())
+  readerId   String
+  resourceId String
+  title      String
+  category   String
+  address    String
+  latitude   Float
+  longitude  Float
+  notes      String?
+  status     String?
+  savedAt    DateTime @default(now())
+
+  reader Reader @relation(fields: [readerId], references: [id])
+
+  @@unique([readerId, resourceId])
 }

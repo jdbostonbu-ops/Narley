@@ -1435,3 +1435,324 @@ AssertionError: expected true to be false // Object.is equality
    Start at  21:40:24
    Duration  393ms (transform 193ms, setup 0ms, import 372ms, tests 53ms, environment 1ms)
 
+
+> reader@1.0.0 test:unit
+> vitest run --config vitest.config.js --reporter=verbose
+
+
+ RUN  v4.1.10 /Users/jacquelinedelgado/Documents/Demo Projects Next Chapter/Narley/apps/reader
+
+ ✓ src/resources/saveResource.vitest.test.ts > saveResource (SAVE-002) > adds a resource to an empty saved list 1ms
+ ✓ src/resources/saveResource.vitest.test.ts > saveResource (SAVE-002) > adds a different resource to an existing saved list 0ms
+ ✓ src/resources/saveResource.vitest.test.ts > saveResource (SAVE-002) > does not create a second card when the same resource is saved twice 0ms
+ ✓ src/resources/saveResource.vitest.test.ts > saveResource (SAVE-002) > does not duplicate when the same resource id is already in a longer list 0ms
+ ✓ src/reports/submitReport.vitest.test.ts > submitReport (REPORT-003) > submits a complete report and returns the confirmation message 1ms
+ ✓ src/reports/submitReport.vitest.test.ts > submitReport (REPORT-003) > does not submit when the reason is missing, and prompts to complete 0ms
+ ✓ src/reports/submitReport.vitest.test.ts > submitReport (REPORT-003) > does not submit when the resourceId is missing 0ms
+ ✓ src/reports/submitReport.vitest.test.ts > submitReport (REPORT-003) > does not submit when the address is missing 0ms
+ ✓ src/reports/submitReport.vitest.test.ts > submitReport (REPORT-003) > does not return a success message when the report is incomplete 0ms
+ ✓ src/auth/verifyReaderEmailCode.vitest.test.ts > verifyReaderEmailCode (AUTH-R-003) > verifies the email for a matching, unexpired, unused code 1ms
+ ✓ src/auth/verifyReaderEmailCode.vitest.test.ts > verifyReaderEmailCode (AUTH-R-003) > rejects when no matching code is found, without verifying 0ms
+ ✓ src/auth/verifyReaderEmailCode.vitest.test.ts > verifyReaderEmailCode (AUTH-R-003) > rejects an expired code, without verifying 0ms
+ ✓ src/auth/verifyReaderEmailCode.vitest.test.ts > verifyReaderEmailCode (AUTH-R-003) > rejects an already-used code (single-use), without verifying 0ms
+ ✓ src/alerts/nwsAlerts.vitest.test.ts > nwsAlerts (ALERT-R-001 NWS warnings) > surfaces a Tornado Warning 2ms
+ ✓ src/alerts/nwsAlerts.vitest.test.ts > nwsAlerts (ALERT-R-001 NWS warnings) > surfaces hurricane, flood, winter storm, and severe thunderstorm warnings 0ms
+ ✓ src/alerts/nwsAlerts.vitest.test.ts > nwsAlerts (ALERT-R-001 NWS warnings) > filters out a Watch (not a Warning) 0ms
+ ✓ src/alerts/nwsAlerts.vitest.test.ts > nwsAlerts (ALERT-R-001 NWS warnings) > filters out events not on the named list 0ms
+ ✓ src/alerts/nwsAlerts.vitest.test.ts > nwsAlerts (ALERT-R-001 NWS warnings) > keeps only the warnings from a mixed list 0ms
+ ✓ src/alerts/nwsAlerts.vitest.test.ts > nwsAlerts (ALERT-R-001 NWS warnings) > returns an empty list when there are no features 0ms
+ ✓ src/resources/getSavedResourcesForUser.vitest.test.ts > getSavedResourcesForUser (SAVE-005) > returns only the signed-in user's saved resources 2ms
+ ✓ src/resources/getSavedResourcesForUser.vitest.test.ts > getSavedResourcesForUser (SAVE-005) > does not return another user's saved resources 1ms
+ ✓ src/resources/getSavedResourcesForUser.vitest.test.ts > getSavedResourcesForUser (SAVE-005) > returns a different set for a different user 0ms
+ ✓ src/resources/getSavedResourcesForUser.vitest.test.ts > getSavedResourcesForUser (SAVE-005) > returns an empty list for a user with no saved resources 0ms
+ ✓ src/auth/readerSignup.vitest.test.ts > readerSignup (AUTH-R-002 account creation, AUTH-R-008 password policy) > creates an unverified user for a valid new email + policy-compliant password 1ms
+ ✓ src/auth/readerSignup.vitest.test.ts > readerSignup (AUTH-R-002 account creation, AUTH-R-008 password policy) > hashes the password before creating the user (never stores plaintext) 0ms
+ ✓ src/auth/readerSignup.vitest.test.ts > readerSignup (AUTH-R-002 account creation, AUTH-R-008 password policy) > rejects a password that fails the strength policy, without creating a user (AUTH-R-008) 0ms
+ ✓ src/auth/readerSignup.vitest.test.ts > readerSignup (AUTH-R-002 account creation, AUTH-R-008 password policy) > rejects signup when the email is already registered, without creating a user 0ms
+ ✓ src/auth/readerSignup.vitest.test.ts > readerSignup (AUTH-R-002 account creation, AUTH-R-008 password policy) > creates the user as unverified (email verification required next per AUTH-R-003) 0ms
+ ✓ src/alerts/getAlertsWithSetting.vitest.test.ts > getAlertsWithSetting (ALERT-R-001 Weather Alerts toggle) > returns alerts from both sources when Weather Alerts is ON 2ms
+ ✓ src/alerts/getAlertsWithSetting.vitest.test.ts > getAlertsWithSetting (ALERT-R-001 Weather Alerts toggle) > returns no alerts when Weather Alerts is OFF 1ms
+ ✓ src/alerts/getAlertsWithSetting.vitest.test.ts > getAlertsWithSetting (ALERT-R-001 Weather Alerts toggle) > does not call either API when Weather Alerts is OFF 0ms
+ ✓ src/alerts/getAlertsWithSetting.vitest.test.ts > getAlertsWithSetting (ALERT-R-001 Weather Alerts toggle) > fetches from both sources when Weather Alerts is ON 0ms
+ ✓ src/reminders/scheduleReminder.vitest.test.ts > scheduleReminder (REM-004) > schedules exactly one notification for a valid future reminder 1ms
+ ✓ src/reminders/scheduleReminder.vitest.test.ts > scheduleReminder (REM-004) > does not schedule when the reminder is invalid, and reports it 0ms
+ ✓ src/reminders/scheduleReminder.vitest.test.ts > scheduleReminder (REM-004) > does not schedule when the reminder is in the past, and reports it 0ms
+ ✓ src/reminders/scheduleReminder.vitest.test.ts > scheduleReminder (REM-004) > does not schedule when the date is missing, and reports it 0ms
+ ✓ src/reminders/scheduleReminder.vitest.test.ts > scheduleReminder (REM-004) > schedules only one notification, never duplicates 0ms
+ ✓ src/alerts/getAlertsForLocation.vitest.test.ts > getAlertsForLocation (ALERT-R-001/002 combine + normalize + graceful failure) > returns normalized alerts from both sources 3ms
+ ✓ src/alerts/getAlertsForLocation.vitest.test.ts > getAlertsForLocation (ALERT-R-001/002 combine + normalize + graceful failure) > normalizes the forecast alert with advice and expected time 0ms
+ ✓ src/alerts/getAlertsForLocation.vitest.test.ts > getAlertsForLocation (ALERT-R-001/002 combine + normalize + graceful failure) > still returns NWS warnings when the weather API fails 1ms
+ ✓ src/alerts/getAlertsForLocation.vitest.test.ts > getAlertsForLocation (ALERT-R-001/002 combine + normalize + graceful failure) > still returns forecast temperature alerts when the NWS API fails 0ms
+ ✓ src/alerts/getAlertsForLocation.vitest.test.ts > getAlertsForLocation (ALERT-R-001/002 combine + normalize + graceful failure) > returns no alerts but flags both failures when both APIs fail 0ms
+ ✓ src/alerts/getAlertsForLocation.vitest.test.ts > getAlertsForLocation (ALERT-R-001/002 combine + normalize + graceful failure) > returns no alerts when the forecast is mild and NWS is empty 0ms
+ ✓ src/alerts/normalizeAlert.vitest.test.ts > normalizeAlert (ALERT-R-002 common alert fields) > normalizes a HEAT forecast alert with advice, no severity 1ms
+ ✓ src/alerts/normalizeAlert.vitest.test.ts > normalizeAlert (ALERT-R-002 common alert fields) > normalizes a COLD forecast alert with advice, no severity 0ms
+ ✓ src/alerts/normalizeAlert.vitest.test.ts > normalizeAlert (ALERT-R-002 common alert fields) > normalizes an NWS alert with severity, no advice 0ms
+ ✓ src/alerts/normalizeAlert.vitest.test.ts > normalizeAlert (ALERT-R-002 common alert fields) > gives every normalized alert the same fields 0ms
+ ✓ src/reports/createReport.vitest.test.ts > createReport (REPORT-002) > creates a report from resourceId, address, and selected reason 2ms
+ ✓ src/reports/createReport.vitest.test.ts > createReport (REPORT-002) > rejects a missing reason with a clear message 0ms
+ ✓ src/reports/createReport.vitest.test.ts > createReport (REPORT-002) > rejects when no reason is provided at all 0ms
+ ✓ src/reports/createReport.vitest.test.ts > createReport (REPORT-002) > does not include or touch the resource itself, only report data 0ms
+ ✓ src/resources/saveResourceSnapshot.vitest.test.ts > saveResource snapshot (SAVE-003) > preserves the full resource detail in the saved record 1ms
+ ✓ src/resources/saveResourceSnapshot.vitest.test.ts > saveResource snapshot (SAVE-003) > keeps the saved snapshot unchanged when the live resource is later edited 0ms
+ ✓ src/auth/resolveReaderAuthView.vitest.test.ts > resolveReaderAuthView (AUTH-R-001/002/003/004) > returns 'loading' while auth state is resolving (AUTH-R-001) 1ms
+ ✓ src/auth/resolveReaderAuthView.vitest.test.ts > resolveReaderAuthView (AUTH-R-001/002/003/004) > returns 'auth' when there is no user (AUTH-R-002 — logged-out sees login/signup) 0ms
+ ✓ src/auth/resolveReaderAuthView.vitest.test.ts > resolveReaderAuthView (AUTH-R-001/002/003/004) > returns 'verify' when the user is logged in but email is unverified (AUTH-R-003) 0ms
+ ✓ src/auth/resolveReaderAuthView.vitest.test.ts > resolveReaderAuthView (AUTH-R-001/002/003/004) > returns 'tabs' when the user is logged in and email is verified (AUTH-R-004) 0ms
+ ✓ src/auth/resolveReaderAuthView.vitest.test.ts > resolveReaderAuthView (AUTH-R-001/002/003/004) > never returns 'tabs' for a logged-out user (AUTH-R-002 — tabs hidden) 0ms
+ ✓ src/auth/resolveReaderAuthView.vitest.test.ts > resolveReaderAuthView (AUTH-R-001/002/003/004) > never returns 'tabs' for an unverified user (AUTH-R-004 requires verification) 0ms
+ ✓ src/reports/reportReason.vitest.test.ts > report reasons (REPORT-001) > the approved set is exactly the five reader reasons 1ms
+ ✓ src/reports/reportReason.vitest.test.ts > report reasons (REPORT-001) > accepts 'Closed / no longer operating' 0ms
+ ✓ src/reports/reportReason.vitest.test.ts > report reasons (REPORT-001) > accepts 'Wrong hours' 0ms
+ ✓ src/reports/reportReason.vitest.test.ts > report reasons (REPORT-001) > accepts 'Wrong address / location' 0ms
+ ✓ src/reports/reportReason.vitest.test.ts > report reasons (REPORT-001) > accepts 'No more resources available' 0ms
+ ✓ src/reports/reportReason.vitest.test.ts > report reasons (REPORT-001) > accepts 'Phone disconnected / no longer working' 0ms
+ ✓ src/reports/reportReason.vitest.test.ts > report reasons (REPORT-001) > rejects a reason outside the approved set 0ms
+ ✓ src/reports/reportReason.vitest.test.ts > report reasons (REPORT-001) > rejects an empty reason 0ms
+ ✓ src/auth/generateVerificationCode.vitest.test.ts > generateVerificationCode (AUTH-R-003 email verification code) > returns a 6-character code 1ms
+ ✓ src/auth/generateVerificationCode.vitest.test.ts > generateVerificationCode (AUTH-R-003 email verification code) > returns only allowed alphanumeric characters (A-Z, 0-9) 0ms
+ ✓ src/auth/generateVerificationCode.vitest.test.ts > generateVerificationCode (AUTH-R-003 email verification code) > produces varying codes (not a constant value) 0ms
+ ✓ src/resources/removeSavedResource.vitest.test.ts > removeSavedResource (SAVE-008) > removes the saved card with the given id 1ms
+ ✓ src/resources/removeSavedResource.vitest.test.ts > removeSavedResource (SAVE-008) > leaves other saved cards intact 0ms
+ ✓ src/resources/removeSavedResource.vitest.test.ts > removeSavedResource (SAVE-008) > returns the list unchanged when the id is not saved 0ms
+ ✓ src/resources/removeSavedResource.vitest.test.ts > removeSavedResource (SAVE-008) > does not mutate or return the original saved list 0ms
+ ✓ src/resources/removeSavedResource.vitest.test.ts > removeSavedResource (SAVE-008) > returns an empty list when the last saved card is removed 0ms
+ ✓ src/reminders/validateReminder.vitest.test.ts > validateReminder (REM-002) > accepts a valid future date and time 2ms
+ ✓ src/reminders/validateReminder.vitest.test.ts > validateReminder (REM-002) > rejects a missing date 0ms
+ ✓ src/reminders/validateReminder.vitest.test.ts > validateReminder (REM-002) > rejects a missing time 0ms
+ ✓ src/reminders/validateReminder.vitest.test.ts > validateReminder (REM-002) > rejects an invalid date that is not a real day 0ms
+ ✓ src/reminders/validateReminder.vitest.test.ts > validateReminder (REM-002) > rejects a non-date value 0ms
+ ✓ src/reminders/validateReminder.vitest.test.ts > validateReminder (REM-002) > rejects a date and time in the past 0ms
+ ✓ src/reminders/validateReminder.vitest.test.ts > validateReminder (REM-002) > rejects the exact current moment (must be in the future) 0ms
+ ✓ src/alerts/forecastTemperatureAlert.vitest.test.ts > forecastTemperatureAlert (ALERT-R-001 forecast thresholds) > flags heat at the first hour that reaches 91F, with its time 1ms
+ ✓ src/alerts/forecastTemperatureAlert.vitest.test.ts > forecastTemperatureAlert (ALERT-R-001 forecast thresholds) > flags cold at the first hour that reaches 32F, with its time 0ms
+ ✓ src/alerts/forecastTemperatureAlert.vitest.test.ts > forecastTemperatureAlert (ALERT-R-001 forecast thresholds) > reports the earliest crossing when several hours exceed the threshold 0ms
+ ✓ src/alerts/forecastTemperatureAlert.vitest.test.ts > forecastTemperatureAlert (ALERT-R-001 forecast thresholds) > does not flag when no hour crosses a threshold 0ms
+ ✓ src/alerts/forecastTemperatureAlert.vitest.test.ts > forecastTemperatureAlert (ALERT-R-001 forecast thresholds) > does not flag just inside the thresholds (90F and 33F) 0ms
+ ✓ src/alerts/forecastTemperatureAlert.vitest.test.ts > forecastTemperatureAlert (ALERT-R-001 forecast thresholds) > returns no alert for an empty forecast 0ms
+ ✓ src/auth/readerLogin.vitest.test.ts > readerLogin (AUTH-R-002) > returns a session for a correct email + password 1ms
+ ✓ src/auth/readerLogin.vitest.test.ts > readerLogin (AUTH-R-002) > includes the user's emailVerified status in the session result 0ms
+ ✓ src/auth/readerLogin.vitest.test.ts > readerLogin (AUTH-R-002) > denies a wrong password with a generic error and no session 0ms
+ ✓ src/auth/readerLogin.vitest.test.ts > readerLogin (AUTH-R-002) > denies an unknown email with the SAME generic error (no enumeration) 0ms
+ ✓ src/auth/readerLogin.vitest.test.ts > readerLogin (AUTH-R-002) > does not reveal which factor failed (wrong password vs no user) 0ms
+ ✓ src/theme/sharedThemeImport.vitest.test.ts > shared UI theme import > resolves the shared theme through the monorepo alias 1ms
+
+ Test Files  20 passed (20)
+      Tests  94 passed (94)
+   Start at  22:28:25
+   Duration  403ms (transform 268ms, setup 0ms, import 451ms, tests 53ms, environment 1ms)
+
+
+> reader@1.0.0 test:unit
+> vitest run --config vitest.config.js --reporter=verbose
+
+
+ RUN  v4.1.10 /Users/jacquelinedelgado/Documents/Demo Projects Next Chapter/Narley/apps/reader
+
+ ✓ src/auth/resolveReaderAuthView.vitest.test.ts > resolveReaderAuthView (AUTH-R-001/002/003/004) > returns 'loading' while auth state is resolving (AUTH-R-001) 1ms
+ ✓ src/auth/resolveReaderAuthView.vitest.test.ts > resolveReaderAuthView (AUTH-R-001/002/003/004) > returns 'auth' when there is no user (AUTH-R-002 — logged-out sees login/signup) 0ms
+ ✓ src/auth/resolveReaderAuthView.vitest.test.ts > resolveReaderAuthView (AUTH-R-001/002/003/004) > returns 'verify' when the user is logged in but email is unverified (AUTH-R-003) 0ms
+ ✓ src/auth/resolveReaderAuthView.vitest.test.ts > resolveReaderAuthView (AUTH-R-001/002/003/004) > returns 'tabs' when the user is logged in and email is verified (AUTH-R-004) 0ms
+ ✓ src/auth/resolveReaderAuthView.vitest.test.ts > resolveReaderAuthView (AUTH-R-001/002/003/004) > never returns 'tabs' for a logged-out user (AUTH-R-002 — tabs hidden) 0ms
+ ✓ src/auth/resolveReaderAuthView.vitest.test.ts > resolveReaderAuthView (AUTH-R-001/002/003/004) > never returns 'tabs' for an unverified user (AUTH-R-004 requires verification) 0ms
+ ✓ src/resources/getSavedResourcesForUser.vitest.test.ts > getSavedResourcesForUser (SAVE-005) > returns only the signed-in user's saved resources 2ms
+ ✓ src/resources/getSavedResourcesForUser.vitest.test.ts > getSavedResourcesForUser (SAVE-005) > does not return another user's saved resources 0ms
+ ✓ src/resources/getSavedResourcesForUser.vitest.test.ts > getSavedResourcesForUser (SAVE-005) > returns a different set for a different user 0ms
+ ✓ src/resources/getSavedResourcesForUser.vitest.test.ts > getSavedResourcesForUser (SAVE-005) > returns an empty list for a user with no saved resources 0ms
+ ✓ src/resources/removeSavedResource.vitest.test.ts > removeSavedResource (SAVE-008) > removes the saved card with the given id 1ms
+ ✓ src/resources/removeSavedResource.vitest.test.ts > removeSavedResource (SAVE-008) > leaves other saved cards intact 0ms
+ ✓ src/resources/removeSavedResource.vitest.test.ts > removeSavedResource (SAVE-008) > returns the list unchanged when the id is not saved 0ms
+ ✓ src/resources/removeSavedResource.vitest.test.ts > removeSavedResource (SAVE-008) > does not mutate or return the original saved list 0ms
+ ✓ src/resources/removeSavedResource.vitest.test.ts > removeSavedResource (SAVE-008) > returns an empty list when the last saved card is removed 0ms
+ ✓ src/alerts/nwsAlerts.vitest.test.ts > nwsAlerts (ALERT-R-001 NWS warnings) > surfaces a Tornado Warning 2ms
+ ✓ src/alerts/nwsAlerts.vitest.test.ts > nwsAlerts (ALERT-R-001 NWS warnings) > surfaces hurricane, flood, winter storm, and severe thunderstorm warnings 0ms
+ ✓ src/alerts/nwsAlerts.vitest.test.ts > nwsAlerts (ALERT-R-001 NWS warnings) > filters out a Watch (not a Warning) 0ms
+ ✓ src/alerts/nwsAlerts.vitest.test.ts > nwsAlerts (ALERT-R-001 NWS warnings) > filters out events not on the named list 0ms
+ ✓ src/alerts/nwsAlerts.vitest.test.ts > nwsAlerts (ALERT-R-001 NWS warnings) > keeps only the warnings from a mixed list 0ms
+ ✓ src/alerts/nwsAlerts.vitest.test.ts > nwsAlerts (ALERT-R-001 NWS warnings) > returns an empty list when there are no features 0ms
+ ✓ src/reports/createReport.vitest.test.ts > createReport (REPORT-002) > creates a report from resourceId, address, and selected reason 2ms
+ ✓ src/reports/createReport.vitest.test.ts > createReport (REPORT-002) > rejects a missing reason with a clear message 0ms
+ ✓ src/reports/createReport.vitest.test.ts > createReport (REPORT-002) > rejects when no reason is provided at all 0ms
+ ✓ src/reports/createReport.vitest.test.ts > createReport (REPORT-002) > does not include or touch the resource itself, only report data 1ms
+ ✓ src/auth/readerSignup.vitest.test.ts > readerSignup (AUTH-R-002 account creation, AUTH-R-008 password policy) > creates an unverified user for a valid new email + policy-compliant password 1ms
+ ✓ src/auth/readerSignup.vitest.test.ts > readerSignup (AUTH-R-002 account creation, AUTH-R-008 password policy) > hashes the password before creating the user (never stores plaintext) 0ms
+ ✓ src/auth/readerSignup.vitest.test.ts > readerSignup (AUTH-R-002 account creation, AUTH-R-008 password policy) > rejects a password that fails the strength policy, without creating a user (AUTH-R-008) 1ms
+ ✓ src/auth/readerSignup.vitest.test.ts > readerSignup (AUTH-R-002 account creation, AUTH-R-008 password policy) > rejects signup when the email is already registered, without creating a user 0ms
+ ✓ src/auth/readerSignup.vitest.test.ts > readerSignup (AUTH-R-002 account creation, AUTH-R-008 password policy) > creates the user as unverified (email verification required next per AUTH-R-003) 0ms
+ ✓ src/reminders/validateReminder.vitest.test.ts > validateReminder (REM-002) > accepts a valid future date and time 2ms
+ ✓ src/reminders/validateReminder.vitest.test.ts > validateReminder (REM-002) > rejects a missing date 0ms
+ ✓ src/reminders/validateReminder.vitest.test.ts > validateReminder (REM-002) > rejects a missing time 0ms
+ ✓ src/reminders/validateReminder.vitest.test.ts > validateReminder (REM-002) > rejects an invalid date that is not a real day 0ms
+ ✓ src/reminders/validateReminder.vitest.test.ts > validateReminder (REM-002) > rejects a non-date value 0ms
+ ✓ src/reminders/validateReminder.vitest.test.ts > validateReminder (REM-002) > rejects a date and time in the past 0ms
+ ✓ src/reminders/validateReminder.vitest.test.ts > validateReminder (REM-002) > rejects the exact current moment (must be in the future) 0ms
+ ✓ src/alerts/getAlertsWithSetting.vitest.test.ts > getAlertsWithSetting (ALERT-R-001 Weather Alerts toggle) > returns alerts from both sources when Weather Alerts is ON 1ms
+ ✓ src/alerts/getAlertsWithSetting.vitest.test.ts > getAlertsWithSetting (ALERT-R-001 Weather Alerts toggle) > returns no alerts when Weather Alerts is OFF 0ms
+ ✓ src/alerts/getAlertsWithSetting.vitest.test.ts > getAlertsWithSetting (ALERT-R-001 Weather Alerts toggle) > does not call either API when Weather Alerts is OFF 0ms
+ ✓ src/alerts/getAlertsWithSetting.vitest.test.ts > getAlertsWithSetting (ALERT-R-001 Weather Alerts toggle) > fetches from both sources when Weather Alerts is ON 0ms
+ ✓ src/alerts/getAlertsForLocation.vitest.test.ts > getAlertsForLocation (ALERT-R-001/002 combine + normalize + graceful failure) > returns normalized alerts from both sources 2ms
+ ✓ src/alerts/getAlertsForLocation.vitest.test.ts > getAlertsForLocation (ALERT-R-001/002 combine + normalize + graceful failure) > normalizes the forecast alert with advice and expected time 0ms
+ ✓ src/alerts/getAlertsForLocation.vitest.test.ts > getAlertsForLocation (ALERT-R-001/002 combine + normalize + graceful failure) > still returns NWS warnings when the weather API fails 1ms
+ ✓ src/alerts/getAlertsForLocation.vitest.test.ts > getAlertsForLocation (ALERT-R-001/002 combine + normalize + graceful failure) > still returns forecast temperature alerts when the NWS API fails 0ms
+ ✓ src/alerts/getAlertsForLocation.vitest.test.ts > getAlertsForLocation (ALERT-R-001/002 combine + normalize + graceful failure) > returns no alerts but flags both failures when both APIs fail 0ms
+ ✓ src/alerts/getAlertsForLocation.vitest.test.ts > getAlertsForLocation (ALERT-R-001/002 combine + normalize + graceful failure) > returns no alerts when the forecast is mild and NWS is empty 0ms
+ ✓ src/auth/verifyReaderEmailCode.vitest.test.ts > verifyReaderEmailCode (AUTH-R-003) > verifies the email for a matching, unexpired, unused code 2ms
+ ✓ src/auth/verifyReaderEmailCode.vitest.test.ts > verifyReaderEmailCode (AUTH-R-003) > rejects when no matching code is found, without verifying 0ms
+ ✓ src/auth/verifyReaderEmailCode.vitest.test.ts > verifyReaderEmailCode (AUTH-R-003) > rejects an expired code, without verifying 0ms
+ ✓ src/auth/verifyReaderEmailCode.vitest.test.ts > verifyReaderEmailCode (AUTH-R-003) > rejects an already-used code (single-use), without verifying 0ms
+ ✓ src/resources/saveResourceSnapshot.vitest.test.ts > saveResource snapshot (SAVE-003) > preserves the full resource detail in the saved record 3ms
+ ✓ src/resources/saveResourceSnapshot.vitest.test.ts > saveResource snapshot (SAVE-003) > keeps the saved snapshot unchanged when the live resource is later edited 0ms
+ ✓ src/reports/submitReport.vitest.test.ts > submitReport (REPORT-003) > submits a complete report and returns the confirmation message 1ms
+ ✓ src/reports/submitReport.vitest.test.ts > submitReport (REPORT-003) > does not submit when the reason is missing, and prompts to complete 0ms
+ ✓ src/reports/submitReport.vitest.test.ts > submitReport (REPORT-003) > does not submit when the resourceId is missing 0ms
+ ✓ src/reports/submitReport.vitest.test.ts > submitReport (REPORT-003) > does not submit when the address is missing 0ms
+ ✓ src/reports/submitReport.vitest.test.ts > submitReport (REPORT-003) > does not return a success message when the report is incomplete 0ms
+ ✓ src/resources/saveResource.vitest.test.ts > saveResource (SAVE-002) > adds a resource to an empty saved list 2ms
+ ✓ src/resources/saveResource.vitest.test.ts > saveResource (SAVE-002) > adds a different resource to an existing saved list 0ms
+ ✓ src/resources/saveResource.vitest.test.ts > saveResource (SAVE-002) > does not create a second card when the same resource is saved twice 0ms
+ ✓ src/resources/saveResource.vitest.test.ts > saveResource (SAVE-002) > does not duplicate when the same resource id is already in a longer list 0ms
+ ✓ src/reminders/scheduleReminder.vitest.test.ts > scheduleReminder (REM-004) > schedules exactly one notification for a valid future reminder 2ms
+ ✓ src/reminders/scheduleReminder.vitest.test.ts > scheduleReminder (REM-004) > does not schedule when the reminder is invalid, and reports it 0ms
+ ✓ src/reminders/scheduleReminder.vitest.test.ts > scheduleReminder (REM-004) > does not schedule when the reminder is in the past, and reports it 0ms
+ ✓ src/reminders/scheduleReminder.vitest.test.ts > scheduleReminder (REM-004) > does not schedule when the date is missing, and reports it 0ms
+ ✓ src/reminders/scheduleReminder.vitest.test.ts > scheduleReminder (REM-004) > schedules only one notification, never duplicates 0ms
+ ✓ src/auth/generateVerificationCode.vitest.test.ts > generateVerificationCode (AUTH-R-003 email verification code) > returns a 6-character code 2ms
+ ✓ src/auth/generateVerificationCode.vitest.test.ts > generateVerificationCode (AUTH-R-003 email verification code) > returns only allowed alphanumeric characters (A-Z, 0-9) 1ms
+ ✓ src/auth/generateVerificationCode.vitest.test.ts > generateVerificationCode (AUTH-R-003 email verification code) > produces varying codes (not a constant value) 0ms
+ ✓ src/reports/reportReason.vitest.test.ts > report reasons (REPORT-001) > the approved set is exactly the five reader reasons 1ms
+ ✓ src/reports/reportReason.vitest.test.ts > report reasons (REPORT-001) > accepts 'Closed / no longer operating' 0ms
+ ✓ src/reports/reportReason.vitest.test.ts > report reasons (REPORT-001) > accepts 'Wrong hours' 0ms
+ ✓ src/reports/reportReason.vitest.test.ts > report reasons (REPORT-001) > accepts 'Wrong address / location' 0ms
+ ✓ src/reports/reportReason.vitest.test.ts > report reasons (REPORT-001) > accepts 'No more resources available' 0ms
+ ✓ src/reports/reportReason.vitest.test.ts > report reasons (REPORT-001) > accepts 'Phone disconnected / no longer working' 0ms
+ ✓ src/reports/reportReason.vitest.test.ts > report reasons (REPORT-001) > rejects a reason outside the approved set 0ms
+ ✓ src/reports/reportReason.vitest.test.ts > report reasons (REPORT-001) > rejects an empty reason 0ms
+ ✓ src/alerts/forecastTemperatureAlert.vitest.test.ts > forecastTemperatureAlert (ALERT-R-001 forecast thresholds) > flags heat at the first hour that reaches 91F, with its time 1ms
+ ✓ src/alerts/forecastTemperatureAlert.vitest.test.ts > forecastTemperatureAlert (ALERT-R-001 forecast thresholds) > flags cold at the first hour that reaches 32F, with its time 0ms
+ ✓ src/alerts/forecastTemperatureAlert.vitest.test.ts > forecastTemperatureAlert (ALERT-R-001 forecast thresholds) > reports the earliest crossing when several hours exceed the threshold 0ms
+ ✓ src/alerts/forecastTemperatureAlert.vitest.test.ts > forecastTemperatureAlert (ALERT-R-001 forecast thresholds) > does not flag when no hour crosses a threshold 0ms
+ ✓ src/alerts/forecastTemperatureAlert.vitest.test.ts > forecastTemperatureAlert (ALERT-R-001 forecast thresholds) > does not flag just inside the thresholds (90F and 33F) 0ms
+ ✓ src/alerts/forecastTemperatureAlert.vitest.test.ts > forecastTemperatureAlert (ALERT-R-001 forecast thresholds) > returns no alert for an empty forecast 0ms
+ ✓ src/alerts/normalizeAlert.vitest.test.ts > normalizeAlert (ALERT-R-002 common alert fields) > normalizes a HEAT forecast alert with advice, no severity 1ms
+ ✓ src/alerts/normalizeAlert.vitest.test.ts > normalizeAlert (ALERT-R-002 common alert fields) > normalizes a COLD forecast alert with advice, no severity 0ms
+ ✓ src/alerts/normalizeAlert.vitest.test.ts > normalizeAlert (ALERT-R-002 common alert fields) > normalizes an NWS alert with severity, no advice 0ms
+ ✓ src/alerts/normalizeAlert.vitest.test.ts > normalizeAlert (ALERT-R-002 common alert fields) > gives every normalized alert the same fields 0ms
+ ✓ src/auth/readerLogin.vitest.test.ts > readerLogin (AUTH-R-002) > returns a session for a correct email + password 1ms
+ ✓ src/auth/readerLogin.vitest.test.ts > readerLogin (AUTH-R-002) > includes the user's emailVerified status in the session result 0ms
+ ✓ src/auth/readerLogin.vitest.test.ts > readerLogin (AUTH-R-002) > denies a wrong password with a generic error and no session 0ms
+ ✓ src/auth/readerLogin.vitest.test.ts > readerLogin (AUTH-R-002) > denies an unknown email with the SAME generic error (no enumeration) 0ms
+ ✓ src/auth/readerLogin.vitest.test.ts > readerLogin (AUTH-R-002) > does not reveal which factor failed (wrong password vs no user) 0ms
+ ✓ src/theme/sharedThemeImport.vitest.test.ts > shared UI theme import > resolves the shared theme through the monorepo alias 1ms
+
+ Test Files  20 passed (20)
+      Tests  94 passed (94)
+   Start at  22:38:37
+   Duration  485ms (transform 331ms, setup 0ms, import 556ms, tests 61ms, environment 1ms)
+
+
+> reader@1.0.0 test:unit
+> vitest run --config vitest.config.js --reporter=verbose
+
+
+ RUN  v4.1.10 /Users/jacquelinedelgado/Documents/Demo Projects Next Chapter/Narley/apps/reader
+
+ ✓ src/resources/saveResourceSnapshot.vitest.test.ts > saveResource snapshot (SAVE-003) > preserves the full resource detail in the saved record 1ms
+ ✓ src/resources/saveResourceSnapshot.vitest.test.ts > saveResource snapshot (SAVE-003) > keeps the saved snapshot unchanged when the live resource is later edited 0ms
+ ✓ src/resources/saveResource.vitest.test.ts > saveResource (SAVE-002) > adds a resource to an empty saved list 1ms
+ ✓ src/resources/saveResource.vitest.test.ts > saveResource (SAVE-002) > adds a different resource to an existing saved list 0ms
+ ✓ src/resources/saveResource.vitest.test.ts > saveResource (SAVE-002) > does not create a second card when the same resource is saved twice 0ms
+ ✓ src/resources/saveResource.vitest.test.ts > saveResource (SAVE-002) > does not duplicate when the same resource id is already in a longer list 0ms
+ ✓ src/resources/getSavedResourcesForUser.vitest.test.ts > getSavedResourcesForUser (SAVE-005) > returns only the signed-in user's saved resources 1ms
+ ✓ src/resources/getSavedResourcesForUser.vitest.test.ts > getSavedResourcesForUser (SAVE-005) > does not return another user's saved resources 0ms
+ ✓ src/resources/getSavedResourcesForUser.vitest.test.ts > getSavedResourcesForUser (SAVE-005) > returns a different set for a different user 0ms
+ ✓ src/resources/getSavedResourcesForUser.vitest.test.ts > getSavedResourcesForUser (SAVE-005) > returns an empty list for a user with no saved resources 0ms
+ ✓ src/auth/generateVerificationCode.vitest.test.ts > generateVerificationCode (AUTH-R-003 email verification code) > returns a 6-character code 1ms
+ ✓ src/auth/generateVerificationCode.vitest.test.ts > generateVerificationCode (AUTH-R-003 email verification code) > returns only allowed alphanumeric characters (A-Z, 0-9) 0ms
+ ✓ src/auth/generateVerificationCode.vitest.test.ts > generateVerificationCode (AUTH-R-003 email verification code) > produces varying codes (not a constant value) 0ms
+ ✓ src/reminders/validateReminder.vitest.test.ts > validateReminder (REM-002) > accepts a valid future date and time 1ms
+ ✓ src/reminders/validateReminder.vitest.test.ts > validateReminder (REM-002) > rejects a missing date 0ms
+ ✓ src/reminders/validateReminder.vitest.test.ts > validateReminder (REM-002) > rejects a missing time 0ms
+ ✓ src/reminders/validateReminder.vitest.test.ts > validateReminder (REM-002) > rejects an invalid date that is not a real day 0ms
+ ✓ src/reminders/validateReminder.vitest.test.ts > validateReminder (REM-002) > rejects a non-date value 0ms
+ ✓ src/reminders/validateReminder.vitest.test.ts > validateReminder (REM-002) > rejects a date and time in the past 0ms
+ ✓ src/reminders/validateReminder.vitest.test.ts > validateReminder (REM-002) > rejects the exact current moment (must be in the future) 0ms
+ ✓ src/auth/readerSignup.vitest.test.ts > readerSignup (AUTH-R-002 account creation, AUTH-R-008 password policy) > creates an unverified user for a valid new email + policy-compliant password 1ms
+ ✓ src/auth/readerSignup.vitest.test.ts > readerSignup (AUTH-R-002 account creation, AUTH-R-008 password policy) > hashes the password before creating the user (never stores plaintext) 0ms
+ ✓ src/auth/readerSignup.vitest.test.ts > readerSignup (AUTH-R-002 account creation, AUTH-R-008 password policy) > rejects a password that fails the strength policy, without creating a user (AUTH-R-008) 0ms
+ ✓ src/auth/readerSignup.vitest.test.ts > readerSignup (AUTH-R-002 account creation, AUTH-R-008 password policy) > rejects signup when the email is already registered, without creating a user 0ms
+ ✓ src/auth/readerSignup.vitest.test.ts > readerSignup (AUTH-R-002 account creation, AUTH-R-008 password policy) > creates the user as unverified (email verification required next per AUTH-R-003) 0ms
+ ✓ src/reports/createReport.vitest.test.ts > createReport (REPORT-002) > creates a report from resourceId, address, and selected reason 1ms
+ ✓ src/reports/createReport.vitest.test.ts > createReport (REPORT-002) > rejects a missing reason with a clear message 0ms
+ ✓ src/reports/createReport.vitest.test.ts > createReport (REPORT-002) > rejects when no reason is provided at all 0ms
+ ✓ src/reports/createReport.vitest.test.ts > createReport (REPORT-002) > does not include or touch the resource itself, only report data 0ms
+ ✓ src/reminders/scheduleReminder.vitest.test.ts > scheduleReminder (REM-004) > schedules exactly one notification for a valid future reminder 1ms
+ ✓ src/reminders/scheduleReminder.vitest.test.ts > scheduleReminder (REM-004) > does not schedule when the reminder is invalid, and reports it 0ms
+ ✓ src/reminders/scheduleReminder.vitest.test.ts > scheduleReminder (REM-004) > does not schedule when the reminder is in the past, and reports it 0ms
+ ✓ src/reminders/scheduleReminder.vitest.test.ts > scheduleReminder (REM-004) > does not schedule when the date is missing, and reports it 0ms
+ ✓ src/reminders/scheduleReminder.vitest.test.ts > scheduleReminder (REM-004) > schedules only one notification, never duplicates 0ms
+ ✓ src/alerts/getAlertsForLocation.vitest.test.ts > getAlertsForLocation (ALERT-R-001/002 combine + normalize + graceful failure) > returns normalized alerts from both sources 2ms
+ ✓ src/alerts/getAlertsForLocation.vitest.test.ts > getAlertsForLocation (ALERT-R-001/002 combine + normalize + graceful failure) > normalizes the forecast alert with advice and expected time 0ms
+ ✓ src/alerts/getAlertsForLocation.vitest.test.ts > getAlertsForLocation (ALERT-R-001/002 combine + normalize + graceful failure) > still returns NWS warnings when the weather API fails 0ms
+ ✓ src/alerts/getAlertsForLocation.vitest.test.ts > getAlertsForLocation (ALERT-R-001/002 combine + normalize + graceful failure) > still returns forecast temperature alerts when the NWS API fails 0ms
+ ✓ src/alerts/getAlertsForLocation.vitest.test.ts > getAlertsForLocation (ALERT-R-001/002 combine + normalize + graceful failure) > returns no alerts but flags both failures when both APIs fail 0ms
+ ✓ src/alerts/getAlertsForLocation.vitest.test.ts > getAlertsForLocation (ALERT-R-001/002 combine + normalize + graceful failure) > returns no alerts when the forecast is mild and NWS is empty 0ms
+ ✓ src/alerts/forecastTemperatureAlert.vitest.test.ts > forecastTemperatureAlert (ALERT-R-001 forecast thresholds) > flags heat at the first hour that reaches 91F, with its time 1ms
+ ✓ src/alerts/forecastTemperatureAlert.vitest.test.ts > forecastTemperatureAlert (ALERT-R-001 forecast thresholds) > flags cold at the first hour that reaches 32F, with its time 0ms
+ ✓ src/alerts/forecastTemperatureAlert.vitest.test.ts > forecastTemperatureAlert (ALERT-R-001 forecast thresholds) > reports the earliest crossing when several hours exceed the threshold 0ms
+ ✓ src/alerts/forecastTemperatureAlert.vitest.test.ts > forecastTemperatureAlert (ALERT-R-001 forecast thresholds) > does not flag when no hour crosses a threshold 0ms
+ ✓ src/alerts/forecastTemperatureAlert.vitest.test.ts > forecastTemperatureAlert (ALERT-R-001 forecast thresholds) > does not flag just inside the thresholds (90F and 33F) 0ms
+ ✓ src/alerts/forecastTemperatureAlert.vitest.test.ts > forecastTemperatureAlert (ALERT-R-001 forecast thresholds) > returns no alert for an empty forecast 0ms
+ ✓ src/auth/verifyReaderEmailCode.vitest.test.ts > verifyReaderEmailCode (AUTH-R-003) > verifies the email for a matching, unexpired, unused code 1ms
+ ✓ src/auth/verifyReaderEmailCode.vitest.test.ts > verifyReaderEmailCode (AUTH-R-003) > rejects when no matching code is found, without verifying 0ms
+ ✓ src/auth/verifyReaderEmailCode.vitest.test.ts > verifyReaderEmailCode (AUTH-R-003) > rejects an expired code, without verifying 0ms
+ ✓ src/auth/verifyReaderEmailCode.vitest.test.ts > verifyReaderEmailCode (AUTH-R-003) > rejects an already-used code (single-use), without verifying 0ms
+ ✓ src/resources/removeSavedResource.vitest.test.ts > removeSavedResource (SAVE-008) > removes the saved card with the given id 2ms
+ ✓ src/resources/removeSavedResource.vitest.test.ts > removeSavedResource (SAVE-008) > leaves other saved cards intact 1ms
+ ✓ src/resources/removeSavedResource.vitest.test.ts > removeSavedResource (SAVE-008) > returns the list unchanged when the id is not saved 0ms
+ ✓ src/resources/removeSavedResource.vitest.test.ts > removeSavedResource (SAVE-008) > does not mutate or return the original saved list 0ms
+ ✓ src/resources/removeSavedResource.vitest.test.ts > removeSavedResource (SAVE-008) > returns an empty list when the last saved card is removed 0ms
+ ✓ src/reports/submitReport.vitest.test.ts > submitReport (REPORT-003) > submits a complete report and returns the confirmation message 2ms
+ ✓ src/reports/submitReport.vitest.test.ts > submitReport (REPORT-003) > does not submit when the reason is missing, and prompts to complete 0ms
+ ✓ src/reports/submitReport.vitest.test.ts > submitReport (REPORT-003) > does not submit when the resourceId is missing 0ms
+ ✓ src/reports/submitReport.vitest.test.ts > submitReport (REPORT-003) > does not submit when the address is missing 0ms
+ ✓ src/reports/submitReport.vitest.test.ts > submitReport (REPORT-003) > does not return a success message when the report is incomplete 0ms
+ ✓ src/alerts/getAlertsWithSetting.vitest.test.ts > getAlertsWithSetting (ALERT-R-001 Weather Alerts toggle) > returns alerts from both sources when Weather Alerts is ON 1ms
+ ✓ src/alerts/getAlertsWithSetting.vitest.test.ts > getAlertsWithSetting (ALERT-R-001 Weather Alerts toggle) > returns no alerts when Weather Alerts is OFF 1ms
+ ✓ src/alerts/getAlertsWithSetting.vitest.test.ts > getAlertsWithSetting (ALERT-R-001 Weather Alerts toggle) > does not call either API when Weather Alerts is OFF 0ms
+ ✓ src/alerts/getAlertsWithSetting.vitest.test.ts > getAlertsWithSetting (ALERT-R-001 Weather Alerts toggle) > fetches from both sources when Weather Alerts is ON 1ms
+ ✓ src/reports/reportReason.vitest.test.ts > report reasons (REPORT-001) > the approved set is exactly the five reader reasons 2ms
+ ✓ src/reports/reportReason.vitest.test.ts > report reasons (REPORT-001) > accepts 'Closed / no longer operating' 0ms
+ ✓ src/reports/reportReason.vitest.test.ts > report reasons (REPORT-001) > accepts 'Wrong hours' 0ms
+ ✓ src/reports/reportReason.vitest.test.ts > report reasons (REPORT-001) > accepts 'Wrong address / location' 0ms
+ ✓ src/reports/reportReason.vitest.test.ts > report reasons (REPORT-001) > accepts 'No more resources available' 0ms
+ ✓ src/reports/reportReason.vitest.test.ts > report reasons (REPORT-001) > accepts 'Phone disconnected / no longer working' 0ms
+ ✓ src/reports/reportReason.vitest.test.ts > report reasons (REPORT-001) > rejects a reason outside the approved set 0ms
+ ✓ src/reports/reportReason.vitest.test.ts > report reasons (REPORT-001) > rejects an empty reason 0ms
+ ✓ src/auth/resolveReaderAuthView.vitest.test.ts > resolveReaderAuthView (AUTH-R-001/002/003/004) > returns 'loading' while auth state is resolving (AUTH-R-001) 1ms
+ ✓ src/auth/resolveReaderAuthView.vitest.test.ts > resolveReaderAuthView (AUTH-R-001/002/003/004) > returns 'auth' when there is no user (AUTH-R-002 — logged-out sees login/signup) 0ms
+ ✓ src/auth/resolveReaderAuthView.vitest.test.ts > resolveReaderAuthView (AUTH-R-001/002/003/004) > returns 'verify' when the user is logged in but email is unverified (AUTH-R-003) 0ms
+ ✓ src/auth/resolveReaderAuthView.vitest.test.ts > resolveReaderAuthView (AUTH-R-001/002/003/004) > returns 'tabs' when the user is logged in and email is verified (AUTH-R-004) 0ms
+ ✓ src/auth/resolveReaderAuthView.vitest.test.ts > resolveReaderAuthView (AUTH-R-001/002/003/004) > never returns 'tabs' for a logged-out user (AUTH-R-002 — tabs hidden) 0ms
+ ✓ src/auth/resolveReaderAuthView.vitest.test.ts > resolveReaderAuthView (AUTH-R-001/002/003/004) > never returns 'tabs' for an unverified user (AUTH-R-004 requires verification) 0ms
+ ✓ src/alerts/nwsAlerts.vitest.test.ts > nwsAlerts (ALERT-R-001 NWS warnings) > surfaces a Tornado Warning 1ms
+ ✓ src/alerts/nwsAlerts.vitest.test.ts > nwsAlerts (ALERT-R-001 NWS warnings) > surfaces hurricane, flood, winter storm, and severe thunderstorm warnings 0ms
+ ✓ src/alerts/nwsAlerts.vitest.test.ts > nwsAlerts (ALERT-R-001 NWS warnings) > filters out a Watch (not a Warning) 0ms
+ ✓ src/alerts/nwsAlerts.vitest.test.ts > nwsAlerts (ALERT-R-001 NWS warnings) > filters out events not on the named list 0ms
+ ✓ src/alerts/nwsAlerts.vitest.test.ts > nwsAlerts (ALERT-R-001 NWS warnings) > keeps only the warnings from a mixed list 0ms
+ ✓ src/alerts/nwsAlerts.vitest.test.ts > nwsAlerts (ALERT-R-001 NWS warnings) > returns an empty list when there are no features 0ms
+ ✓ src/alerts/normalizeAlert.vitest.test.ts > normalizeAlert (ALERT-R-002 common alert fields) > normalizes a HEAT forecast alert with advice, no severity 1ms
+ ✓ src/alerts/normalizeAlert.vitest.test.ts > normalizeAlert (ALERT-R-002 common alert fields) > normalizes a COLD forecast alert with advice, no severity 0ms
+ ✓ src/alerts/normalizeAlert.vitest.test.ts > normalizeAlert (ALERT-R-002 common alert fields) > normalizes an NWS alert with severity, no advice 0ms
+ ✓ src/alerts/normalizeAlert.vitest.test.ts > normalizeAlert (ALERT-R-002 common alert fields) > gives every normalized alert the same fields 0ms
+ ✓ src/auth/readerLogin.vitest.test.ts > readerLogin (AUTH-R-002) > returns a session for a correct email + password 1ms
+ ✓ src/auth/readerLogin.vitest.test.ts > readerLogin (AUTH-R-002) > includes the user's emailVerified status in the session result 0ms
+ ✓ src/auth/readerLogin.vitest.test.ts > readerLogin (AUTH-R-002) > denies a wrong password with a generic error and no session 0ms
+ ✓ src/auth/readerLogin.vitest.test.ts > readerLogin (AUTH-R-002) > denies an unknown email with the SAME generic error (no enumeration) 0ms
+ ✓ src/auth/readerLogin.vitest.test.ts > readerLogin (AUTH-R-002) > does not reveal which factor failed (wrong password vs no user) 0ms
+ ✓ src/theme/sharedThemeImport.vitest.test.ts > shared UI theme import > resolves the shared theme through the monorepo alias 1ms
+
+ Test Files  20 passed (20)
+      Tests  94 passed (94)
+   Start at  22:50:04
+   Duration  410ms (transform 271ms, setup 0ms, import 459ms, tests 51ms, environment 1ms)
+
