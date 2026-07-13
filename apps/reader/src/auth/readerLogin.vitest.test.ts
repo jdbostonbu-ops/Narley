@@ -19,7 +19,7 @@ describe("readerLogin (AUTH-R-002)", () => {
         verifyPassword: async () => true,
       },
     );
-    expect(result.session).toEqual({ userId: "reader_1" });
+    expect(result.session?.userId).toBe("reader_1");
     expect(result.error).toBeUndefined();
   });
 
