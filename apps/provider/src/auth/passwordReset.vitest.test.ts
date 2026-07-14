@@ -11,6 +11,7 @@ import { requestPasswordReset, confirmPasswordReset } from "./passwordReset";
 const findUserByEmail = vi.fn();
 const saveResetToken = vi.fn();
 const sendResetEmail = vi.fn();
+const generateCode = vi.fn(() => "ABC123");
 const findResetToken = vi.fn();
 const updatePassword = vi.fn();
 const consumeResetToken = vi.fn();
@@ -20,6 +21,7 @@ const deps = {
   findUserByEmail,
   saveResetToken,
   sendResetEmail,
+  generateCode,
   findResetToken,
   updatePassword,
   consumeResetToken,

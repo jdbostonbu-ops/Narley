@@ -13,6 +13,7 @@ type ResetToken = {
 
 type PasswordResetDependencies = {
   findUserByEmail: (email: string) => Promise<User | null>;
+  generateCode: () => string;
   saveResetToken: (
     userId: string,
     token: string,
@@ -45,7 +46,7 @@ export const requestPasswordReset = async (
   const user = await deps.findUserByEmail(email);
 
   if (user !== null) {
-    const token = `${user.id}-${Date.now()}`;
+    const token = deps.generateCode();
     const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
 
     await deps.saveResetToken(user.id, token, expiresAt);

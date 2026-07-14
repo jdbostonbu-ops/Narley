@@ -40,6 +40,7 @@ const RESET_REQUEST_MESSAGE =
   "If that email is registered, a reset link is on its way.";
 
 const providerPasswordResetDependencies = {
+  generateCode: generateVerificationCode,
   findUserByEmail: (email: string) =>
     prisma.user.findUnique({
       where: { email },
@@ -127,6 +128,7 @@ app.post("/confirm-reset", async (req, res) => {
 });
 
 const readerPasswordResetDependencies = {
+  generateCode: generateVerificationCode,
   findUserByEmail: async (email: string) => {
     const reader = await prisma.reader.findUnique({
       where: { email },
