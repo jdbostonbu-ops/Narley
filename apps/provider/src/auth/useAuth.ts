@@ -8,7 +8,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import * as SecureStore from "expo-secure-store";
 
 import { postLogin } from "../api/client";
 import {
@@ -16,6 +15,11 @@ import {
   initialAuthState,
   type ProviderUser,
 } from "./authState";
+import {
+  clearProviderSession,
+  loadProviderSession,
+  saveProviderSession,
+} from "./providerSessionStorage";
 
 type LoginResult =
   | { ok: true; error?: never }
@@ -27,34 +31,6 @@ export type ProviderAuthState = {
   loading: boolean;
   login: (email: string, password: string) => Promise<LoginResult>;
   logout: () => Promise<void>;
-};
-
-type StoredProviderSession = {
-  userId: string;
-  token: string;
-};
-
-const SESSION_KEY = "provider.auth.session";
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null;
-
-const parseStoredSession = (value: string): StoredProviderSession | null => {
-  try {
-    const parsed: unknown = JSON.parse(value);
-
-    if (
-      !isRecord(parsed) ||
-      typeof parsed.userId !== "string" ||
-      typeof parsed.token !== "string"
-    ) {
-      return null;
-    }
-
-    return { userId: parsed.userId, token: parsed.token };
-  } catch {
-    return null;
-  }
 };
 
 const AuthContext = createContext<ProviderAuthState | null>(null);
@@ -69,10 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const restoreSession = async () => {
       try {
-        const storedValue = await SecureStore.getItemAsync(SESSION_KEY);
-        const session = storedValue === null
-          ? null
-          : parseStoredSession(storedValue);
+        const session = await loadProviderSession();
 
         if (!active) {
           return;
@@ -114,13 +87,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     if (result.session !== undefined && result.token !== undefined) {
       try {
-        await SecureStore.setItemAsync(
-          SESSION_KEY,
-          JSON.stringify({
-            userId: result.session.userId,
-            token: result.token,
-          }),
-        );
+        await saveProviderSession({
+          userId: result.session.userId,
+          token: result.token,
+        });
       } catch {
         dispatch({ type: "LOGIN_FAILURE" });
         return { ok: false, error: "Unable to save the provider session" };
@@ -140,7 +110,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = async (): Promise<void> => {
-    await SecureStore.deleteItemAsync(SESSION_KEY);
+    await clearProviderSession();
     setToken(null);
     dispatch({ type: "LOGOUT" });
   };

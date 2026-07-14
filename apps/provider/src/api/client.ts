@@ -1,5 +1,7 @@
 import Constants from "expo-constants";
 
+import { getProviderAuthToken } from "../auth/providerSessionStorage";
+
 export type LoginResponse = {
   session?: {
     userId: string;
@@ -88,6 +90,11 @@ const configuredBaseUrl =
   typeof configuredApiUrl === "string" ? configuredApiUrl : undefined;
 
 export const API_BASE_URL = configuredBaseUrl?.replace(/\/+$/, "") || "http://localhost:4000";
+
+const getProviderAuthorizationHeaders = async (): Promise<Record<string, string>> => {
+  const token = await getProviderAuthToken();
+  return token === null ? {} : { Authorization: `Bearer ${token}` };
+};
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
@@ -395,7 +402,10 @@ export const getResources = async (): Promise<LoadResourcesResult> => {
 
 export const getProviderAlerts = async (): Promise<LoadProviderAlertsResult> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/provider/alerts`);
+    const authorizationHeaders = await getProviderAuthorizationHeaders();
+    const response = await fetch(`${API_BASE_URL}/provider/alerts`, {
+      headers: authorizationHeaders,
+    });
     const parsedResponse = await readJsonResponse(response);
 
     if (!parsedResponse.ok) {
@@ -433,8 +443,10 @@ export const deleteProviderAlert = async (
   id: string,
 ): Promise<DeleteProviderAlertResult> => {
   try {
+    const authorizationHeaders = await getProviderAuthorizationHeaders();
     const response = await fetch(`${API_BASE_URL}/provider/alerts/${encodeURIComponent(id)}`, {
       method: "DELETE",
+      headers: authorizationHeaders,
     });
     const parsedResponse = await readJsonResponse(response);
 
@@ -466,9 +478,13 @@ export const postResource = async (
   resource: CreateResourcePayload,
 ): Promise<CreateResourceResult> => {
   try {
+    const authorizationHeaders = await getProviderAuthorizationHeaders();
     const response = await fetch(`${API_BASE_URL}/resources`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...authorizationHeaders,
+      },
       body: JSON.stringify(resource),
     });
     const parsedResponse = await readJsonResponse(response);
@@ -504,6 +520,7 @@ export const patchResource = async (
   changes: UpdateResourcePayload,
 ): Promise<UpdateResourceResult> => {
   try {
+    const authorizationHeaders = await getProviderAuthorizationHeaders();
     const body = {
       ...changes,
       ...(Object.prototype.hasOwnProperty.call(changes, "phone")
@@ -515,7 +532,10 @@ export const patchResource = async (
     };
     const response = await fetch(`${API_BASE_URL}/resources/${resourceId}`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...authorizationHeaders,
+      },
       body: JSON.stringify(body),
     });
     const parsedResponse = await readJsonResponse(response);
@@ -549,8 +569,10 @@ export const deleteResource = async (
   resourceId: string,
 ): Promise<DeleteResourceResult> => {
   try {
+    const authorizationHeaders = await getProviderAuthorizationHeaders();
     const response = await fetch(`${API_BASE_URL}/resources/${resourceId}`, {
       method: "DELETE",
+      headers: authorizationHeaders,
     });
     const parsedResponse = await readJsonResponse(response);
 
