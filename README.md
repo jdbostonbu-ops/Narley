@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="./Both%20apps%20working.gif" width="500" alt="Narley — Provider and Reader apps working together" />
+<img src="./Both%20apps%20working.gif" width="700" alt="Narley — Provider and Reader apps working together" />
 
-# 🧭 Narley
+<img src="./assets/narley-logo.png" width="560" alt="Narley — Help nearby" />
 
 **A two-app, map-first community-resource platform that helps people find trusted help nearby — and helps providers keep that information accurate.**
 
@@ -18,20 +18,29 @@
 [![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen)](#-testing)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](#-license)
 
-**🔗 Live Demo:** _[Add your live link here](#)_
+**🔗 Live Demo:** _[narley.vercel.app](#)_
 
 </div>
 
 ---
 
-## 👤 Author
+👤 Author
 
-<img src="https://img.shields.io/badge/-Author_Profile-4B0082?style=for-the-badge&logo=aboutdotme&logoColor=white" alt="author" />
-
-> _Add your author profile here — name, photo, and a short bio._
->
-> **Name:** _Your Name_
-> **Profile:** _[Link to your portfolio / GitHub / LinkedIn](#)_
+<table>
+  <tr>
+    <td>
+      <a href="https://github.com/jdbostonbu-ops">
+        <img src="https://github.com/jdbostonbu-ops.png?size=120" width="100" alt="jdbostonbu-ops" />
+      </a>
+    </td>
+    <td>
+      <strong>Jacqueline Delgado</strong><br/><br/>
+      <a href="https://github.com/jdbostonbu-ops">
+        <img src="https://img.shields.io/badge/GitHub-jdbostonbu--ops-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub profile" />
+      </a>
+    </td>
+  </tr>
+</table>
 
 ---
 
@@ -250,7 +259,7 @@ RESEND_API_KEY=          # Resend API credential
 
 ---
 
-## 🧪 Testing
+## 🧪 Test-Driven-Development (TDD) Testing
 
 Narley's domain and security logic is built **test-first (RED → GREEN)** with Vitest.
 

@@ -1205,6 +1205,11 @@ const jsonErrorHandler: ErrorRequestHandler = (_error, _req, res, _next) => {
 app.use(jsonErrorHandler);
 
 const PORT = 4000;
-app.listen(PORT, () => {
-  console.log(`Narley API running on http://localhost:${PORT}`);
-});
+
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Narley API running on http://localhost:${PORT}`);
+  });
+}
+
+export default app;

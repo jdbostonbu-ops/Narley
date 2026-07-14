@@ -11,6 +11,7 @@
     "react-dom": "19.1.0"
   },
   "scripts": {
+    "postinstall": "prisma generate",
     "test": "jest",
     "test:all": "cd apps/provider && npm run test:unit && cd ../reader && npm run test:unit && cd ../.. && npx vitest run server/",
     "test:watch": "jest --watch",
