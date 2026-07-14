@@ -47,8 +47,10 @@ const providerPasswordResetDependencies = {
       select: { id: true, email: true },
     }),
   saveResetToken: (userId: string, token: string, expiresAt: Date) =>
-    prisma.resetToken.create({
-      data: { userId, token, expiresAt },
+    prisma.resetToken.upsert({
+      where: { token },
+      create: { userId, token, expiresAt },
+      update: { userId, expiresAt, usedAt: null },
     }),
   sendResetEmail: (email: string, token: string) =>
     sendPasswordResetEmail(email, token),
@@ -142,8 +144,10 @@ const readerPasswordResetDependencies = {
     return reader;
   },
   saveResetToken: (readerId: string, token: string, expiresAt: Date) =>
-    prisma.readerResetToken.create({
-      data: { readerId, token, expiresAt },
+    prisma.readerResetToken.upsert({
+      where: { token },
+      create: { readerId, token, expiresAt },
+      update: { readerId, expiresAt, usedAt: null },
     }),
   sendResetEmail: async (email: string, token: string) => {
     console.log("[Narley] Calling Resend for reader password reset:", {
