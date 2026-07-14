@@ -1,8 +1,10 @@
 <div align="center">
 
+<img src="./assets/narley-logo-left.png" width="560" alt="Narley — Help nearby" />
+
 <img src="./Both%20apps%20working.gif" width="700" alt="Narley — Provider and Reader apps working together" />
 
-<img src="./assets/narley-logo.png" width="560" alt="Narley — Help nearby" />
+
 
 **A two-app, map-first community-resource platform that helps people find trusted help nearby — and helps providers keep that information accurate.**
 
