@@ -39,6 +39,6 @@ export const toApiResource = (resource: DbResource): ApiResource => ({
   status: resource.status,
   phone: resource.phone ?? undefined,
   website: resource.website ?? undefined,
-  notes: "",
+  notes: resource.notes,
   organizationId: resource.organizationId,
 });

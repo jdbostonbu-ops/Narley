@@ -22,6 +22,7 @@ import { signAuthToken } from "./authToken";
 import { loadProviderMembership } from "./loadProviderMembership";
 import { prisma } from "./prisma";
 import { requireAuth } from "./requireAuth";
+import { toApiResource } from "./toApiResource";
 import {
   sendPasswordResetEmail,
   sendReaderPasswordResetEmail,
@@ -960,6 +961,7 @@ app.post("/resources", requireAuth("provider"), async (req, res) => {
               status: "ACTIVE",
               phone: request.phone,
               website: request.website,
+              notes: request.notes,
               providerId: resource.providerId,
               organizationId: membership.organizationId,
             },
@@ -984,12 +986,7 @@ app.post("/resources", requireAuth("provider"), async (req, res) => {
       return res.status(500).json({ error: "Resource was not created" });
     }
 
-    return res.status(201).json({
-      resource: {
-        ...creation.resource,
-        notes: request.notes,
-      },
-    });
+    return res.status(201).json({ resource: toApiResource(creation.resource) });
   } catch {
     return res.status(500).json({ error: "Unable to create resource" });
   }
@@ -1006,20 +1003,7 @@ app.get("/resources", async (_req, res) => {
     });
 
     return res.json({
-      resources: resources.map((resource) => ({
-        id: resource.id,
-        title: resource.title,
-        category: resource.category,
-        address: resource.address,
-        latitude: resource.latitude,
-        longitude: resource.longitude,
-        expiresAt: resource.expiresAt,
-        notes: "",
-        status: resource.status,
-        phone: resource.phone ?? undefined,
-        website: resource.website ?? undefined,
-        organizationId: resource.organizationId,
-      })),
+      resources: resources.map(toApiResource),
     });
   } catch {
     return res.status(500).json({ error: "Unable to load resources" });
@@ -1124,6 +1108,9 @@ app.patch("/resources/:id", requireAuth("provider"), async (req, res) => {
           ...(typeof approvedChanges.website === "string" || approvedChanges.website === null
             ? { website: approvedChanges.website }
             : {}),
+          ...(typeof approvedChanges.notes === "string"
+            ? { notes: approvedChanges.notes }
+            : {}),
         };
         updateResult.resource = await prisma.resource.update({
           where: { id },
@@ -1158,12 +1145,7 @@ app.patch("/resources/:id", requireAuth("provider"), async (req, res) => {
       return res.status(500).json({ error: "Resource was not updated" });
     }
 
-    return res.json({
-      resource: {
-        ...updateResult.resource,
-        notes: typeof changes.notes === "string" ? changes.notes : "",
-      },
-    });
+    return res.json({ resource: toApiResource(updateResult.resource) });
   } catch {
     return res.status(500).json({ error: "Unable to update resource" });
   }
