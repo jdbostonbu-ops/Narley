@@ -1,8 +1,9 @@
 // Prisma schema for Narley v3 — models match the tested logic shapes.
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
 }
 
 datasource db {
