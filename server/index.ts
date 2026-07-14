@@ -15,6 +15,7 @@ import { createResource } from "../apps/provider/src/resources/createResource";
 import { updateResource } from "../apps/provider/src/resources/updateResource";
 import { verifyReaderReport } from "../apps/provider/src/reports/verifyReaderReport";
 import { callOpenAI } from "./openai";
+import { signAuthToken } from "./authToken";
 import { prisma } from "./prisma";
 import {
   sendPasswordResetEmail,
@@ -398,11 +399,15 @@ app.post("/login", async (req, res) => {
     },
   );
 
-  if (result.error) {
+  if (result.error || result.session === undefined) {
     return res.status(401).json({ error: result.error });
   }
 
-  return res.json({ session: result.session });
+  const token = signAuthToken({
+    userId: result.session.userId,
+    type: "provider",
+  });
+  return res.json({ session: result.session, token });
 });
 
 type ReaderAuthCredentials = {
@@ -565,11 +570,15 @@ app.post("/reader/login", async (req, res) => {
         bcrypt.compare(password, passwordHash),
     });
 
-    if (result.error !== undefined) {
+    if (result.error !== undefined || result.session === undefined) {
       return res.status(401).json({ error: result.error });
     }
 
-    return res.json({ session: result.session });
+    const token = signAuthToken({
+      userId: result.session.userId,
+      type: "reader",
+    });
+    return res.json({ session: result.session, token });
   } catch {
     return res.status(500).json({ error: "Unable to log in reader" });
   }

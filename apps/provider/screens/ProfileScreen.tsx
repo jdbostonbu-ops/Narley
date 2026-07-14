@@ -2,12 +2,14 @@ import { useRef, useState } from "react";
 import { Alert, Animated, Linking, Pressable, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 
 import { getTheme } from "@shared-ui/theme/theme";
+import { useAuth } from "../src/auth/useAuth";
 import { useWeatherAlerts } from "../state/WeatherAlertsStore";
 
 const theme = getTheme(false);
 const FEEDBACK_URL = "https://tally.so/r/yP1q28";
 
 export const ProfileScreen = () => {
+  const { logout } = useAuth();
   const {
     weatherAlertsOn,
     setWeatherAlertsOn,
@@ -117,7 +119,22 @@ export const ProfileScreen = () => {
           <Text style={styles.logoutTitle}>Log out</Text>
           <Text style={styles.logoutBody}>Sign out of this provider account on this device.</Text>
           <Pressable
-            onPress={() => Alert.alert("Log out?", "You will need to sign in again to manage resources.", [{ text: "Cancel", style: "cancel" }, { text: "Log Out", style: "destructive" }])}
+            accessibilityLabel="Log out of provider account"
+            accessibilityRole="button"
+            onPress={() => Alert.alert(
+              "Log out?",
+              "You will need to sign in again to manage resources.",
+              [
+                { text: "Cancel", style: "cancel" },
+                {
+                  text: "Log Out",
+                  style: "destructive",
+                  onPress: () => {
+                    void logout();
+                  },
+                },
+              ],
+            )}
             style={styles.logoutButton}
           ><Text style={styles.logoutText}>Log Out</Text></Pressable>
         </View>

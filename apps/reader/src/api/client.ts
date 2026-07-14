@@ -25,6 +25,7 @@ export type ReaderLoginApiResult = {
     userId: string;
     emailVerified: boolean;
   };
+  token?: string;
   error?: string;
 };
 
@@ -172,13 +173,15 @@ export const postReaderLogin = async (
       response.responseOk &&
       isRecord(sessionValue) &&
       typeof sessionValue.userId === "string" &&
-      typeof sessionValue.emailVerified === "boolean"
+      typeof sessionValue.emailVerified === "boolean" &&
+      typeof response.payload.token === "string"
     ) {
       return {
         session: {
           userId: sessionValue.userId,
           emailVerified: sessionValue.emailVerified,
         },
+        token: response.payload.token,
       };
     }
 

@@ -28,6 +28,7 @@ type ReaderAuthResult =
 
 export type ReaderAuthContextValue = ReaderAuthState & {
   email: string | null;
+  token: string | null;
   submitting: boolean;
   signup: (email: string, password: string) => Promise<ReaderAuthResult>;
   verify: (email: string, code: string) => Promise<ReaderAuthResult>;
@@ -38,6 +39,7 @@ export type ReaderAuthContextValue = ReaderAuthState & {
 type StoredReaderSession = {
   user: ReaderUser;
   email: string;
+  token: string | null;
 };
 
 const SESSION_KEY = "reader.auth.session";
@@ -78,6 +80,7 @@ const parseStoredSession = (value: string): StoredReaderSession | null => {
 
     return {
       email: parsed.email,
+      token: typeof parsed.token === "string" ? parsed.token : null,
       user: {
         id: parsed.user.id,
         emailVerified: parsed.user.emailVerified,
@@ -91,8 +94,12 @@ const parseStoredSession = (value: string): StoredReaderSession | null => {
 const persistSession = async (
   user: ReaderUser,
   email: string,
+  token: string | null,
 ): Promise<void> => {
-  await SecureStore.setItemAsync(SESSION_KEY, JSON.stringify({ user, email }));
+  await SecureStore.setItemAsync(
+    SESSION_KEY,
+    JSON.stringify({ user, email, token }),
+  );
 };
 
 const ReaderAuthContext = createContext<ReaderAuthContextValue | null>(null);
@@ -100,6 +107,7 @@ const ReaderAuthContext = createContext<ReaderAuthContextValue | null>(null);
 export const ReaderAuthProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [email, setEmail] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -117,10 +125,12 @@ export const ReaderAuthProvider = ({ children }: { children: ReactNode }) => {
         }
 
         setEmail(storedSession?.email ?? null);
+        setToken(storedSession?.token ?? null);
         dispatch({ type: "RESTORE", user: storedSession?.user ?? null });
       } catch {
         if (active) {
           setEmail(null);
+          setToken(null);
           dispatch({ type: "RESTORE", user: null });
         }
       }
@@ -146,8 +156,9 @@ export const ReaderAuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       const user = { id: result.userId, emailVerified: false };
-      await persistSession(user, signupEmail);
+      await persistSession(user, signupEmail, null);
       setEmail(signupEmail);
+      setToken(null);
       dispatch({ type: "SUCCESS", user });
       return { ok: true };
     } catch {
@@ -174,7 +185,7 @@ export const ReaderAuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       const user = { ...state.user, emailVerified: true };
-      await persistSession(user, verificationEmail);
+      await persistSession(user, verificationEmail, token);
       setEmail(verificationEmail);
       dispatch({ type: "SUCCESS", user });
       return { ok: true };
@@ -193,7 +204,7 @@ export const ReaderAuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const result = await postReaderLogin(loginEmail, password);
 
-      if (result.session === undefined) {
+      if (result.session === undefined || result.token === undefined) {
         return { ok: false, error: result.error ?? "Invalid email or password" };
       }
 
@@ -201,8 +212,9 @@ export const ReaderAuthProvider = ({ children }: { children: ReactNode }) => {
         id: result.session.userId,
         emailVerified: result.session.emailVerified,
       };
-      await persistSession(user, loginEmail);
+      await persistSession(user, loginEmail, result.token);
       setEmail(loginEmail);
+      setToken(result.token);
       dispatch({ type: "SUCCESS", user });
       return { ok: true };
     } catch {
@@ -215,6 +227,7 @@ export const ReaderAuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async (): Promise<void> => {
     await SecureStore.deleteItemAsync(SESSION_KEY);
     setEmail(null);
+    setToken(null);
     dispatch({ type: "LOGOUT" });
   };
 
@@ -223,13 +236,14 @@ export const ReaderAuthProvider = ({ children }: { children: ReactNode }) => {
       user: state.user,
       loading: state.loading,
       email,
+      token,
       submitting,
       signup,
       verify,
       login,
       logout,
     }),
-    [state.user, state.loading, email, submitting],
+    [state.user, state.loading, email, token, submitting],
   );
 
   return createElement(ReaderAuthContext.Provider, { value }, children);

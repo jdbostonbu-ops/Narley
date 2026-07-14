@@ -4,6 +4,7 @@ export type LoginResponse = {
   session?: {
     userId: string;
   };
+  token?: string;
   error?: string;
 };
 
@@ -220,13 +221,18 @@ const parseLoginResponse = (value: unknown): LoginResponse => {
   const session = isRecord(sessionValue) && typeof sessionValue.userId === "string"
     ? { userId: sessionValue.userId }
     : undefined;
+  const token = typeof value.token === "string" ? value.token : undefined;
 
-  if (session === undefined && error === undefined) {
+  if (
+    (session === undefined || token === undefined) &&
+    error === undefined
+  ) {
     return { error: "Invalid server response" };
   }
 
   return {
     ...(session === undefined ? {} : { session }),
+    ...(token === undefined ? {} : { token }),
     ...(error === undefined ? {} : { error }),
   };
 };

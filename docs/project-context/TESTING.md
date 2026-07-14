@@ -270,6 +270,19 @@ Logging out returns the Reader to authentication. Small eye toggle in password f
 
 If a confirmation dialog is required by Version 3, Cancel must preserve the session and Confirm must end it.
 
+
+AUTH-T-001 — Token issued at login: On successful provider login and successful reader login, the server issues a signed token (JWT) containing the account's identity and a type claim distinguishing provider from reader. The token is returned to the app.
+
+AUTH-T-002 — Protected endpoints require a valid token: Private reads and mutations require a valid, unexpired, correctly-signed token of the correct account type. Requests with a missing, malformed, expired, or wrong-type token are rejected (401). Public endpoints — login, reader signup/verify, password-reset request/confirm, and public resource reads (GET /resources) — do not require a token.
+
+AUTH-T-003 — Identity comes from the token, not the request: Protected endpoints derive the acting user/organization identity from the verified token, never from client-supplied body/query fields. Client-supplied ownership ids are ignored.
+
+AUTH-T-004 — Provider resource ownership: A provider may create resources only under their own organization (from the token), and may edit or delete only resources belonging to their own organization. Attempts to edit or delete another organization's resource are rejected.
+
+AUTH-T-005 — Reader data ownership: A reader may read, create, and delete only their own saved resources (reader identity from the token). Attempts to access another reader's saved items are rejected.
+
+AUTH-T-006 — Provider alerts scoping: Provider alert reads and deletions use the token-derived provider/organization identity (no client-supplied identity).
+
 # 7. Provider Resource Creation
 POST-001 — Signed-in Provider required
 
