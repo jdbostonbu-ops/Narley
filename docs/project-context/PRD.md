@@ -131,6 +131,23 @@ The Provider application shall provide:
 - AI-assisted verification review
 - Provider notifications
 - Organization profile management
+- Provider-to-Narley problem reporting
+
+---
+
+# Authentication and Account Security
+
+Narley shall provide token-based authentication that:
+
+- Issues a signed JSON Web Token (JWT) on successful login.
+- Uses separate token types for Reader and Provider accounts.
+- Requires a valid bearer token on all protected requests.
+- Persists sessions securely on-device (Expo SecureStore).
+- Stores Reader and Provider accounts in separate account tables.
+- Requires Reader email verification through a time-limited verification code before account use.
+- Supports password reset for both Reader and Provider accounts using a short (6-character) single-use, time-limited code delivered by email.
+- Enforces password policy on account creation and password reset.
+- Derives the acting user's identity from the verified token, never from client-supplied identity.
 
 ---
 
@@ -156,6 +173,34 @@ Narley shall provide an AI-assisted verification system that:
 - Produces evidence summaries.
 - Notifies Providers.
 - Never publishes changes automatically.
+- Treats a Reader's first-hand report as primary, real-time evidence.
+- Treats stale or persistent public directories as weak evidence of current operation.
+- Expresses honest uncertainty and low confidence when evidence conflicts.
+- Recommends human verification and leaves the final decision to the owning Provider.
+
+---
+
+# Provider-to-Narley Reporting
+
+Narley shall allow a Provider to escalate a problematic resource directly to the Narley administrator, separate from AI verification. This system shall:
+
+- Present a report action on a resource card.
+- Prefill the reported resource's title, address, phone, and website.
+- Collect a Provider-entered description of the problem.
+- Require Provider authentication and derive the reporting identity from the verified token.
+- Deliver the report to the Narley administrator by transactional email.
+- Never automatically modify or delete the reported resource.
+
+---
+
+# Real-Time Resource Synchronization
+
+Narley shall keep resource information consistent across both applications:
+
+- When a Provider creates, edits, or deletes a resource and the change succeeds, the change is persisted to the backend and reflected in the Reader application.
+- Every editable and displayable resource field (title, category, address, phone, website, notes, expiration) shall propagate to the Reader.
+- The Reader shall reflect Provider changes without requiring the user to manually refresh, including when the Reader returns to the foreground.
+- No edited field may appear updated in one application while remaining stale, missing, or unpersisted in the other.
 
 ---
 
@@ -172,6 +217,15 @@ Resources shall support lifecycle states including:
 
 Permanent deletion should be avoided whenever practical.
 
+Resources shall also:
+
+- Include title, category, address, coordinates, expiration, status, phone, website, and notes/details.
+- Enforce an expiration date that is valid, in the future, and no more than one year away.
+- Automatically stop appearing in live Reader and Provider results once expired.
+- Record create and update history as auditable events.
+- Enforce duplicate-resource rules on title and address.
+- Restrict resource creation, editing, and deletion to authenticated Providers whose organization owns the resource.
+
 ---
 
 # Notifications
@@ -182,14 +236,32 @@ Reader:
 
 - Reminder notifications
 - Emergency alerts
+- Location-based weather alerts
 - Resource availability updates (future)
 
 Provider:
 
 - Community reports
 - AI verification results
+- Location-based weather alerts
 - Review reminders
 - Resource status notifications
+
+---
+
+# Weather Alerts
+
+Narley shall provide location-based weather alerts in both applications:
+
+- Alerts use the device's current location; the user does not manually enter a location for weather alerts.
+- Extreme-heat alerts trigger at a daily maximum temperature at or above 91°F.
+- Extreme-cold alerts trigger at a temperature at or below 32°F.
+- Official warnings are sourced from the National Weather Service.
+- Forecast temperatures are sourced from Open-Meteo.
+- A generated temperature alert persists for its full 24-hour lifetime and shall not disappear because a later forecast no longer meets the threshold.
+- A transient forecast or warning-service failure shall not clear existing, unexpired alerts.
+- Expired alerts are removed automatically.
+- Weather alerts are controlled by a per-application preference and contribute to the Alerts tab badge count when enabled.
 
 ---
 
@@ -233,11 +305,14 @@ Narley shall:
 - Require authenticated users.
 - Verify Provider accounts.
 - Separate Reader and Provider permissions.
+- Enforce organization ownership on all resource changes.
 - Protect sensitive information.
-- Use secure authentication.
+- Use secure token-based authentication.
+- Store credentials using server-side password hashing.
 - Validate user input.
 - Prevent common injection vulnerabilities.
 - Require confirmation dialogs for destructive actions.
+- Keep external-service credentials on the server only, never in the mobile applications.
 
 ---
 
@@ -250,6 +325,11 @@ Version 3 shall use:
 - TypeScript (Strict Mode)
 - Neon PostgreSQL
 - Prisma ORM
+- Express JSON API
+- JWT bearer authentication
+- Resend transactional email
+- OpenAI Responses API with web search
+- Open-Meteo and National Weather Service for weather data
 
 Alternative technologies require project approval.
 
@@ -269,6 +349,8 @@ The application should be:
 
 Performance should prioritize usability over unnecessary visual effects.
 
+All domain and security logic shall be developed test-first (RED → GREEN) and covered by an automated test suite.
+
 ---
 
 # Business Rules
@@ -282,6 +364,8 @@ The following rules apply throughout the application:
 - Resource history should remain auditable.
 - Public libraries are seeded as real resources.
 - Mock production data is prohibited.
+- A Provider may only edit or delete resources owned by that Provider's organization.
+- AI and Readers may never edit, close, archive, or delete a resource.
 
 ---
 
@@ -315,4 +399,3 @@ Version 3 is considered successful when:
 # Guiding Principle
 
 Narley succeeds by providing accurate, trustworthy, and accessible community resource information through collaboration between Readers, Providers, and AI-assisted verification while ensuring Providers remain the final authority for all published data.
-

@@ -1031,6 +1031,8 @@ ALERT-P-007 — Provider resolution and alert deletion
 
 A Provider may independently verify the reported discrepancy and resolve after receiving the alert. The Provider may delete the alert at their own discretion. Deleting an alert requires a confirmation dialog: Cancel preserves the alert and Confirm removes it from the Provider Alerts page. Deleting the alert does not delete or modify the resource, original report, OpenAI verification result, or persistent audit history.
 
+ALERT-R-006 (persistence, both apps) — Temperature alerts persist for their full 24-hour lifetime in BOTH the reader and provider apps: In each app, a heat or cold alert, once generated, must remain visible until it expires per its 24-hour lifetime, regardless of whether subsequent forecast refreshes still meet the threshold. Each app's weather store must merge newly generated alerts with previously displayed, still-unexpired alerts rather than replacing the list, and a failed or unavailable forecast fetch must not clear existing unexpired alerts.
+
 REPORT-001 — Structured reasons
 
 Readers may select only approved report reasons.

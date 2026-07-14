@@ -1638,3 +1638,123 @@ Wire Provider Flow 2 using the tested real-resource report shape. Protect POST /
 ## Prompt 317
 
 Add all remaining prompts to prompts.md, and ensure Provider Flow 2 is wired with the tested real-resource report shape, token-derived reporter identity, Resend admin email, resource-card report form, authenticated client request, success/error handling, unchanged tests, restart instructions, full-suite verification, and manual testing steps.
+
+## Prompt 318
+
+Add more scroll space to the Provider “Report a problem resource” card because the phone keyboard hides the “What is wrong?” field and prevents the Provider from seeing what they are typing.
+
+## Prompt 319
+
+Investigate why the Provider app shows the Narley house icon while the Reader app still shows the default Expo icon even though both app.json files reference `./assets/narley-icon-1024.png`. Compare all icon, splash, adaptive-icon, and favicon settings; verify asset hashes and paths; inspect dynamic config, icon-generator folders, native artifacts, EAS configuration, and build workflows; identify the exact cause and required rebuild steps. Report only.
+
+## Prompt 320
+
+Commit all current changes.
+
+## Prompt 321
+
+Report the exact workflow for installing the Reader app as a native development build on the same physical iPhone as Provider, without using the simulator. Inspect Provider scripts, native directories, EAS configuration, device targeting, signing, provisioning, Developer Mode, networking, and the physical-device command. Report only.
+
+## Prompt 322
+
+Investigate why Provider resource edits appear saved but Reader still shows old data. Trace the Provider PATCH request, authentication token, ownership checks, Prisma update, Reader GET `/resources`, focus refresh, and caching. Determine whether the edit failed to persist or Reader failed to refresh, and report the exact root cause and fix without changing code.
+
+## Prompt 323
+
+In `TESTING.md`, what line contains the edit-a-resource tests?
+
+## Prompt 324
+
+Are you there?
+
+## Prompt 325
+
+Add `LIVE-010 — Provider edits propagate to the reader for all fields`, requiring all editable fields—including notes, phone, and website—to persist through the backend, be consumed by Reader, refresh automatically on foreground/Map focus, and reconcile an open detail view with new data.
+
+## Prompt 326
+
+Read `AGENTS.md` and `TESTING.md` (`LIVE-010`), then make `apps/reader/src/api/client.vitest.test.ts` pass by adding optional `phone` and `website` fields to `ApiResource` and conditionally mapping them in `parseResource` without weakening existing required-field validation. Do not modify the test; provide the Reader unit-test command.
+
+## Prompt 327
+
+Fix the Reader API parser test’s React Native Flow parsing failure by extracting pure resource parsing into `apps/reader/src/api/parseResource.ts`, moving the `ApiResource` type and `parseResource` function there, importing them from `client.ts`, and moving the test to a pure parser test that does not import Expo or React Native. Preserve `LIVE-010`, strict typing, and existing parsing behavior.
+
+## Prompt 328
+
+Remove or comment out the two conditional phone and website mappings in `apps/reader/src/api/parseResource.ts`.
+
+## Prompt 329
+
+Restore the two conditional phone and website mappings in `parseResource.ts` immediately after `notes: value.notes`.
+
+## Prompt 330
+
+How many total tests are there across the Reader and Provider apps?
+
+## Prompt 331
+
+Are there any component tests?
+
+## Prompt 332
+
+Investigate which files/assets produce the logo banner in both apps. The visible banner says “Community resource navigation,” while `narley-logo.png` says “Help nearby.” Determine whether the banner uses `narley-logo.png` and explain the source of the displayed text.
+
+## Prompt 333
+
+Where does “Community resource navigation” come from, and why does “Help nearby” not appear?
+
+## Prompt 334
+
+The app logo/banner is supposed to say “Help nearby,” not “Community resource navigation.”
+
+## Prompt 335
+
+Match the “Help nearby” tagline styling to `narley-logo.png`: use the lighter green color and a bold font matching the logo.
+
+## Prompt 336
+
+Investigate why Provider resource editing stopped persisting after adding `Resource.notes String @default("")` with Prisma migration/generation. Trace PATCH parsing, domain update, Prisma update, response echo, generated client/server restart, migration status, and existing data integrity. Report the exact root cause and fix without changing code.
+
+## Prompt 337
+
+Read `AGENTS.md` and `TESTING.md` (`LIVE-010`), make `server/toApiResource.vitest.test.ts` pass, and fully wire real notes persistence through create, PATCH, and GET resource endpoints. Use `toApiResource`, store and update notes in Prisma, remove misleading response echoes, do not modify the test, provide full test commands, and note the required API restart.
+
+## Prompt 338
+
+Wire Reader foreground resource refresh for `LIVE-010`. Refactor Map resource loading into one shared callback used by `useFocusEffect` and an `AppState` listener using `shouldReloadOnForeground`; preserve phone/website in Reader mapping; derive an open modal’s resource from current state by ID; do not modify tested helper/parser files; run the full test suite and explain physical-device verification.
+
+## Prompt 339
+
+Investigate why a Reader Open-Meteo heat alert disappeared before its expected 24-hour period. Determine whether behavior is time-based or condition-based; trace threshold, expiry, refresh timing, persistence, location changes, swallowed failures, and the `TESTING.md` duration specification. Report only.
+
+## Prompt 340
+
+What lines in `TESTING.md` contain the Reader and Provider alert requirements?
+
+## Prompt 341
+
+Read `AGENTS.md` and `TESTING.md` (`ALERT-R-006`), then make `apps/reader/src/alerts/mergeAlerts.vitest.test.ts` pass by creating a pure typed `mergeAlerts(previousAlerts, newAlerts, now)` function. Retain unexpired previous alerts, add new alerts, deduplicate temperature alerts by type/expectedAt and NWS alerts by event/expires, preserve ordering, and do not modify tested expiry code or the test.
+
+## Prompt 342
+
+Provide a behavior report for Claude covering the Provider’s separate `WeatherAlertsStore`, `constants/providerAlerts.ts`, Provider `AlertsScreen`, and `activeAlertCount` helper.
+
+## Prompt 343
+
+Was the pure `mergeAlerts` function implemented?
+
+## Prompt 344
+
+Read `AGENTS.md` and the `ALERT-R-006` persistence requirement, then wire tested `mergeAlerts` into both Reader and Provider weather stores. Retain raw alerts across loads, merge instead of replace, preserve unexpired alerts during transient source failures, keep toggle-off and unavailable-location clearing, do not modify tested files, run all tests, and describe on-device verification in both apps.
+
+## Prompt 345
+
+On the Reader app, add “Community Resources” before the search bar, followed on the next line by “Reader app” in a smaller font.
+
+## Prompt 346
+
+Document all Provider and Reader features, their communication flows, the complete technology stack, and Resend—including every way it is used—in `claude.md`.
+
+## Prompt 347
+
+Add all remaining prompts to `prompts.md`.

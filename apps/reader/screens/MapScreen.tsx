@@ -147,6 +147,10 @@ export const MapScreen = () => {
   return <View style={styles.screen}>
     <ScrollView contentContainerStyle={[styles.content, { paddingTop: insets.top + 12 }]} keyboardShouldPersistTaps="handled">
       <BrandHeader />
+      <View style={styles.pageHeading}>
+        <Text accessibilityRole="header" style={styles.pageTitle}>Community Resources</Text>
+        <Text style={styles.pageSubtitle}>Reader app</Text>
+      </View>
       <View style={styles.searchRow}>
         <TextInput accessibilityLabel="Search resources by city or ZIP code" editable={!searching} onChangeText={setQuery} onSubmitEditing={() => { void handleSearch(); }} placeholder="City or ZIP code" placeholderTextColor={theme.colors.textMuted} returnKeyType="search" style={styles.searchInput} value={query} />
         <Pressable accessibilityLabel="Search resources" accessibilityRole="button" disabled={searching} onPress={() => { void handleSearch(); }} style={[styles.searchButton, searching && styles.searchDisabled]}>{searching && <ActivityIndicator color={theme.colors.textInverse} size="small" />}<Text style={styles.searchText}>{searching ? 'Searching…' : 'Search'}</Text></Pressable>
@@ -173,6 +177,9 @@ export const MapScreen = () => {
 const styles = StyleSheet.create({
   screen: { backgroundColor: theme.colors.appBackground, flex: 1 },
   content: { paddingBottom: 120, paddingHorizontal: READER_SCREEN_INSET },
+  pageHeading: { marginBottom: theme.spacing.md },
+  pageTitle: { color: theme.colors.textInverse, fontSize: 24, fontWeight: '900' },
+  pageSubtitle: { color: theme.colors.textMuted, fontSize: 14, fontWeight: '700', marginTop: theme.spacing.xs },
   searchRow: { alignItems: 'center', flexDirection: 'row', gap: 12, marginBottom: 14, width: '100%' },
   searchInput: { backgroundColor: theme.colors.surfaceDark, borderRadius: 20, color: theme.colors.textInverse, flex: 1, fontSize: 16, height: 52, paddingHorizontal: 14 },
   searchButton: { alignItems: 'center', backgroundColor: theme.colors.cta, borderRadius: 20, flexDirection: 'row', gap: theme.spacing.sm, height: 52, justifyContent: 'center', paddingHorizontal: 18 },
