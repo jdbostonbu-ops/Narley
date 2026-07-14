@@ -1,5 +1,7 @@
 import Constants from "expo-constants";
 
+import { getReaderAuthToken } from "../auth/readerSessionStorage";
+
 export type ApiResource = {
   id: string;
   title: string;
@@ -70,6 +72,11 @@ const configuredBaseUrl =
 
 export const API_BASE_URL =
   configuredBaseUrl?.replace(/\/+$/, "") || "http://localhost:4000";
+
+const getReaderAuthorizationHeaders = async (): Promise<Record<string, string>> => {
+  const token = await getReaderAuthToken();
+  return token === null ? {} : { Authorization: `Bearer ${token}` };
+};
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
@@ -396,13 +403,16 @@ const readApiError = (payload: unknown, fallback: string): string =>
     : fallback;
 
 export const saveResource = async (
-  readerId: string,
   resource: SavedResourceInput,
 ): Promise<SavedResourceRecord> => {
+  const authorizationHeaders = await getReaderAuthorizationHeaders();
   const response = await fetch(`${API_BASE_URL}/reader/saved`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ readerId, resource }),
+    headers: {
+      "Content-Type": "application/json",
+      ...authorizationHeaders,
+    },
+    body: JSON.stringify({ resource }),
   });
   const payload = await readJsonPayload(response);
 
@@ -421,12 +431,11 @@ export const saveResource = async (
   return savedResource;
 };
 
-export const getSavedResources = async (
-  readerId: string,
-): Promise<SavedResourceRecord[]> => {
-  const response = await fetch(
-    `${API_BASE_URL}/reader/saved?readerId=${encodeURIComponent(readerId)}`,
-  );
+export const getSavedResources = async (): Promise<SavedResourceRecord[]> => {
+  const authorizationHeaders = await getReaderAuthorizationHeaders();
+  const response = await fetch(`${API_BASE_URL}/reader/saved`, {
+    headers: authorizationHeaders,
+  });
   const payload = await readJsonPayload(response);
 
   if (!response.ok) {
@@ -449,8 +458,10 @@ export const getSavedResources = async (
 };
 
 export const deleteSavedResource = async (id: string): Promise<void> => {
+  const authorizationHeaders = await getReaderAuthorizationHeaders();
   const response = await fetch(`${API_BASE_URL}/reader/saved/${encodeURIComponent(id)}`, {
     method: "DELETE",
+    headers: authorizationHeaders,
   });
   const payload = await readJsonPayload(response);
 

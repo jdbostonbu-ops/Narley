@@ -63,7 +63,7 @@ export const SavedScreen = () => {
     setError(null);
 
     try {
-      const records = await getSavedResources(user.id);
+      const records = await getSavedResources();
       const readerItems = records.map(toSavedResourceItem);
       setItems(getSavedResourcesForUser(readerItems, user.id));
     } catch (loadError: unknown) {

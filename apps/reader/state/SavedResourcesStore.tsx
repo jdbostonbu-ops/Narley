@@ -72,7 +72,7 @@ export const SavedResourcesProvider = ({ children }: { children: ReactNode }) =>
     setError(null);
 
     try {
-      const savedResources = await getSavedResources(user.id);
+      const savedResources = await getSavedResources();
       const readerItems = savedResources.map(toSavedResourceItem);
       setItems(getSavedResourcesForUser(readerItems, user.id));
     } catch (loadError: unknown) {
@@ -99,7 +99,7 @@ export const SavedResourcesProvider = ({ children }: { children: ReactNode }) =>
     }
 
     try {
-      const savedResource = await persistSavedResource(user.id, {
+      const savedResource = await persistSavedResource({
         resourceId: resource.id,
         title: resource.title,
         category: resource.category,

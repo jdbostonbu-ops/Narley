@@ -323,10 +323,35 @@ app.post("/reports", async (req, res) => {
   }
 });
 
-app.get("/provider/alerts", async (_req, res) => {
+app.get("/provider/alerts", requireAuth("provider"), async (req, res) => {
   try {
+    const auth = req.auth;
+
+    if (auth === undefined) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const membership = resolveProviderMembership(
+      await loadProviderMembership(auth.userId),
+    );
+
+    if (membership === null) {
+      return res.status(403).json({
+        alerts: [],
+        error: "Provider membership is required",
+      });
+    }
+
+    const resources = await prisma.resource.findMany({
+      where: { organizationId: membership.organizationId },
+      select: { id: true, title: true },
+    });
+    const resourceIds = resources.map(({ id }) => id);
     const alerts = await prisma.providerAlert.findMany({
-      where: { kind: "report" },
+      where: {
+        kind: "report",
+        resourceId: { in: resourceIds },
+      },
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
@@ -343,16 +368,6 @@ app.get("/provider/alerts", async (_req, res) => {
       },
     });
 
-    const missingTitleResourceIds = alerts.flatMap((alert) =>
-      alert.resourceTitle === null && alert.resourceId !== null
-        ? [alert.resourceId]
-        : []);
-    const resources = missingTitleResourceIds.length === 0
-      ? []
-      : await prisma.resource.findMany({
-        where: { id: { in: missingTitleResourceIds } },
-        select: { id: true, title: true },
-      });
     const resourceTitles = new Map(
       resources.map((resource) => [resource.id, resource.title]),
     );
@@ -371,10 +386,48 @@ app.get("/provider/alerts", async (_req, res) => {
   }
 });
 
-app.delete("/provider/alerts/:id", async (req, res) => {
+app.delete("/provider/alerts/:id", requireAuth("provider"), async (req, res) => {
   try {
-    await prisma.providerAlert.delete({
+    const auth = req.auth;
+
+    if (auth === undefined) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const alert = await prisma.providerAlert.findUnique({
       where: { id: req.params.id },
+      select: { id: true, resourceId: true },
+    });
+
+    if (alert === null) {
+      return res.status(404).json({
+        ok: false,
+        error: "Provider alert not found",
+      });
+    }
+
+    const membership = resolveProviderMembership(
+      await loadProviderMembership(auth.userId),
+    );
+    const resource = alert.resourceId === null
+      ? null
+      : await prisma.resource.findUnique({
+          where: { id: alert.resourceId },
+          select: { organizationId: true },
+        });
+
+    if (!providerOwnsResource(
+      { organizationId: membership?.organizationId ?? null },
+      { organizationId: resource?.organizationId ?? null },
+    )) {
+      return res.status(403).json({
+        ok: false,
+        error: "You can only delete your own organization's alerts",
+      });
+    }
+
+    await prisma.providerAlert.delete({
+      where: { id: alert.id },
     });
 
     return res.json({ ok: true });
@@ -589,7 +642,6 @@ app.post("/reader/login", async (req, res) => {
 });
 
 type SavedResourceRequest = {
-  readerId: string;
   resource: {
     resourceId: string;
     title: string;
@@ -612,7 +664,6 @@ const parseSavedResourceRequest = (
   const resource = value.resource;
 
   if (
-    typeof value.readerId !== "string" ||
     typeof resource.resourceId !== "string" ||
     typeof resource.title !== "string" ||
     typeof resource.category !== "string" ||
@@ -628,7 +679,6 @@ const parseSavedResourceRequest = (
   }
 
   return {
-    readerId: value.readerId,
     resource: {
       resourceId: resource.resourceId,
       title: resource.title,
@@ -642,15 +692,21 @@ const parseSavedResourceRequest = (
   };
 };
 
-app.post("/reader/saved", async (req, res) => {
+app.post("/reader/saved", requireAuth("reader"), async (req, res) => {
   const request = parseSavedResourceRequest(req.body);
 
   if (request === null) {
     return res.status(400).json({ error: "Invalid saved resource data" });
   }
 
+  const auth = req.auth;
+
+  if (auth === undefined) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
   const data = {
-    readerId: request.readerId,
+    readerId: auth.userId,
     ...request.resource,
   };
 
@@ -662,7 +718,7 @@ app.post("/reader/saved", async (req, res) => {
       const existingSavedResource = await prisma.savedResource.findUnique({
         where: {
           readerId_resourceId: {
-            readerId: request.readerId,
+            readerId: auth.userId,
             resourceId: request.resource.resourceId,
           },
         },
@@ -679,16 +735,16 @@ app.post("/reader/saved", async (req, res) => {
   }
 });
 
-app.get("/reader/saved", async (req, res) => {
-  const readerId = req.query.readerId;
-
-  if (typeof readerId !== "string" || readerId.length === 0) {
-    return res.status(400).json({ error: "readerId is required" });
-  }
-
+app.get("/reader/saved", requireAuth("reader"), async (req, res) => {
   try {
+    const auth = req.auth;
+
+    if (auth === undefined) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
     const savedResources = await prisma.savedResource.findMany({
-      where: { readerId },
+      where: { readerId: auth.userId },
       orderBy: { savedAt: "desc" },
     });
     return res.json({ savedResources });
@@ -697,9 +753,30 @@ app.get("/reader/saved", async (req, res) => {
   }
 });
 
-app.delete("/reader/saved/:id", async (req, res) => {
+app.delete("/reader/saved/:id", requireAuth("reader"), async (req, res) => {
   try {
-    await prisma.savedResource.delete({ where: { id: req.params.id } });
+    const auth = req.auth;
+
+    if (auth === undefined) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const savedResource = await prisma.savedResource.findUnique({
+      where: { id: req.params.id },
+      select: { id: true, readerId: true },
+    });
+
+    if (savedResource === null) {
+      return res.status(404).json({ error: "Saved resource not found" });
+    }
+
+    if (savedResource.readerId !== auth.userId) {
+      return res.status(403).json({
+        error: "You can only delete your own saved resources",
+      });
+    }
+
+    await prisma.savedResource.delete({ where: { id: savedResource.id } });
     return res.json({ ok: true });
   } catch {
     return res.status(500).json({ error: "Unable to delete saved resource" });

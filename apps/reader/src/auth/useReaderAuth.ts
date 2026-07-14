@@ -8,13 +8,17 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import * as SecureStore from "expo-secure-store";
 
 import {
   postReaderLogin,
   postReaderSignup,
   postReaderVerify,
 } from "../api/client";
+import {
+  clearReaderSession,
+  loadReaderSession,
+  saveReaderSession,
+} from "./readerSessionStorage";
 import type { ReaderAuthState, ReaderUser } from "./resolveReaderAuthView";
 
 type ReaderAuthAction =
@@ -36,13 +40,6 @@ export type ReaderAuthContextValue = ReaderAuthState & {
   logout: () => Promise<void>;
 };
 
-type StoredReaderSession = {
-  user: ReaderUser;
-  email: string;
-  token: string | null;
-};
-
-const SESSION_KEY = "reader.auth.session";
 const initialState: ReaderAuthState = { user: null, loading: true };
 
 const reducer = (
@@ -59,47 +56,12 @@ const reducer = (
   }
 };
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null;
-
-const parseStoredSession = (value: string): StoredReaderSession | null => {
-  try {
-    const parsed: unknown = JSON.parse(value);
-
-    if (!isRecord(parsed) || !isRecord(parsed.user)) {
-      return null;
-    }
-
-    if (
-      typeof parsed.email !== "string" ||
-      typeof parsed.user.id !== "string" ||
-      typeof parsed.user.emailVerified !== "boolean"
-    ) {
-      return null;
-    }
-
-    return {
-      email: parsed.email,
-      token: typeof parsed.token === "string" ? parsed.token : null,
-      user: {
-        id: parsed.user.id,
-        emailVerified: parsed.user.emailVerified,
-      },
-    };
-  } catch {
-    return null;
-  }
-};
-
 const persistSession = async (
   user: ReaderUser,
   email: string,
   token: string | null,
 ): Promise<void> => {
-  await SecureStore.setItemAsync(
-    SESSION_KEY,
-    JSON.stringify({ user, email, token }),
-  );
+  await saveReaderSession({ user, email, token });
 };
 
 const ReaderAuthContext = createContext<ReaderAuthContextValue | null>(null);
@@ -115,10 +77,7 @@ export const ReaderAuthProvider = ({ children }: { children: ReactNode }) => {
 
     const restoreSession = async () => {
       try {
-        const storedValue = await SecureStore.getItemAsync(SESSION_KEY);
-        const storedSession = storedValue === null
-          ? null
-          : parseStoredSession(storedValue);
+        const storedSession = await loadReaderSession();
 
         if (!active) {
           return;
@@ -225,7 +184,7 @@ export const ReaderAuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = async (): Promise<void> => {
-    await SecureStore.deleteItemAsync(SESSION_KEY);
+    await clearReaderSession();
     setEmail(null);
     setToken(null);
     dispatch({ type: "LOGOUT" });
