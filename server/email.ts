@@ -58,3 +58,38 @@ export const sendReaderPasswordResetEmail = async (
     throw error;
   }
 };
+
+type ProviderReportEmail = {
+  resourceTitle: string;
+  address: string;
+  phone?: string;
+  website?: string;
+  details: string;
+  reportedBy: string;
+};
+
+export const sendProviderReportEmail = async (
+  report: ProviderReportEmail,
+): Promise<void> => {
+  const { error } = await resend.emails.send({
+    from: "onboarding@resend.dev",
+    to: "jdboston.bu@gmail.com",
+    subject: "Narley: Provider report of a resource",
+    text: [
+      "A provider reported a problem resource to Narley.",
+      "",
+      `Resource title: ${report.resourceTitle}`,
+      `Address: ${report.address}`,
+      `Phone: ${report.phone ?? "Not provided"}`,
+      `Website: ${report.website ?? "Not provided"}`,
+      `Reported by provider user ID: ${report.reportedBy}`,
+      "",
+      "Details:",
+      report.details,
+    ].join("\n"),
+  });
+
+  if (error !== null) {
+    throw new Error(`Unable to send provider report email: ${error.message}`);
+  }
+};

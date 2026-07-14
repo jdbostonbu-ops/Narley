@@ -16,6 +16,7 @@ import { verifyReaderEmailCode } from "../apps/reader/src/auth/verifyReaderEmail
 import { createResource } from "../apps/provider/src/resources/createResource";
 import { updateResource } from "../apps/provider/src/resources/updateResource";
 import { verifyReaderReport } from "../apps/provider/src/reports/verifyReaderReport";
+import { submitProviderReport } from "../apps/provider/src/reports/submitProviderReport";
 import { callOpenAI } from "./openai";
 import { signAuthToken } from "./authToken";
 import { loadProviderMembership } from "./loadProviderMembership";
@@ -24,6 +25,7 @@ import { requireAuth } from "./requireAuth";
 import {
   sendPasswordResetEmail,
   sendReaderPasswordResetEmail,
+  sendProviderReportEmail,
   sendVerificationEmail,
 } from "./email";
 
@@ -326,6 +328,69 @@ app.post("/reports", async (req, res) => {
     return res.status(201).json({ ok: true });
   } catch {
     return res.status(500).json({ ok: false, error: "Unable to verify report" });
+  }
+});
+
+type ProviderReportBody = {
+  resourceTitle: string;
+  address: string;
+  phone?: string;
+  website?: string;
+  details: string;
+};
+
+const parseProviderReportBody = (value: unknown): ProviderReportBody | null => {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const { resourceTitle, address, phone, website, details } = value;
+
+  if (
+    typeof resourceTitle !== "string" ||
+    typeof address !== "string" ||
+    typeof details !== "string" ||
+    (phone !== undefined && typeof phone !== "string") ||
+    (website !== undefined && typeof website !== "string")
+  ) {
+    return null;
+  }
+
+  return {
+    resourceTitle,
+    address,
+    details,
+    ...(phone === undefined ? {} : { phone }),
+    ...(website === undefined ? {} : { website }),
+  };
+};
+
+app.post("/provider/report", requireAuth("provider"), async (req, res) => {
+  const reportBody = parseProviderReportBody(req.body);
+  const auth = req.auth;
+
+  if (auth === undefined) {
+    return res.status(401).json({ ok: false, error: "Unauthorized" });
+  }
+
+  if (reportBody === null) {
+    return res.status(400).json({ ok: false, error: "All report fields are required" });
+  }
+
+  try {
+    const result = await submitProviderReport({
+      ...reportBody,
+      reportedBy: auth.userId,
+    }, {
+      sendToNarleyAdmin: sendProviderReportEmail,
+    });
+
+    return result.ok
+      ? res.status(200).json(result)
+      : res.status(400).json(result);
+  } catch (error: unknown) {
+    console.error("Unable to send provider report:", error);
+    return res.status(500).json({ ok: false, error: "Unable to send report to Narley" });
   }
 });
 

@@ -1598,3 +1598,43 @@ Investigate who currently receives Provider report alerts. Examine ProviderAlert
 ## Prompt 307
 
 Add all remaining prompts to prompts.md and commit all current project changes.
+
+## Prompt 308
+
+Give me the command to start the Narley API server.
+
+## Prompt 309
+
+Wire Provider Flow 2 using the original tested contact-field report shape. Add an authenticated POST /provider/report endpoint, send the report to jdboston.bu@gmail.com through Resend, add an accessible Provider report form, attach the Bearer token, show success or validation errors, preserve tested files, run the full suite, and explain manual testing.
+
+## Prompt 310
+
+Read AGENTS.md and TESTING.md, then make submitProviderReportShape.vitest.test.ts pass by replacing the invented provider contact fields with real resource fields: resourceTitle, address, optional phone and website, details, and reportedBy. Update or remove the stale old-shape test, preserve the 500-word rule, follow the typed coding constraints, and provide the Provider unit-test command for me to run.
+
+## Prompt 311
+
+What line in AGENTS.md contains the Expo SDK 57 documentation instruction?
+
+## Prompt 312
+
+How do I change directories to the Provider app?
+
+## Prompt 313
+
+Wire Provider Flow 2 using the tested real-resource report shape. Add authenticated POST /provider/report with reportedBy derived only from req.auth.userId, email all report fields to the Narley admin through Resend, add a Report to Narley action and prefilled form to resource cards, attach the Provider Bearer token, preserve tested files, run the full suite, and explain restart and manual testing.
+
+## Prompt 314
+
+What did you learn from reading the Expo SDK 57 documentation?
+
+## Prompt 315
+
+Stage the three submitProviderReport logic/test files and commit them with the message: feat(provider): GREEN Flow 2 report uses real resource fields + auto reporter (removes invented email).
+
+## Prompt 316
+
+Wire Provider Flow 2 using the tested real-resource report shape. Protect POST /provider/report with Provider authentication, derive reportedBy from the token, send the complete report to jdboston.bu@gmail.com through Resend, add a Report to Narley button and prefilled report form to every resource card, attach the Bearer token, keep errors open, preserve tested files, run all tests, and explain manual testing.
+
+## Prompt 317
+
+Add all remaining prompts to prompts.md, and ensure Provider Flow 2 is wired with the tested real-resource report shape, token-derived reporter identity, Resend admin email, resource-card report form, authenticated client request, success/error handling, unchanged tests, restart instructions, full-suite verification, and manual testing steps.

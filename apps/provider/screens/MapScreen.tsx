@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import * as Location from "expo-location";
-import { ActivityIndicator, Alert, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import MapView, { Marker, type Region } from "react-native-maps";
 
 import { getTheme } from "@shared-ui/theme/theme";
@@ -10,6 +10,7 @@ import { getReaderVisibleResources } from "../src/resources/getReaderVisibleReso
 import { ProviderCard, type ProviderCardData } from "../components/ProviderCard";
 import { ProviderDetailModal } from "../components/ProviderDetailModal";
 import { MapPin } from "../components/MapPin";
+import { ProviderReportModal } from "../components/ProviderReportModal";
 import { useResourceStore } from "../state/ResourceStore";
 
 const theme = getTheme(false);
@@ -30,6 +31,7 @@ export const MapScreen = () => {
   const [searchMessage, setSearchMessage] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedResource, setSelectedResource] = useState<ProviderCardData | null>(null);
+  const [reportResource, setReportResource] = useState<ProviderCardData | null>(null);
   const expirationVisibleResources = getReaderVisibleResources(
     resources,
     new Date(),
@@ -170,7 +172,26 @@ export const MapScreen = () => {
         </View>
       ) : visibleResources.length ? visibleResources.map((resource) => {
         const item: ProviderCardData = resource;
-        return <ProviderCard item={item} key={resource.id} onPress={() => setSelectedResource(item)} />;
+        return (
+          <ProviderCard
+            actions={(
+              <Pressable
+                accessibilityLabel={`Report ${item.title} to Narley`}
+                accessibilityRole="button"
+                onPress={(event) => {
+                  event.stopPropagation();
+                  setReportResource(item);
+                }}
+                style={styles.reportButton}
+              >
+                <Text style={styles.reportButtonText}>Report to Narley</Text>
+              </Pressable>
+            )}
+            item={item}
+            key={resource.id}
+            onPress={() => setSelectedResource(item)}
+          />
+        );
       }) : (
         <View style={styles.emptyCard}>
           <Text style={styles.emptyTitle}>
@@ -184,25 +205,11 @@ export const MapScreen = () => {
         </View>
       )}
       </ScrollView>
-      <ProviderDetailModal item={selectedResource} onClose={() => setSelectedResource(null)}>
-        <View style={styles.modalActions}>
-          <Pressable
-            accessibilityLabel="Report this resource"
-            accessibilityRole="button"
-            onPress={() => Alert.alert(
-              "Report this resource?",
-              "Send this resource for review if its information appears incorrect or unavailable.",
-              [
-                { text: "Cancel", style: "cancel" },
-                { text: "Report", style: "destructive" },
-              ],
-            )}
-            style={styles.reportButton}
-          >
-            <Text style={styles.reportButtonText}>Report</Text>
-          </Pressable>
-        </View>
-      </ProviderDetailModal>
+      <ProviderDetailModal item={selectedResource} onClose={() => setSelectedResource(null)} />
+      <ProviderReportModal
+        onClose={() => setReportResource(null)}
+        resource={reportResource}
+      />
     </View>
   );
 };
@@ -287,10 +294,12 @@ const styles = StyleSheet.create({
     marginTop: theme.spacing.sm,
     textAlign: "center",
   },
-  modalActions: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginTop: 8 },
   reportButton: {
-    backgroundColor: "#8B2E24",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    backgroundColor: theme.colors.cta,
     borderRadius: 16,
+    marginTop: theme.spacing.md,
     paddingHorizontal: 18,
     paddingVertical: 14,
   },

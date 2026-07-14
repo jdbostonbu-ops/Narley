@@ -61,6 +61,18 @@ type DeleteResourceResult =
   | { ok: true; error?: never }
   | { ok: false; error: string };
 
+export type ProviderReportPayload = {
+  resourceTitle: string;
+  address: string;
+  phone?: string;
+  website?: string;
+  details: string;
+};
+
+export type SubmitProviderReportResult =
+  | { ok: true; error?: never }
+  | { ok: false; error: string };
+
 export type ProviderAlertConfidence = "high" | "medium" | "low";
 
 export type ProviderReportAlert = {
@@ -470,6 +482,45 @@ export const deleteProviderAlert = async (
       error: error instanceof Error
         ? error.message
         : "Unable to delete provider alert",
+    };
+  }
+};
+
+export const postProviderReport = async (
+  report: ProviderReportPayload,
+): Promise<SubmitProviderReportResult> => {
+  try {
+    const authorizationHeaders = await getProviderAuthorizationHeaders();
+    const response = await fetch(`${API_BASE_URL}/provider/report`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...authorizationHeaders,
+      },
+      body: JSON.stringify(report),
+    });
+    const parsedResponse = await readJsonResponse(response);
+
+    if (!parsedResponse.ok) {
+      return { ok: false, error: parsedResponse.error };
+    }
+
+    const payload = parsedResponse.payload;
+
+    if (!isRecord(payload) || payload.ok !== true) {
+      return {
+        ok: false,
+        error: isRecord(payload) && typeof payload.error === "string"
+          ? payload.error
+          : "Unable to send report to Narley",
+      };
+    }
+
+    return { ok: true };
+  } catch (error: unknown) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : "Unable to send report to Narley",
     };
   }
 };
