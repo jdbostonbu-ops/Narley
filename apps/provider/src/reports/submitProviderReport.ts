@@ -1,9 +1,10 @@
 type ProviderReport = {
+  resourceTitle: string;
   address: string;
-  providerName: string;
-  providerEmail: string;
-  providerPhone: string;
+  phone?: string;
+  website?: string;
   details: string;
+  reportedBy: string;
 };
 
 type SubmitProviderReportDependencies = {
@@ -25,14 +26,15 @@ export const submitProviderReport = async (
   { sendToNarleyAdmin }: SubmitProviderReportDependencies
 ): Promise<SubmitProviderReportResult> => {
   const requiredFields = [
+    report.resourceTitle,
     report.address,
-    report.providerName,
-    report.providerEmail,
-    report.providerPhone,
     report.details,
+    report.reportedBy,
   ];
 
-  if (requiredFields.some((field) => field.trim() === "")) {
+  if (requiredFields.some(
+    (field) => typeof field !== "string" || field.trim() === "",
+  )) {
     return { ok: false, error: "All report fields are required" };
   }
 
