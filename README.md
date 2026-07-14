@@ -18,7 +18,6 @@
 [![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen)](#-testing)
 [![Reader Tests](https://img.shields.io/badge/Reader_Tests-127-brightgreen)](#-testing)
 [![Provider Tests](https://img.shields.io/badge/Provider_Tests-204-brightgreen)](#-testing)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](#-license)
 
 **🔗 Live Demo:** _[narley.vercel.app](#)_
 
@@ -60,7 +59,6 @@
 - [🔌 API Reference](#-api-reference)
 - [🗄️ Data Model](#-data-model)
 - [🤝 Contributing](#-contributing)
-- [📄 License](#-license)
 
 ---
 
