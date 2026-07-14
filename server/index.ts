@@ -3,6 +3,8 @@ import cors from "cors";
 import bcrypt from "bcrypt";
 import { login } from "../apps/provider/src/auth/login";
 import { validatePassword } from "../apps/provider/src/auth/passwordPolicy";
+import { providerOwnsResource } from "../apps/provider/src/auth/providerOwnsResource";
+import { resolveProviderMembership } from "../apps/provider/src/auth/resolveProviderMembership";
 import {
   confirmPasswordReset,
   requestPasswordReset,
@@ -16,7 +18,9 @@ import { updateResource } from "../apps/provider/src/resources/updateResource";
 import { verifyReaderReport } from "../apps/provider/src/reports/verifyReaderReport";
 import { callOpenAI } from "./openai";
 import { signAuthToken } from "./authToken";
+import { loadProviderMembership } from "./loadProviderMembership";
 import { prisma } from "./prisma";
+import { requireAuth } from "./requireAuth";
 import {
   sendPasswordResetEmail,
   sendReaderPasswordResetEmail,
@@ -712,7 +716,6 @@ type ResourceRequest = {
   phone?: string;
   website?: string;
   notes: string;
-  providerId: string;
 };
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -735,8 +738,7 @@ const parseResourceRequest = (value: unknown): ResourceRequest | null => {
     typeof value.category !== "string" ||
     typeof value.address !== "string" ||
     typeof value.latitude !== "number" ||
-    typeof value.longitude !== "number" ||
-    typeof value.providerId !== "string"
+    typeof value.longitude !== "number"
   ) {
     return null;
   }
@@ -751,11 +753,10 @@ const parseResourceRequest = (value: unknown): ResourceRequest | null => {
     phone: readOptionalString(value.phone),
     website: readOptionalString(value.website),
     notes: typeof value.notes === "string" ? value.notes : "",
-    providerId: value.providerId,
   };
 };
 
-app.post("/resources", async (req, res) => {
+app.post("/resources", requireAuth("provider"), async (req, res) => {
   const request = parseResourceRequest(req.body);
 
   if (request === null) {
@@ -777,19 +778,29 @@ app.post("/resources", async (req, res) => {
   } = { resource: null };
 
   try {
+    const auth = req.auth;
+
+    if (auth === undefined) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const membership = resolveProviderMembership(
+      await loadProviderMembership(auth.userId),
+    );
     const result = await createResource(
       resourceInput,
-      { id: request.providerId },
+      { id: auth.userId },
       {
-        membership: {
-          status: "ACTIVE",
-          org: { status: "VERIFIED", active: true },
-        },
+        membership,
         findActiveByTitleAndAddress: async (title, address) =>
           prisma.resource.findFirst({
             where: { title, address, status: "ACTIVE" },
           }),
         insert: async (resource) => {
+          if (membership === null) {
+            throw new Error("Provider membership is required");
+          }
+
           creation.resource = await prisma.resource.create({
             data: {
               title: resource.title,
@@ -802,7 +813,7 @@ app.post("/resources", async (req, res) => {
               phone: request.phone,
               website: request.website,
               providerId: resource.providerId,
-              organizationId: "org_hum",
+              organizationId: membership.organizationId,
             },
           });
 
@@ -813,7 +824,11 @@ app.post("/resources", async (req, res) => {
     );
 
     if (!result.ok) {
-      const status = result.error.includes("Duplicate") ? 409 : 400;
+      const status = result.error.includes("Duplicate")
+        ? 409
+        : result.error.includes("Provider") || result.error.includes("authorized")
+          ? 403
+          : 400;
       return res.status(status).json({ error: result.error });
     }
 
@@ -893,7 +908,7 @@ const parseResourceChanges = (
   return changes;
 };
 
-app.patch("/resources/:id", async (req, res) => {
+app.patch("/resources/:id", requireAuth("provider"), async (req, res) => {
   const resourceId = req.params.id;
   const changes = parseResourceChanges(req.body);
 
@@ -902,6 +917,12 @@ app.patch("/resources/:id", async (req, res) => {
   }
 
   try {
+    const auth = req.auth;
+
+    if (auth === undefined) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
     const currentResource = await prisma.resource.findUnique({
       where: { id: resourceId },
     });
@@ -910,11 +931,19 @@ app.patch("/resources/:id", async (req, res) => {
       return res.status(404).json({ error: "Resource not found" });
     }
 
-    const membership = {
-      status: "ACTIVE",
-      organizationId: "org_hum",
-      org: { status: "VERIFIED", active: true },
-    };
+    const membership = resolveProviderMembership(
+      await loadProviderMembership(auth.userId),
+    );
+
+    if (!providerOwnsResource(
+      { organizationId: membership?.organizationId ?? null },
+      { organizationId: currentResource.organizationId },
+    )) {
+      return res.status(403).json({
+        error: "You can only edit your own organization's resources",
+      });
+    }
+
     const updateResult: {
       resource: Awaited<ReturnType<typeof prisma.resource.update>> | null;
     } = { resource: null };
@@ -992,17 +1021,36 @@ app.patch("/resources/:id", async (req, res) => {
   }
 });
 
-app.delete("/resources/:id", async (req, res) => {
+app.delete("/resources/:id", requireAuth("provider"), async (req, res) => {
   const resourceId = req.params.id;
 
   try {
+    const auth = req.auth;
+
+    if (auth === undefined) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
     const currentResource = await prisma.resource.findUnique({
       where: { id: resourceId },
-      select: { id: true },
+      select: { id: true, organizationId: true },
     });
 
     if (currentResource === null) {
       return res.status(404).json({ error: "Resource not found" });
+    }
+
+    const membership = resolveProviderMembership(
+      await loadProviderMembership(auth.userId),
+    );
+
+    if (!providerOwnsResource(
+      { organizationId: membership?.organizationId ?? null },
+      { organizationId: currentResource.organizationId },
+    )) {
+      return res.status(403).json({
+        error: "You can only delete your own organization's resources",
+      });
     }
 
     await prisma.resource.update({
