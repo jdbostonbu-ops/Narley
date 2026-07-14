@@ -15,6 +15,7 @@ import { filterActiveAlerts } from "../../reader/src/alerts/filterActiveAlerts";
 import { forecastTemperatureAlert } from "../../reader/src/alerts/forecastTemperatureAlert";
 import { getAlertsWithSetting } from "../../reader/src/alerts/getAlertsWithSetting";
 import type { Alert } from "../../reader/src/alerts/isAlertExpired";
+import { mergeAlerts } from "../../reader/src/alerts/mergeAlerts";
 import { normalizeAlert } from "../../reader/src/alerts/normalizeAlert";
 import {
   deleteProviderAlert,
@@ -54,6 +55,35 @@ export const WeatherAlertsProvider = ({ children }: { children: ReactNode }) => 
   const [reportsError, setReportsError] = useState<string | null>(null);
   const restoredSetting = useRef(false);
   const weatherAlertsOnRef = useRef(false);
+  const rawAlertsRef = useRef<readonly Alert[]>([]);
+  const locationLabelRef = useRef("");
+
+  const applyMergedAlerts = useCallback((
+    newAlerts: readonly Alert[],
+    locationLabel: string,
+  ): void => {
+    const now = new Date();
+    const activeAlerts = filterActiveAlerts(
+      mergeAlerts(rawAlertsRef.current, newAlerts, now),
+      now,
+    );
+    rawAlertsRef.current = activeAlerts;
+
+    const normalizedAlerts = activeAlerts
+      .map((alert) => normalizeAlert(alert, locationLabel));
+
+    setWeatherAlerts(normalizedAlerts.map((alert) => ({
+      id: `weather-${alert.title}-${alert.time}`,
+      kind: "weather" as const,
+      category: "Weather",
+      status: "Active",
+      title: alert.title,
+      notes: alert.advice === null
+        ? alert.message
+        : `${alert.message}. ${alert.advice}`,
+      metadata: alert.time,
+    })));
+  }, []);
 
   const loadWeatherAlerts = useCallback(async (enabled: boolean): Promise<void> => {
     setLoading(true);
@@ -61,6 +91,8 @@ export const WeatherAlertsProvider = ({ children }: { children: ReactNode }) => 
 
     try {
       if (!enabled) {
+        rawAlertsRef.current = [];
+        locationLabelRef.current = "";
         setWeatherAlerts([]);
         return;
       }
@@ -68,6 +100,8 @@ export const WeatherAlertsProvider = ({ children }: { children: ReactNode }) => 
       const location = await getUserLocation();
 
       if (location === null) {
+        rawAlertsRef.current = [];
+        locationLabelRef.current = "";
         setWeatherAlerts([]);
         setError(
           "Weather alerts need location access. Enable location permission to view alerts near you.",
@@ -78,6 +112,7 @@ export const WeatherAlertsProvider = ({ children }: { children: ReactNode }) => 
       const rawAlerts: Alert[] = [];
       const locationLabel =
         `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`;
+      locationLabelRef.current = locationLabel;
 
       const result = await getAlertsWithSetting(
         location,
@@ -105,32 +140,21 @@ export const WeatherAlertsProvider = ({ children }: { children: ReactNode }) => 
       );
 
       if ("failures" in result && result.failures.length > 0) {
+        applyMergedAlerts([], locationLabel);
         setError(
           "Unable to load weather alerts. Reopen this tab to try again.",
         );
+        return;
       }
 
-      const activeAlerts = filterActiveAlerts(rawAlerts, new Date())
-        .map((alert) => normalizeAlert(alert, locationLabel));
-
-      setWeatherAlerts(activeAlerts.map((alert) => ({
-        id: `weather-${alert.title}-${alert.time}`,
-        kind: "weather" as const,
-        category: "Weather",
-        status: "Active",
-        title: alert.title,
-        notes: alert.advice === null
-          ? alert.message
-          : `${alert.message}. ${alert.advice}`,
-        metadata: alert.time,
-      })));
+      applyMergedAlerts(rawAlerts, locationLabel);
     } catch {
-      setWeatherAlerts([]);
+      applyMergedAlerts([], locationLabelRef.current);
       setError("Unable to load weather alerts.");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [applyMergedAlerts]);
 
   const loadReportAlerts = useCallback(async (): Promise<void> => {
     setReportsLoading(true);

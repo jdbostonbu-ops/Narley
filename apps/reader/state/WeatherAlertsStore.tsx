@@ -16,6 +16,7 @@ import { filterActiveAlerts } from "../src/alerts/filterActiveAlerts";
 import { forecastTemperatureAlert } from "../src/alerts/forecastTemperatureAlert";
 import { getAlertsWithSetting } from "../src/alerts/getAlertsWithSetting";
 import type { Alert } from "../src/alerts/isAlertExpired";
+import { mergeAlerts } from "../src/alerts/mergeAlerts";
 import { normalizeAlert } from "../src/alerts/normalizeAlert";
 import { getUserLocation } from "../src/location/getUserLocation";
 
@@ -46,6 +47,32 @@ export const WeatherAlertsProvider = ({ children }: { children: ReactNode }) => 
   const [error, setError] = useState<string | null>(null);
   const restoredSetting = useRef(false);
   const weatherAlertsOnRef = useRef(false);
+  const rawAlertsRef = useRef<readonly Alert[]>([]);
+  const locationLabelRef = useRef("");
+
+  const applyMergedAlerts = useCallback((
+    newAlerts: readonly Alert[],
+    locationLabel: string,
+  ): void => {
+    const now = new Date();
+    const activeAlerts = filterActiveAlerts(
+      mergeAlerts(rawAlertsRef.current, newAlerts, now),
+      now,
+    );
+    rawAlertsRef.current = activeAlerts;
+
+    const normalizedAlerts = activeAlerts
+      .map((alert) => normalizeAlert(alert, locationLabel));
+
+    setWeatherAlerts(normalizedAlerts.map((alert) => ({
+      id: `weather-${alert.title}-${alert.time}`,
+      title: alert.title,
+      message: alert.advice === null
+        ? alert.message
+        : `${alert.message}. ${alert.advice}`,
+      metadata: alert.time,
+    })));
+  }, []);
 
   const loadWeatherAlerts = useCallback(async (enabled: boolean): Promise<void> => {
     setLoading(true);
@@ -53,6 +80,8 @@ export const WeatherAlertsProvider = ({ children }: { children: ReactNode }) => 
 
     try {
       if (!enabled) {
+        rawAlertsRef.current = [];
+        locationLabelRef.current = "";
         setWeatherAlerts([]);
         return;
       }
@@ -60,6 +89,8 @@ export const WeatherAlertsProvider = ({ children }: { children: ReactNode }) => 
       const location = await getUserLocation();
 
       if (location === null) {
+        rawAlertsRef.current = [];
+        locationLabelRef.current = "";
         setWeatherAlerts([]);
         setError(
           "Weather alerts need location access. Enable location permission to view alerts near you.",
@@ -70,8 +101,9 @@ export const WeatherAlertsProvider = ({ children }: { children: ReactNode }) => 
       const rawAlerts: Alert[] = [];
       const locationLabel =
         `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`;
+      locationLabelRef.current = locationLabel;
 
-      await getAlertsWithSetting(
+      const result = await getAlertsWithSetting(
         location,
         locationLabel,
         enabled,
@@ -94,24 +126,20 @@ export const WeatherAlertsProvider = ({ children }: { children: ReactNode }) => 
         },
       );
 
-      const activeAlerts = filterActiveAlerts(rawAlerts, new Date())
-        .map((alert) => normalizeAlert(alert, locationLabel));
+      if ("failures" in result && result.failures.length > 0) {
+        applyMergedAlerts([], locationLabel);
+        setError("Unable to load weather alerts. Reopen this tab to try again.");
+        return;
+      }
 
-      setWeatherAlerts(activeAlerts.map((alert) => ({
-        id: `weather-${alert.title}-${alert.time}`,
-        title: alert.title,
-        message: alert.advice === null
-          ? alert.message
-          : `${alert.message}. ${alert.advice}`,
-        metadata: alert.time,
-      })));
+      applyMergedAlerts(rawAlerts, locationLabel);
     } catch {
-      setWeatherAlerts([]);
+      applyMergedAlerts([], locationLabelRef.current);
       setError("Unable to load weather alerts.");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [applyMergedAlerts]);
 
   useEffect(() => {
     let active = true;
