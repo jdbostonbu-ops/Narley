@@ -50,5 +50,7 @@ export const parseResource = (value: unknown): ApiResource | null => {
     longitude: value.longitude,
     expiresAt,
     notes: value.notes,
+    ...(typeof value.phone === "string" ? { phone: value.phone } : {}),
+    ...(typeof value.website === "string" ? { website: value.website } : {}),
   };
 };
