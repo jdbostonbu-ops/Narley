@@ -34,6 +34,199 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const LANDING_PAGE_HTML = `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0F4D35" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230F4D35'/%3E%3Cpath d='M12 29 32 12l20 17M17 26v26h30V26M27 52V39h10v13' fill='none' stroke='%23F5F1E8' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+    <title>Narley API</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #0F4D35;
+        color: #F5F1E8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        padding: 40px 24px;
+        background: #0F4D35;
+      }
+
+      main {
+        width: min(100%, 680px);
+        text-align: center;
+      }
+
+      .brand-icon {
+        display: block;
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 20px;
+        color: #F5F1E8;
+      }
+
+      h1 {
+        margin: 0;
+        color: #F5F1E8;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(48px, 10vw, 72px);
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: 0.02em;
+      }
+
+      .tagline {
+        margin: 12px 0 24px;
+        color: #57C7B6;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 24px;
+        font-style: italic;
+        font-weight: 700;
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        margin-bottom: 28px;
+        padding: 9px 15px;
+        border: 1px solid rgba(87, 199, 182, 0.45);
+        border-radius: 999px;
+        background: rgba(11, 61, 45, 0.72);
+        color: #F5F1E8;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+
+      .status-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #57C7B6;
+        box-shadow: 0 0 0 4px rgba(87, 199, 182, 0.13);
+      }
+
+      .primary-copy {
+        margin: 0 auto;
+        color: #F5F1E8;
+        font-size: clamp(18px, 3vw, 22px);
+        font-weight: 600;
+        line-height: 1.55;
+      }
+
+      .secondary-copy {
+        margin: 16px auto 0;
+        color: #AFC3B9;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .endpoints {
+        margin-top: 36px;
+        padding-top: 28px;
+        border-top: 1px solid rgba(245, 241, 232, 0.2);
+        text-align: left;
+      }
+
+      .endpoints-label {
+        margin: 0 0 12px;
+        color: #AFC3B9;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+      }
+
+      .endpoint-row {
+        display: grid;
+        grid-template-columns: minmax(145px, auto) 1fr;
+        gap: 20px;
+        align-items: center;
+        padding: 15px 0;
+        border-top: 1px solid rgba(245, 241, 232, 0.11);
+      }
+
+      .endpoint {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        color: #F5F1E8;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .verb {
+        margin-right: 10px;
+        color: #57C7B6;
+      }
+
+      .endpoint-description {
+        color: #AFC3B9;
+        font-size: 14px;
+        line-height: 1.4;
+      }
+
+      @media (max-width: 520px) {
+        body {
+          padding: 32px 20px;
+        }
+
+        .endpoint-row {
+          grid-template-columns: 1fr;
+          gap: 5px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <svg class="brand-icon" viewBox="0 0 72 72" role="img" aria-label="Narley house">
+        <path
+          d="M12 33 36 12l24 21M17 29v29h38V29M29 58V43h14v15"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+      <h1>Narley</h1>
+      <p class="tagline">Help nearby.</p>
+      <div class="status" role="status" aria-label="Narley API is online">
+        <span class="status-dot" aria-hidden="true"></span>
+        API online
+      </div>
+      <p class="primary-copy">Narley connects people with verified community resources — shelter, food, charging, employment help — on a map that providers keep current.</p>
+      <p class="secondary-copy">This URL is the API behind the Provider and Reader mobile apps.</p>
+
+      <section class="endpoints" aria-labelledby="endpoints-heading">
+        <h2 class="endpoints-label" id="endpoints-heading">PUBLIC ENDPOINTS</h2>
+        <div class="endpoint-row">
+          <div class="endpoint"><span class="verb">GET</span>/health</div>
+          <div class="endpoint-description">Status check</div>
+        </div>
+        <div class="endpoint-row">
+          <div class="endpoint"><span class="verb">GET</span>/resources</div>
+          <div class="endpoint-description">Live resources</div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>`;
+
+app.get("/", (_req, res) => {
+  return res.type("html").send(LANDING_PAGE_HTML);
+});
+
 // Health check — confirms the server is up
 app.get("/health", (_req, res) => {
   res.json({ ok: true });
