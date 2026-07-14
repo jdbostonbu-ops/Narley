@@ -12,6 +12,7 @@
   },
   "scripts": {
     "test": "jest",
+    "test:all": "cd apps/provider && npm run test:unit && cd ../reader && npm run test:unit && cd ../.. && npx vitest run server/",
     "test:watch": "jest --watch",
     "test:run": "jest --runInBand"
   },
