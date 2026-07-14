@@ -571,6 +571,18 @@ Cancel returns to editing.
 
 Discard closes without saving.
 
+# Live
+
+For the refresh bug (A) — reader auto-updates on foreground:
+
+LIVE-010 — Provider edits propagate to the reader: When a provider edits any field of a resource and the edit succeeds, the updated value is persisted to the backend and reflected in the reader app without the reader manually refreshing. This applies to every editable and displayable field. No edited field may appear updated on the provider while remaining stale, missing, or unpersisted for the reader.
+
+For the notes persistence bug (B) — notes actually save:
+
+POST-011 — Resource notes/details persist through edits: When a resource is created or edited with a notes/details value, that value is persisted to the database and returned by GET /resources. The notes field must not be silently dropped by the update endpoint or omitted from fetch responses. A resource's saved notes are visible to both the provider (on reload) and the reader.
+
+
+
 # 9. Resource Lifecycle and Visibility
 LIFE-001 — Active
 
@@ -650,6 +662,10 @@ The only resource lifecycle
   > removes its matching pin and
   > card from both Provider and
   > Reader apps.
+
+For the phone/website display bug (C) — reader shows phone/website:
+
+LIFE-011 — Reader displays resource phone and website: The reader app's resource data model and detail view include the resource's phone and website fields (when present), so that a provider's edits to phone or website are visible to readers.
 
 # 10. Provider Map
 PMAP-001 — Visible resource feed

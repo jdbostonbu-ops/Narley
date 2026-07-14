@@ -69,6 +69,7 @@ model Resource {
   status         String   @default("ACTIVE") // ACTIVE / EXPIRED
   phone          String?
   website        String?
+  notes          String   @default("")
   providerId     String
   organizationId String
   createdAt      DateTime @default(now())

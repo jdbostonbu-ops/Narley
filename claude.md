@@ -1,280 +1,298 @@
+## Root cause
 
-• ## Root cause
+  The migration did not damage
+  the database or break Prisma.
+  The immediate reason edits no
+  longer persist is that the
+  Narley API server is not
+  currently running on port
+  4000.
 
-  The Reader is showing the
-  default Expo icon because its
-  Narley icon configuration was
-  changed only in the current
-  working tree and has not been
-  applied to a rebuilt native
-  Reader app.
+  A direct request to:
 
-  The evidence is specific:
+  http://127.0.0.1:4000/resources
 
-  - The committed Reader
-    configuration still points
-    to Expo’s default assets:
-      - icon: "./assets/images/
-        icon.png"
+  failed with “Couldn’t connect
+  to server.” Therefore,
+  Provider cannot reach PATCH /
+  resources/:id at all. Running
+  prisma migrate dev and prisma
+  generate does not restart the
+  long-running tsx server/
+  index.ts process. The API must
+  be started again after
+  generating the client.
 
-      - default Android
-        foreground/background/
-        monochrome images
+  There is also a separate code
+  defect affecting notes: adding
+  the database column did not
+  wire that column into the
+  create, PATCH, or GET Prisma
+  paths. Once the server is
+  restarted, normal fields
+  should persist again, but
+  notes will still not persist
+  until that wiring is
+  corrected.
 
-      - default favicon
-      - default splash image
+  ## Migration and data
+  verification
 
-  - The current apps/reader/
-    app.json contains
-    uncommitted changes
-    replacing those assets with
-    the Narley files.
+  The migration applied
+  successfully:
 
-  - Reader’s scripts use expo
-    start --ios and expo start
-    --android, which launch
-    through Expo Go. Expo Go
-    retains its own launcher
-    icon; changing expo.icon
-    does not replace the Expo Go
-    application icon.
+  Migration:
+  20260714165809_add_resource_no
+  tes
+  finished_at: 2026-07-
+  14T16:58:10.368Z
+  rolled_back_at: null
 
-  - Provider’s scripts use expo
-    run:ios and expo
-    run:android, which create/
-    rebuild a native development
-    app and bake its configured
-    icon into the binary.
+  It contains only:
 
-  - App icons are native build-
-    time assets. Metro
-    refreshes, JavaScript
-    reloads, and OTA updates do
-    not replace an already-
-    installed native icon.
+  ALTER TABLE "Resource"
+  ADD COLUMN "notes" TEXT NOT
+  NULL DEFAULT '';
 
-  There is no active
-  configuration override
-  changing Reader back to the
-  Expo icon. This is a stale/
-  unrebuilt native-app or Expo
-  Go issue.
+  This is additive. It did not
+  drop, recreate, rename, or
+  modify any existing columns or
+  records.
 
-  ## Icon-related configuration
-  comparison
+  The database currently
+  contains all 10 existing
+  resources. A resource was also
+  created after the migration at
+  2026-07-14T17:22:42.430Z,
+  confirming that the generated
+  Prisma client and migrated
+  database are compatible.
 
-   Setting     expo.icon
-   Provider    ./assets/narley-
-               icon-1024.png
-   Reader      ./assets/narley-
-               icon-1024.png
-   Difference  None
-  ──────────────────────────────
-   Setting     Splash image
-   Provider    ./assets/narley-
-               logo.png
-   Reader      ./assets/narley-
-               logo.png
-   Difference  None
-  ──────────────────────────────
-   Setting     Splash
-               backgroundColor
-   Provider    #208AEF
-   Reader      #208AEF
-   Difference  None
-  ──────────────────────────────
-   Setting     Splash imageWidth
-   Provider    224
-   Reader      224
-   Difference  None
-  ──────────────────────────────
-   Setting     android.adaptiveI
-               con
-   Provider    Not defined
-   Reader      Defined
-   Difference  Reader-only
-  ──────────────────────────────
-   Setting     Adaptive
-               backgroundColor
-   Provider    Inherits normal
-               icon behavior
-   Reader      #208AEF
-   Difference  Reader-only
-  ──────────────────────────────
-   Setting     Adaptive
-               foregroundImage
-   Provider    Not defined
-   Reader      ./assets/narley-
-               icon-1024.png
-   Difference  Reader-only
-  ──────────────────────────────
-   Setting     Adaptive
-               backgroundImage
-   Provider    Not defined
-   Reader      Not defined
-   Difference  None
-  ──────────────────────────────
-   Setting     Adaptive
-               monochromeImage
-   Provider    Not defined
-   Reader      Not defined
-   Difference  None
-  ──────────────────────────────
-   Setting     web.favicon
-   Provider    ./assets/narley-
-               icon-1024.png
-   Reader      ./assets/narley-
-               icon-1024.png
-   Difference  None
+  All existing resources
+  received the expected default:
 
-  The only current icon-related
-  difference is Reader’s Android
-  adaptive-icon configuration.
-  It also points to the Narley
-  image, so it does not explain
-  the Expo icon.
+  notes: ""
 
-  ## Asset verification
+  ## PATCH path analysis
 
-  Both configured icon paths
-  resolve successfully:
+  The app path is correctly
+  connected:
 
-  - apps/provider/assets/narley-
-    icon-1024.png
+  EditResourceModal
+  → updateStoredResource
+  → patchResource
+  → PATCH /resources/:id
+  → parseResourceChanges
+  → updateResource
+  → prisma.resource.update
 
-  - apps/reader/assets/narley-
-    icon-1024.png
+  ### Provider client
 
-  Both files are:
+  patchResource() still:
 
-  - 16,830 bytes
-  - PNG, 1024 × 1024, RGB
-  - SHA-256:
-    cc3d2f4e9e134a51afa11a49d303
-    606c24c0f18b71e01002dc6dec87
-    ef37e888
+  - Sends the PATCH request to
+    the correct route.
 
-  They are byte-for-byte
-  identical. Both splash image
-  paths also resolve to existing
-  assets/narley-logo.png files.
+  - Includes JSON.
+  - Attaches the Provider bearer
+    token.
 
-  Running Expo’s resolved-config
-  command confirms that both
-  apps currently resolve icon
-  to ./assets/narley-icon-
-  1024.png.
+  - Returns an error if the HTTP
+    request fails.
 
-  ## Override and artifact audit
+  - Updates Provider state only
+    after a successful response.
 
-  - app.config.js: Both apps
-    load their own app.json,
-    spread appJson.expo, and add
-    only extra.apiUrl. Neither
-    overrides the icon.
+  There is no new client-side
+  optimistic update that could
+  hide a failed backend request.
 
-  - assets/expo.icon: Both apps
-    contain identical default
-    Expo Icon Composer projects,
-    including the blue Expo
-    symbol. However, neither
-    app.json, app.config.js,
-    package script, nor project
-    code references these
-    directories. They are not
-    active overrides.
+  ### parseResourceChanges
 
-  - Native ios/ or android/
-    directories: Neither app
-    currently has one. There are
-    therefore no checked-out or
-    local baked native icon
-    assets to override the
-    config.
+  It correctly recognizes notes:
 
-  - eas.json: None exists in the
-    repository.
+  ["title", "category",
+  "address", "phone", "website",
+  "notes"]
 
-  - EAS profiles/artifacts: None
-    were found.
+  Therefore, parsing the request
+  does not fail because notes
+  now exists.
 
-  - .expo cache: Both apps have
-    ordinary Expo development
-    cache folders, but they
-    contain no generated icon or
-    native build artifacts.
+  ### Prisma update
 
-  - Icon-generation scripts: No
-    script or reference using
-    expo.icon/icon.json was
-    found.
+  The actual Prisma data object
+  includes:
 
-  - Reader’s app.json was
-    updated after its
-    existing .expo session/cache
-    was created, further
-    confirming that the visible
-    Reader icon predates the
-    configuration change.
+  - title
+  - category
+  - address
+  - latitude
+  - longitude
+  - expiresAt
+  - phone
+  - website
 
-  ## Exact remediation
+  It does not include notes.
 
-  No additional icon
-  configuration change is
-  required for iOS. Reader
-  already resolves to the
-  correct Narley icon.
+  Consequently:
 
-  To install Reader as a native
-  development build matching
-  Provider:
+  - Ordinary field edits remain
+    valid and should persist
+    once the API is running.
 
-  cd apps/reader
-  npx expo prebuild --clean
-  npx expo run:ios
+  - A notes-only edit results in
+    a valid Prisma update with
+    no notes change.
 
-  For Android:
+  - The notes value remains
+    unchanged in the database.
 
-  cd apps/reader
-  npx expo prebuild --clean
-  npx expo run:android
+  ## Misleading notes response
 
-  Before rebuilding, uninstall
-  the old Reader development app
-  from the simulator/device to
-  prevent the launcher from
-  retaining its cached icon.
-  Then install the newly built
-  app.
+  Before the notes column
+  existed, the endpoint
+  simulated notes persistence by
+  echoing the submitted value:
 
-  If Reader continues to run
-  through Expo Go:
+  return res.json({
+    resource: {
+      ...updateResult.resource,
+      notes: typeof
+      changes.notes ===
+      "string" ? changes.notes :
+      "",
+    },
+  });
 
-  cd apps/reader
-  npx expo start --clear
+  Now that Resource.notes is
+  real, that workaround is
+  incorrect:
 
-  This can refresh Reader’s
-  project metadata inside Expo
-  Go, but the device’s launcher
-  will still show Expo Go’s own
-  icon. A standalone/dev build
-  is required for the Narley
-  launcher icon.
+  1. Prisma returns the actual
+     database resource.
 
-  To make Reader’s workflow
-  permanently match Provider,
-  its package.json scripts
-  should eventually be changed
-  from:
+  2. The response spreads that
+     resource.
 
-  "ios": "expo start --ios",
-  "android": "expo start
-  --android"
+  3. The endpoint overwrites its
+     real notes value with the
+     request value.
 
-  to:
+  4. Provider temporarily
+     receives and displays the
+     new note.
 
-  "ios": "expo run:ios",
-  "android": "expo run:android"
+  5. The database still contains
+     the old note.
 
-  No files were changed during
-  this investigation.
+  6. A reload loses the apparent
+     edit.
+
+  This does not cause Prisma to
+  throw, but it makes a failed
+  notes persistence look
+  successful.
+
+  ## GET and creation have the
+  same omission
+
+  GET /resources currently
+  returns:
+
+  notes: ""
+
+  instead of:
+
+  notes: resource.notes
+
+  Therefore, even if notes were
+  stored manually in the
+  database, Reader and Provider
+  reloads would receive an empty
+  string.
+
+  Resource creation also parses
+  request.notes but omits it
+  from prisma.resource.create().
+  It only echoes the note in the
+  POST response. Newly created
+  resources consequently receive
+  the database default "".
+
+  ## Stale Prisma client
+  analysis
+
+  A running Node process does
+  need to be restarted after
+  prisma generate to load the
+  new generated client.
+
+  A stale pre-migration Prisma
+  client would not normally
+  prevent updates to the older
+  fields; it simply would not
+  know about the new notes
+  field. However, it cannot
+  start using the regenerated
+  model until restarted.
+
+  At present, there is no server
+  listening on port 4000, so the
+  immediate problem is more
+  direct than a stale in-memory
+  client: the API is
+  unavailable.
+
+  ## Exact fix
+
+  First, restart the API from
+  the repository root:
+
+  npx tsx server/index.ts
+
+  That restores PATCH handling
+  for title, category, address,
+  phone, website, coordinates,
+  and expiration.
+
+  Then correct the notes wiring:
+
+  1. Include notes:
+     request.notes in
+     prisma.resource.create().
+
+  2. Include string
+     approvedChanges.notes in
+     the PATCH data object.
+
+  3. Return
+     updateResult.resource
+     directly instead of
+     overwriting its real notes
+     value with the request
+     echo.
+
+  4. Change GET /resources from
+     notes: "" to notes:
+     resource.notes.
+
+  5. Restart the API again after
+     changing server code.
+
+  So the conclusion is:
+
+  - All edits currently fail:
+    API server is not running
+    after migration/generation.
+
+  - Notes still fail after
+    restart: the real notes
+    column was added, but the
+    server persistence and GET
+    paths still use the old fake
+    echo behavior.
+
+  No files were changed.
+
+

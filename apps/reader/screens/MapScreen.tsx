@@ -1,5 +1,5 @@
-import { useCallback, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, AppState, type AppStateStatus, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import MapView, { Marker, type Region } from 'react-native-maps';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,6 +14,7 @@ import { MapPin } from '../../provider/components/MapPin';
 import { filterResourcesByZip } from '../../provider/src/resources/filterResourcesByZip';
 import { getReaderVisibleResources } from '../../provider/src/resources/getReaderVisibleResources';
 import { geocodeSearch } from '../src/location/geocodeSearch';
+import { shouldReloadOnForeground } from '../src/resources/shouldReloadOnForeground';
 
 const theme = getTheme(false);
 const region: Region = { latitude: 41.3557, longitude: -72.0995, latitudeDelta: 0.05, longitudeDelta: 0.05 };
@@ -22,6 +23,8 @@ const searchRegionDelta = 0.08;
 export const MapScreen = () => {
   const insets = useSafeAreaInsets();
   const mapRef = useRef<MapView | null>(null);
+  const mountedRef = useRef(true);
+  const previousAppStateRef = useRef<AppStateStatus>(AppState.currentState);
   const [query, setQuery] = useState('');
   const [activeZip, setActiveZip] = useState<string | null>(null);
   const [searching, setSearching] = useState(false);
@@ -29,60 +32,85 @@ export const MapScreen = () => {
   const [resources, setResources] = useState<ReaderResource[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selected, setSelected] = useState<ReaderResource | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const displayedResources = activeZip === null
     ? resources
     : filterResourcesByZip(resources, activeZip);
+  const selected = selectedId === null
+    ? null
+    : resources.find((resource) => resource.id === selectedId) ?? null;
 
-  useFocusEffect(useCallback(() => {
-    let mounted = true;
-
-    const loadResources = async () => {
+  const loadResources = useCallback(async () => {
+    if (mountedRef.current) {
       setLoading(true);
+    }
 
-      try {
-        const loadedResources = await getResources();
-        const visibleResources = getReaderVisibleResources(
-          loadedResources,
-          new Date(),
-        );
-        const readerResources = visibleResources.map((resource) => ({
-          id: resource.id,
-          category: resource.category,
-          status: resource.status,
-          title: resource.title,
-          notes: resource.notes,
-          address: resource.address,
-          latitude: resource.latitude,
-          longitude: resource.longitude,
-        }));
+    try {
+      const loadedResources = await getResources();
+      const visibleResources = getReaderVisibleResources(
+        loadedResources,
+        new Date(),
+      );
+      const readerResources = visibleResources.map((resource) => ({
+        id: resource.id,
+        category: resource.category,
+        status: resource.status,
+        title: resource.title,
+        notes: resource.notes,
+        address: resource.address,
+        latitude: resource.latitude,
+        longitude: resource.longitude,
+        phone: resource.phone,
+        website: resource.website,
+      }));
 
-        if (mounted) {
-          setResources(readerResources);
-          setError(null);
-        }
-      } catch (loadError: unknown) {
-        if (mounted) {
-          setResources([]);
-          setError(
-            loadError instanceof Error
-              ? loadError.message
-              : 'Unable to load resources',
-          );
-        }
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
+      if (mountedRef.current) {
+        setResources(readerResources);
+        setError(null);
       }
-    };
+    } catch (loadError: unknown) {
+      if (mountedRef.current) {
+        setResources([]);
+        setError(
+          loadError instanceof Error
+            ? loadError.message
+            : 'Unable to load resources',
+        );
+      }
+    } finally {
+      if (mountedRef.current) {
+        setLoading(false);
+      }
+    }
+  }, []);
 
-    void loadResources();
+  useEffect(() => {
+    mountedRef.current = true;
 
     return () => {
-      mounted = false;
+      mountedRef.current = false;
     };
-  }, []));
+  }, []);
+
+  useFocusEffect(useCallback(() => {
+    void loadResources();
+  }, [loadResources]));
+
+  useEffect(() => {
+    const handleAppStateChange = (nextState: AppStateStatus) => {
+      const previousState = previousAppStateRef.current;
+      previousAppStateRef.current = nextState;
+
+      if (shouldReloadOnForeground(previousState, nextState)) {
+        void loadResources();
+      }
+    };
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+
+    return () => {
+      subscription.remove();
+    };
+  }, [loadResources]);
 
   const handleSearch = async () => {
     const trimmedQuery = query.trim();
@@ -129,16 +157,16 @@ export const MapScreen = () => {
         <Text style={styles.stateBody}>Loading resources…</Text>
       </View> : <>
         <View style={styles.mapCard}>
-          <MapView accessibilityLabel="Map of nearby resources" initialRegion={region} ref={mapRef} style={styles.map}>{displayedResources.map((item) => <Marker accessibilityLabel={`${item.title}. ${item.category}`} anchor={{ x: 0.5, y: 1 }} coordinate={{ latitude: item.latitude!, longitude: item.longitude! }} key={item.id} onPress={() => setSelected(item)} title={item.title}><MapPin category={item.category} /></Marker>)}</MapView>
+          <MapView accessibilityLabel="Map of nearby resources" initialRegion={region} ref={mapRef} style={styles.map}>{displayedResources.map((item) => <Marker accessibilityLabel={`${item.title}. ${item.category}`} anchor={{ x: 0.5, y: 1 }} coordinate={{ latitude: item.latitude!, longitude: item.longitude! }} key={item.id} onPress={() => setSelectedId(item.id)} title={item.title}><MapPin category={item.category} /></Marker>)}</MapView>
         </View>
         <View style={styles.sectionHeader}><Text style={styles.sectionTitle}>Nearby resources</Text><Text style={styles.count}>{displayedResources.length}</Text></View>
         {displayedResources.length === 0 ? <View style={styles.stateCard}>
           <Text style={styles.stateTitle}>{activeZip === null ? 'No resources yet' : 'No resources found'}</Text>
           {error !== null && <Text style={styles.stateBody}>{error}</Text>}
-        </View> : <View style={styles.list}>{displayedResources.map((item) => <ResourceCard item={item} key={item.id} onPress={() => setSelected(item)} />)}</View>}
+        </View> : <View style={styles.list}>{displayedResources.map((item) => <ResourceCard item={item} key={item.id} onPress={() => setSelectedId(item.id)} />)}</View>}
       </>}
     </ScrollView>
-    <ResourceDetailModal item={selected} onClose={() => setSelected(null)} showReport />
+    <ResourceDetailModal item={selected} onClose={() => setSelectedId(null)} showReport />
   </View>;
 };
 

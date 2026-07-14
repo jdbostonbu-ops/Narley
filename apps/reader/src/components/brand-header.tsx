@@ -19,7 +19,7 @@ export const BrandHeader = () => (
       </View>
       <View style={styles.copy}>
         <Text accessibilityRole="header" style={styles.title}>NARLEY</Text>
-        <Text numberOfLines={1} style={styles.subtitle}>Community resource navigation</Text>
+        <Text numberOfLines={1} style={styles.subtitle}>Help nearby.</Text>
       </View>
     </View>
   </View>
@@ -32,5 +32,5 @@ const styles = StyleSheet.create({
   logo: { alignItems: 'center', backgroundColor: theme.colors.primaryDark, borderRadius: 16, height: 54, justifyContent: 'center', marginRight: 16, width: 54 },
   copy: { flex: 1 },
   title: { color: theme.colors.textInverse, fontSize: 34, fontWeight: '900', letterSpacing: 1 },
-  subtitle: { color: theme.colors.textInverse, fontSize: 14, fontWeight: '500', marginTop: 2, opacity: 0.72 },
+  subtitle: { color: '#3E9C86', fontFamily: 'Georgia', fontSize: 14, fontStyle: 'italic', fontWeight: '700', marginTop: 2 },
 });

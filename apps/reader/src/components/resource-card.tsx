@@ -9,6 +9,8 @@ export type ReaderResource = {
   title: string;
   notes: string;
   address: string;
+  phone?: string;
+  website?: string;
   latitude?: number;
   longitude?: number;
 };

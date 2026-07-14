@@ -28,7 +28,7 @@ export const AppHeader = ({ navigation, route }: BottomTabHeaderProps) => (
           <Text accessibilityRole="header" style={styles.title}>
             NARLEY
           </Text>
-          <Text numberOfLines={1} style={styles.subtitle}>Community resource navigation</Text>
+          <Text numberOfLines={1} style={styles.subtitle}>Help nearby.</Text>
         </View>
         {route.name === "Map" && (
           <Pressable
@@ -94,11 +94,12 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   subtitle: {
-    color: theme.colors.textInverse,
+    color: "#3E9C86",
+    fontFamily: "Georgia",
     fontSize: 14,
-    fontWeight: "500",
+    fontStyle: "italic",
+    fontWeight: "700",
     marginTop: 2,
-    opacity: 0.72,
   },
   menuButton: {
     alignItems: "center",
