@@ -16,6 +16,8 @@
 [![OpenAI](https://img.shields.io/badge/AI-OpenAI-412991?logo=openai&logoColor=white)](https://platform.openai.com/)
 [![Vitest](https://img.shields.io/badge/Tested_with-Vitest-6E9F18?logo=vitest&logoColor=white)](https://vitest.dev/)
 [![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen)](#-testing)
+[![Reader Tests](https://img.shields.io/badge/Reader_Tests-127-brightgreen)](#-testing)
+[![Provider Tests](https://img.shields.io/badge/Provider_Tests-204-brightgreen)](#-testing)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](#-license)
 
 **🔗 Live Demo:** _[narley.vercel.app](#)_
@@ -343,12 +345,6 @@ Contributions follow the project's core standards:
 - 🧼 **TypeScript strict** — no `any`, no `var`, arrow functions, no class components.
 - 🔒 **Never weaken tests** to make code pass.
 - 🧾 Keep changes traceable to an approved spec.
-
----
-
-## 📄 License
-
-Released under the **MIT License**. See `LICENSE` for details.
 
 ---
 
