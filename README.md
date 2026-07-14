@@ -21,8 +21,6 @@
 [![Reader Tests](https://img.shields.io/badge/Reader_Tests-127-brightgreen)](#-testing)
 [![Provider Tests](https://img.shields.io/badge/Provider_Tests-204-brightgreen)](#-testing)
 
-**🔗 Live Demo:** _[https://narley.vercel.app/](#)_
-
 </div>
 
 ---
@@ -40,6 +38,7 @@
       <strong>Jacqueline Delgado</strong><br/><br/>
       <a href="https://github.com/jdbostonbu-ops">
         <img src="https://img.shields.io/badge/GitHub-jdbostonbu--ops-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub profile" />
+        **🔗 Live Demo:** _[https://narley.vercel.app/](https://narley.vercel.app/)_
       </a>
     </td>
   </tr>
