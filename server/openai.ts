@@ -1,6 +1,7 @@
 import "dotenv/config";
 import OpenAI from "openai";
 
+import { closedReportInstructions } from "./closedReportInstructions";
 import { parseOpenAIReport, type OpenAIReportResult } from "./parseOpenAIReport";
 
 type ReaderReport = {
@@ -112,6 +113,7 @@ export const callOpenAI = async (report: ReaderReport): Promise<OpenAIReportResu
         ...phoneReportInstructions,
         ...noResourcesReportInstructions,
         ...websiteReportInstructions,
+        ...closedReportInstructions(report.reason),
         "Return only the required JSON object, with no prose or markdown fences.",
       ].join(" "),
       input: JSON.stringify(report),
