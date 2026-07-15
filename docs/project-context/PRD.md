@@ -4,11 +4,9 @@
 
 **Project:** Narley
 
-**Document Version:** 3.0.0
+**Document Version:** 3.0.0 Justice Impacted
 
-**Status:** Draft
-
-**Last Updated:** YYYY-MM-DD
+**Last Updated:** 07-14-2026
 
 **Related Documents:**
 
