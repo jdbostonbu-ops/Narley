@@ -25,7 +25,7 @@
 
 ---
 
-👤 Author **🔗 [Live Demo:](https://narley.vercel.app/)
+👤 Author 🔗 [Live Demo:](https://narley.vercel.app/)
 
 <table>
   <tr>
