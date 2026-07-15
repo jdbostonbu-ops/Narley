@@ -17,7 +17,7 @@ describe("website check observation (REPORT-000)", () => {
 
   it("does not claim the site is broken when the server could not reach it", () => {
     expect(toWebsiteCheckObservation("could-not-reach")).toBe(
-      "I couldn't reach this website to check it. That doesn't mean it's broken — some sites don't respond to automated checks. Please open the link yourself to see."
+      "I couldn't reach this website to check it. That might mean the site blocks automated checks and works fine in a browser — or it might mean the site is genuinely broken. I can't tell which from here. Please open the link yourself to see."
     );
   });
 })
