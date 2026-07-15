@@ -2440,3 +2440,284 @@ stdout | src/reports/verifyReaderReportNoMutation.vitest.test.ts > verifyReaderR
    Start at  19:01:41
    Duration  875ms (transform 561ms, setup 0ms, import 1.03s, tests 136ms, environment 2ms)
 
+
+ RUN  v4.1.10 /Users/jacquelinedelgado/Documents/Demo Projects Next Chapter/Narley/apps/provider
+
+stdout | src/reports/validateAiResult.vitest.test.ts > validateAiResult (AI-002/003/004/008) > accepts a result with findings, confidence, and traceable sources
+[Narley] OpenAI report validation succeeded: { confidence: 'high', sourceCount: 2, uncertain: false }
+
+stdout | src/reports/validateAiResult.vitest.test.ts > validateAiResult (AI-002/003/004/008) > labels a low-confidence result as uncertain
+[Narley] OpenAI report validation succeeded: { confidence: 'low', sourceCount: 2, uncertain: true }
+
+stdout | src/reports/validateAiResult.vitest.test.ts > validateAiResult (AI-002/003/004/008) > labels a result with no sources as uncertain
+[Narley] OpenAI report validation succeeded: { confidence: 'high', sourceCount: 0, uncertain: true }
+
+stderr | src/reports/validateAiResult.vitest.test.ts > validateAiResult (AI-002/003/004/008) > rejects a result with no findings
+[Narley] OpenAI report validation rejected the parsed result: {
+  failures: [ 'findings is empty' ],
+  result: { findings: '', confidence: 'high', sources: [ [Object], [Object] ] }
+}
+
+stderr | src/reports/validateAiResult.vitest.test.ts > validateAiResult (AI-002/003/004/008) > rejects a result with no confidence label
+[Narley] OpenAI report validation rejected the parsed result: {
+  failures: [ 'confidence must be high, medium, or low; received: ' ],
+  result: {
+    findings: 'Perception Programs closed in 2024.',
+    confidence: '',
+    sources: [ [Object], [Object] ]
+  }
+}
+
+stderr | src/reports/validateAiResult.vitest.test.ts > validateAiResult (AI-002/003/004/008) > rejects an unrecognized confidence label
+[Narley] OpenAI report validation rejected the parsed result: {
+  failures: [ 'confidence must be high, medium, or low; received: very sure' ],
+  result: {
+    findings: 'Perception Programs closed in 2024.',
+    confidence: 'very sure',
+    sources: [ [Object], [Object] ]
+  }
+}
+
+stdout | src/reports/validateAiResult.vitest.test.ts > validateAiResult (AI-002/003/004/008) > strips fabricated evidence with no traceable source
+[Narley] OpenAI report validation succeeded: { confidence: 'high', sourceCount: 1, uncertain: false }
+
+stdout | src/reports/validateAiResult.vitest.test.ts > validateAiResult (AI-002/003/004/008) > caps evidence at 3 primary sources
+[Narley] OpenAI report validation succeeded: { confidence: 'high', sourceCount: 3, uncertain: false }
+
+ ✓ src/reports/validateAiResult.vitest.test.ts > validateAiResult (AI-002/003/004/008) > accepts a result with findings, confidence, and traceable sources 2ms
+ ✓ src/reports/validateAiResult.vitest.test.ts > validateAiResult (AI-002/003/004/008) > labels a low-confidence result as uncertain 0ms
+ ✓ src/reports/validateAiResult.vitest.test.ts > validateAiResult (AI-002/003/004/008) > labels a result with no sources as uncertain 0ms
+ ✓ src/reports/validateAiResult.vitest.test.ts > validateAiResult (AI-002/003/004/008) > rejects a result with no findings 0ms
+ ✓ src/reports/validateAiResult.vitest.test.ts > validateAiResult (AI-002/003/004/008) > rejects a result with no confidence label 0ms
+ ✓ src/reports/validateAiResult.vitest.test.ts > validateAiResult (AI-002/003/004/008) > rejects an unrecognized confidence label 0ms
+ ✓ src/reports/validateAiResult.vitest.test.ts > validateAiResult (AI-002/003/004/008) > strips fabricated evidence with no traceable source 0ms
+ ✓ src/reports/validateAiResult.vitest.test.ts > validateAiResult (AI-002/003/004/008) > caps evidence at 3 primary sources 0ms
+stdout | src/reports/verifyReaderReport.vitest.test.ts > verifyReaderReport (REPORT-006 flow) > sends the reader report to OpenAI for verification
+[Narley] OpenAI report validation succeeded: { confidence: 'high', sourceCount: 1, uncertain: false }
+
+stdout | src/reports/verifyReaderReport.vitest.test.ts > verifyReaderReport (REPORT-006 flow) > creates a provider alert carrying the reader report fields and AI findings
+[Narley] OpenAI report validation succeeded: { confidence: 'high', sourceCount: 1, uncertain: false }
+
+ ✓ src/resources/createResourceValidation.vitest.test.ts > createResource validation guard (SEC-004) > writes a valid resource 2ms
+ ✓ src/resources/createResourceValidation.vitest.test.ts > createResource validation guard (SEC-004) > blocks a resource with no title 0ms
+ ✓ src/resources/createResourceValidation.vitest.test.ts > createResource validation guard (SEC-004) > blocks a resource with out-of-range coordinates 0ms
+ ✓ src/resources/createResourceValidation.vitest.test.ts > createResource validation guard (SEC-004) > blocks a resource with a past expiration date 0ms
+ ✓ src/resources/createResourceValidation.vitest.test.ts > createResource validation guard (SEC-004) > does not record an audit event when validation blocks the write 0ms
+ ✓ src/resources/createResourceValidation.vitest.test.ts > createResource validation guard (SEC-004) > returns the validation errors when blocked 0ms
+ ✓ src/resources/validateResourceCoordinates.vitest.test.ts > validateResource — coordinate ranges (POST-006) > accepts coordinates within valid ranges 2ms
+ ✓ src/resources/validateResourceCoordinates.vitest.test.ts > validateResource — coordinate ranges (POST-006) > rejects latitude below -90 0ms
+ ✓ src/resources/validateResourceCoordinates.vitest.test.ts > validateResource — coordinate ranges (POST-006) > rejects latitude above 90 0ms
+ ✓ src/resources/validateResourceCoordinates.vitest.test.ts > validateResource — coordinate ranges (POST-006) > rejects longitude below -180 0ms
+ ✓ src/resources/validateResourceCoordinates.vitest.test.ts > validateResource — coordinate ranges (POST-006) > rejects longitude above 180 0ms
+ ✓ src/resources/validateResourceCoordinates.vitest.test.ts > validateResource — coordinate ranges (POST-006) > rejects NaN latitude 0ms
+ ✓ src/resources/validateResourceCoordinates.vitest.test.ts > validateResource — coordinate ranges (POST-006) > rejects infinite longitude 0ms
+ ✓ src/resources/validateResourceCoordinates.vitest.test.ts > validateResource — coordinate ranges (POST-006) > accepts boundary values (-90, 90, -180, 180) 0ms
+stdout | src/reports/verifyReaderReport.vitest.test.ts > verifyReaderReport (REPORT-006 flow) > creates the alert labeled uncertain when the AI result is uncertain
+[Narley] OpenAI report validation succeeded: { confidence: 'low', sourceCount: 1, uncertain: true }
+
+stdout | src/reports/verifyReaderReport.vitest.test.ts > verifyReaderReport (REPORT-006 flow) > still surfaces an uncertain result (does not suppress the alert)
+[Narley] OpenAI report validation succeeded: { confidence: 'high', sourceCount: 0, uncertain: true }
+
+stderr | src/reports/verifyReaderReport.vitest.test.ts > verifyReaderReport (REPORT-006 flow) > does not create an alert when the AI result is invalid (no findings)
+[Narley] OpenAI report validation rejected the parsed result: {
+  failures: [ 'findings is empty' ],
+  result: { findings: '', confidence: 'high', sources: [ [Object] ] }
+}
+
+ ✓ src/reports/verifyReaderReport.vitest.test.ts > verifyReaderReport (REPORT-006 flow) > sends the reader report to OpenAI for verification 2ms
+ ✓ src/reports/verifyReaderReport.vitest.test.ts > verifyReaderReport (REPORT-006 flow) > creates a provider alert carrying the reader report fields and AI findings 1ms
+ ✓ src/reports/verifyReaderReport.vitest.test.ts > verifyReaderReport (REPORT-006 flow) > creates the alert labeled uncertain when the AI result is uncertain 0ms
+ ✓ src/reports/verifyReaderReport.vitest.test.ts > verifyReaderReport (REPORT-006 flow) > still surfaces an uncertain result (does not suppress the alert) 0ms
+ ✓ src/reports/verifyReaderReport.vitest.test.ts > verifyReaderReport (REPORT-006 flow) > does not create an alert when the AI result is invalid (no findings) 0ms
+ ✓ src/auth/passwordPolicy.vitest.test.ts > validatePassword (AUTH-P-008) > accepts a password meeting all five rules 2ms
+ ✓ src/auth/passwordPolicy.vitest.test.ts > validatePassword (AUTH-P-008) > rejects a password shorter than 8 characters 0ms
+ ✓ src/auth/passwordPolicy.vitest.test.ts > validatePassword (AUTH-P-008) > rejects a password with no uppercase 0ms
+ ✓ src/auth/passwordPolicy.vitest.test.ts > validatePassword (AUTH-P-008) > rejects a password with no lowercase 0ms
+ ✓ src/auth/passwordPolicy.vitest.test.ts > validatePassword (AUTH-P-008) > rejects a password with fewer than 2 digits 0ms
+ ✓ src/auth/passwordPolicy.vitest.test.ts > validatePassword (AUTH-P-008) > rejects a password with fewer than 2 special characters 0ms
+ ✓ src/auth/passwordPolicy.vitest.test.ts > validatePassword error messages (AUTH-P-008) > a valid password returns no errors 0ms
+ ✓ src/auth/passwordPolicy.vitest.test.ts > validatePassword error messages (AUTH-P-008) > identifies a too-short password 0ms
+ ✓ src/auth/passwordPolicy.vitest.test.ts > validatePassword error messages (AUTH-P-008) > identifies a missing uppercase 0ms
+ ✓ src/auth/passwordPolicy.vitest.test.ts > validatePassword error messages (AUTH-P-008) > identifies a missing lowercase 0ms
+ ✓ src/auth/passwordPolicy.vitest.test.ts > validatePassword error messages (AUTH-P-008) > identifies too few digits 0ms
+ ✓ src/auth/passwordPolicy.vitest.test.ts > validatePassword error messages (AUTH-P-008) > identifies too few special characters 0ms
+ ✓ src/resources/validateResourceExpiration.vitest.test.ts > validateResource — expiration (POST-009) > accepts a valid future expiration within one year 2ms
+ ✓ src/resources/validateResourceExpiration.vitest.test.ts > validateResource — expiration (POST-009) > rejects a missing expiration date 0ms
+ ✓ src/resources/validateResourceExpiration.vitest.test.ts > validateResource — expiration (POST-009) > rejects an invalid date 0ms
+ ✓ src/resources/validateResourceExpiration.vitest.test.ts > validateResource — expiration (POST-009) > rejects a past date 0ms
+ ✓ src/resources/validateResourceExpiration.vitest.test.ts > validateResource — expiration (POST-009) > rejects an expiration more than one year out 0ms
+ ✓ src/resources/createResource.vitest.test.ts > createResource (POST-013) > creates one resource and stamps the signed-in providerId 2ms
+ ✓ src/resources/createResource.vitest.test.ts > createResource (POST-013) > rejects a duplicate: an ACTIVE resource with same title + address exists (any provider) 0ms
+ ✓ src/resources/createResource.vitest.test.ts > createResource (POST-013) > allows re-posting when no ACTIVE match exists (previous pin expired or deleted) 0ms
+ ✓ src/resources/createResource.vitest.test.ts > createResource (POST-013) > allows a different title at the same address (not a duplicate) 0ms
+ ✓ src/resources/updateResourceAudit.vitest.test.ts > updateResource audit event (EDIT-010) > records one 'updated' audit event on a successful update 3ms
+ ✓ src/resources/updateResourceAudit.vitest.test.ts > updateResource audit event (EDIT-010) > does NOT record an audit event when the update fails 1ms
+ ✓ src/resources/createResourceAudit.vitest.test.ts > createResource audit event (POST-014 / POST-015) > records a 'created' audit event on successful creation 4ms
+ ✓ src/resources/createResourceAudit.vitest.test.ts > createResource audit event (POST-014 / POST-015) > does NOT record an audit event when creation is blocked as a duplicate 0ms
+ ✓ src/resources/createResourceAudit.vitest.test.ts > createResource audit event (POST-014 / POST-015) > does NOT record an audit event when the insert fails 1ms
+ ✓ src/auth/canWritePin.vitest.test.ts > canWritePin (AUTH-P-005) > permits an ACTIVE membership in a verified, active org 1ms
+ ✓ src/auth/canWritePin.vitest.test.ts > canWritePin (AUTH-P-005) > denies when membership is not ACTIVE 0ms
+ ✓ src/auth/canWritePin.vitest.test.ts > canWritePin (AUTH-P-005) > denies when there is no membership 0ms
+ ✓ src/auth/canWritePin.vitest.test.ts > canWritePin (AUTH-P-005) > denies when the org is not verified 0ms
+ ✓ src/auth/canWritePin.vitest.test.ts > canWritePin (AUTH-P-005) > denies when the org is not active 0ms
+ ✓ src/auth/canWritePin.vitest.test.ts > canWritePin (AUTH-P-005) > denies when there is no user 0ms
+ ✓ src/resources/geocodeAddress.vitest.test.ts > geocodeAddress (POST-007) > returns coordinates for an address the geocoder resolves 1ms
+ ✓ src/resources/geocodeAddress.vitest.test.ts > geocodeAddress (POST-007) > returns an invalid-address error when the geocoder finds no match 0ms
+ ✓ src/resources/geocodeAddress.vitest.test.ts > geocodeAddress (POST-007) > does not preserve coordinates when the geocoder throws 0ms
+ ✓ src/resources/updateResourceExpiration.vitest.test.ts > updateResource — expiration validation (EDIT-007) > saves a valid future expiration date (extend the pin) 2ms
+ ✓ src/resources/updateResourceExpiration.vitest.test.ts > updateResource — expiration validation (EDIT-007) > rejects a past expiration date and does not save 0ms
+ ✓ src/resources/updateResourceExpiration.vitest.test.ts > updateResource — expiration validation (EDIT-007) > rejects an invalid date and does not save 0ms
+ ✓ src/resources/updateResourceExpiration.vitest.test.ts > updateResource — expiration validation (EDIT-007) > rejects a missing expiration when expiration is being edited and does not save 0ms
+ ✓ src/resources/updateResourceExpiration.vitest.test.ts > updateResource — expiration validation (EDIT-007) > does not record an audit event when the expiration edit is rejected 0ms
+stdout | src/reports/verifyReaderReportNoMutation.vitest.test.ts > verifyReaderReport — AI cannot modify a resource (AI-005) > never edits, closes, archives, deletes, or publishes a resource, even when AI says 'closed'
+[Narley] OpenAI report validation succeeded: { confidence: 'high', sourceCount: 1, uncertain: false }
+
+stdout | src/reports/verifyReaderReportNoMutation.vitest.test.ts > verifyReaderReport — AI cannot modify a resource (AI-005) > does not mutate a resource even when the AI result is uncertain
+[Narley] OpenAI report validation succeeded: { confidence: 'low', sourceCount: 0, uncertain: true }
+
+stdout | src/reports/verifyReaderReportNoMutation.vitest.test.ts > verifyReaderReport — AI cannot modify a resource (AI-005) > its only resource-facing side effect is creating an alert
+[Narley] OpenAI report validation succeeded: { confidence: 'high', sourceCount: 1, uncertain: false }
+
+ ✓ src/reports/verifyReaderReportNoMutation.vitest.test.ts > verifyReaderReport — AI cannot modify a resource (AI-005) > never edits, closes, archives, deletes, or publishes a resource, even when AI says 'closed' 3ms
+ ✓ src/reports/verifyReaderReportNoMutation.vitest.test.ts > verifyReaderReport — AI cannot modify a resource (AI-005) > does not mutate a resource even when the AI result is uncertain 0ms
+ ✓ src/reports/verifyReaderReportNoMutation.vitest.test.ts > verifyReaderReport — AI cannot modify a resource (AI-005) > its only resource-facing side effect is creating an alert 0ms
+ ✓ src/resources/extractZip.vitest.test.ts > extractZip (RMAP ZIP search) > extracts the 5-digit ZIP from a complete address 1ms
+ ✓ src/resources/extractZip.vitest.test.ts > extractZip (RMAP ZIP search) > extracts the ZIP when it is at the end with no trailing text 0ms
+ ✓ src/resources/extractZip.vitest.test.ts > extractZip (RMAP ZIP search) > returns null when there is no 5-digit ZIP 0ms
+ ✓ src/resources/extractZip.vitest.test.ts > extractZip (RMAP ZIP search) > returns null for an empty address 0ms
+ ✓ src/resources/updateResourceRename.vitest.test.ts > updateResource — rename & duplicate (EDIT-002) > renames the resource when no active duplicate exists 2ms
+ ✓ src/resources/updateResourceRename.vitest.test.ts > updateResource — rename & duplicate (EDIT-002) > rejects a rename that collides with a DIFFERENT active resource 0ms
+ ✓ src/resources/updateResourceRename.vitest.test.ts > updateResource — rename & duplicate (EDIT-002) > does not flag the resource being edited as its own duplicate 0ms
+ ✓ src/resources/updateResourceRename.vitest.test.ts > updateResource — rename & duplicate (EDIT-002) > does not record an audit event when a rename is rejected as a duplicate 0ms
+ ✓ src/resources/updateResourceExpirationMaxYear.vitest.test.ts > updateResource — expiration cannot exceed one year (POST-010) > rejects an expiration more than one year away with the approved message and does not save 3ms
+ ✓ src/resources/updateResourceExpirationMaxYear.vitest.test.ts > updateResource — expiration cannot exceed one year (POST-010) > rejects a far-future expiration (multiple years) the same way 0ms
+ ✓ src/resources/updateResourceExpirationMaxYear.vitest.test.ts > updateResource — expiration cannot exceed one year (POST-010) > does not record an audit event when the over-a-year edit is rejected 0ms
+ ✓ src/resources/updateResourceExpirationMaxYear.vitest.test.ts > updateResource — expiration cannot exceed one year (POST-010) > still accepts an expiration within one year (extend the pin) 0ms
+ ✓ src/auth/passwordResetShortCode.vitest.test.ts > requestPasswordReset — short 6-character code (AUTH-P-007) > uses the injected generateCode value as the reset code (not a userId-timestamp token) 2ms
+ ✓ src/auth/passwordResetShortCode.vitest.test.ts > requestPasswordReset — short 6-character code (AUTH-P-007) > does not produce a long userId-timestamp token 0ms
+ ✓ src/auth/passwordResetShortCode.vitest.test.ts > requestPasswordReset — short 6-character code (AUTH-P-007) > calls generateCode to create the code 0ms
+ ✓ src/resources/createResourceVerified.vitest.test.ts > createResource verified-provider guard (SEC-002) > allows a verified provider to create a resource 2ms
+ ✓ src/resources/createResourceVerified.vitest.test.ts > createResource verified-provider guard (SEC-002) > blocks a provider whose organization is not verified 0ms
+ ✓ src/resources/createResourceVerified.vitest.test.ts > createResource verified-provider guard (SEC-002) > blocks when the membership is not ACTIVE 0ms
+ ✓ src/resources/createResourceVerified.vitest.test.ts > createResource verified-provider guard (SEC-002) > blocks when the organization is inactive 0ms
+ ✓ src/resources/createResourceVerified.vitest.test.ts > createResource verified-provider guard (SEC-002) > does not record an audit event when the write is blocked 0ms
+ ✓ src/auth/passwordReset.vitest.test.ts > requestPasswordReset (AUTH-P-007) — no enumeration > returns the SAME response for an existing and a non-existing email 2ms
+ ✓ src/auth/passwordReset.vitest.test.ts > confirmPasswordReset (AUTH-P-007) > sets a new password with a valid, unexpired, unused token 2ms
+ ✓ src/auth/passwordReset.vitest.test.ts > confirmPasswordReset (AUTH-P-007) > rejects an already-used token (single-use) 0ms
+ ✓ src/auth/passwordReset.vitest.test.ts > confirmPasswordReset (AUTH-P-007) > rejects an expired token 0ms
+ ✓ src/auth/passwordReset.vitest.test.ts > confirmPasswordReset (AUTH-P-007) > rejects an unknown/tampered token 0ms
+ ✓ src/auth/passwordReset.vitest.test.ts > confirmPasswordReset (AUTH-P-007) > invalidates old sessions on a successful reset 0ms
+ ✓ src/resources/isResourceVisible.vitest.test.ts > isResourceVisible (LIFE-001/002/007) > shows an ACTIVE resource whose expiration is in the future 2ms
+ ✓ src/resources/isResourceVisible.vitest.test.ts > isResourceVisible (LIFE-001/002/007) > hides an ACTIVE resource whose expiration has passed 0ms
+ ✓ src/resources/isResourceVisible.vitest.test.ts > isResourceVisible (LIFE-001/002/007) > hides a resource explicitly marked EXPIRED 0ms
+ ✓ src/resources/isResourceVisible.vitest.test.ts > isResourceVisible (LIFE-001/002/007) > hides a resource at the exact expiration moment 0ms
+ ✓ src/resources/isResourceVisible.vitest.test.ts > isResourceVisible (LIFE-001/002/007) > shows an ACTIVE resource one second before expiration 0ms
+ ✓ src/resources/updateResource.vitest.test.ts > updateResource (EDIT-009) > saves changes to the existing resource 3ms
+ ✓ src/resources/updateResource.vitest.test.ts > updateResource (EDIT-009) > updates the existing record and does not create a second resource 0ms
+ ✓ src/resources/updateResource.vitest.test.ts > updateResource (EDIT-009) > can update multiple fields at once 0ms
+ ✓ src/resources/validateResourceCategory.vitest.test.ts > validateResource — category (POST-003) > accepts a resource with a category selected 2ms
+ ✓ src/resources/validateResourceCategory.vitest.test.ts > validateResource — category (POST-003) > rejects a missing category 0ms
+ ✓ src/resources/validateResourceCategory.vitest.test.ts > validateResource — category (POST-003) > rejects an empty category 0ms
+ ✓ src/resources/validateResourceCategory.vitest.test.ts > validateResource — category (POST-003) > rejects a whitespace-only category 0ms
+ ✓ src/reports/submitProviderReportShape.vitest.test.ts > submitProviderReport — real resource fields (Flow 2) > sends a report with resource title, address, phone, website, details, and reporter 3ms
+ ✓ src/reports/submitProviderReportShape.vitest.test.ts > submitProviderReport — real resource fields (Flow 2) > succeeds when phone and website are absent (they are optional) 0ms
+ ✓ src/reports/submitProviderReportShape.vitest.test.ts > submitProviderReport — real resource fields (Flow 2) > rejects when the resource title is missing 0ms
+ ✓ src/reports/submitProviderReportShape.vitest.test.ts > submitProviderReport — real resource fields (Flow 2) > rejects when the address is missing 0ms
+ ✓ src/reports/submitProviderReportShape.vitest.test.ts > submitProviderReport — real resource fields (Flow 2) > rejects when the details (what is wrong) are missing 0ms
+ ✓ src/reports/submitProviderReportShape.vitest.test.ts > submitProviderReport — real resource fields (Flow 2) > rejects details over 500 words 0ms
+ ✓ src/weather/mapOpenMeteoForecast.vitest.test.ts > mapOpenMeteoForecast > maps daily Open-Meteo maximum temperatures to the tested forecast shape 1ms
+ ✓ src/weather/mapOpenMeteoForecast.vitest.test.ts > mapOpenMeteoForecast > rejects malformed or mismatched forecast arrays 0ms
+ ✓ src/resources/validateResourceAddress.vitest.test.ts > validateResource — address (POST-007 required field) > accepts a resource with an address 1ms
+ ✓ src/resources/validateResourceAddress.vitest.test.ts > validateResource — address (POST-007 required field) > rejects a missing address 0ms
+ ✓ src/resources/validateResourceAddress.vitest.test.ts > validateResource — address (POST-007 required field) > rejects an empty address 0ms
+ ✓ src/resources/validateResourceAddress.vitest.test.ts > validateResource — address (POST-007 required field) > rejects a whitespace-only address 0ms
+ ✓ src/auth/authState.vitest.test.ts > authReducer (AUTH-P-002 / AUTH-P-003 auth state transitions) > starts logged out with no user and not loading 1ms
+ ✓ src/auth/authState.vitest.test.ts > authReducer (AUTH-P-002 / AUTH-P-003 auth state transitions) > marks loading true while a login is in progress 0ms
+ ✓ src/auth/authState.vitest.test.ts > authReducer (AUTH-P-002 / AUTH-P-003 auth state transitions) > sets the user and clears loading on a successful login (AUTH-P-003) 1ms
+ ✓ src/auth/authState.vitest.test.ts > authReducer (AUTH-P-002 / AUTH-P-003 auth state transitions) > clears loading and keeps no user on a failed login (AUTH-P-002) 0ms
+ ✓ src/auth/authState.vitest.test.ts > authReducer (AUTH-P-002 / AUTH-P-003 auth state transitions) > clears the user on logout (AUTH-P-002 — logged-out returns to no user) 0ms
+ ✓ src/reports/submitProviderReport.vitest.test.ts > submitProviderReport (Flow 2 — provider reports a resource) > sends the full resource report to Narley admin 4ms
+ ✓ src/reports/submitProviderReport.vitest.test.ts > submitProviderReport (Flow 2 — provider reports a resource) > accepts a report without optional phone and website fields 0ms
+ ✓ src/reports/submitProviderReport.vitest.test.ts > submitProviderReport (Flow 2 — provider reports a resource) > rejects a report with an empty required resourceTitle 0ms
+ ✓ src/reports/submitProviderReport.vitest.test.ts > submitProviderReport (Flow 2 — provider reports a resource) > rejects a report with an empty required address 0ms
+ ✓ src/reports/submitProviderReport.vitest.test.ts > submitProviderReport (Flow 2 — provider reports a resource) > rejects a report with an empty required details 0ms
+ ✓ src/reports/submitProviderReport.vitest.test.ts > submitProviderReport (Flow 2 — provider reports a resource) > rejects a report with an empty required reportedBy 0ms
+ ✓ src/reports/submitProviderReport.vitest.test.ts > submitProviderReport (Flow 2 — provider reports a resource) > accepts details containing exactly 500 words 0ms
+ ✓ src/reports/submitProviderReport.vitest.test.ts > submitProviderReport (Flow 2 — provider reports a resource) > rejects details containing more than 500 words 0ms
+ ✓ src/auth/login.vitest.test.ts > login (AUTH-P-006) > returns a session for correct email + password 1ms
+ ✓ src/auth/login.vitest.test.ts > login (AUTH-P-006) > denies wrong password with a generic error and no session 0ms
+ ✓ src/auth/login.vitest.test.ts > login (AUTH-P-006) > denies a removed/absent user with the SAME generic error 0ms
+ ✓ src/auth/login.vitest.test.ts > login (AUTH-P-006) > does not reveal which factor failed (wrong password vs no user match) 0ms
+ ✓ src/resources/getReaderVisibleResources.vitest.test.ts > getReaderVisibleResources (RMAP-004) > includes ACTIVE, unexpired resources 1ms
+ ✓ src/resources/getReaderVisibleResources.vitest.test.ts > getReaderVisibleResources (RMAP-004) > excludes expired resources 0ms
+ ✓ src/resources/getReaderVisibleResources.vitest.test.ts > getReaderVisibleResources (RMAP-004) > excludes EXPIRED-status resources 0ms
+ ✓ src/resources/getReaderVisibleResources.vitest.test.ts > getReaderVisibleResources (RMAP-004) > returns an empty array when nothing is visible 0ms
+ ✓ src/resources/getReaderVisibleResources.vitest.test.ts > getReaderVisibleResources (RMAP-004) > returns an empty array for an empty input 0ms
+ ✓ src/resources/visibilityOwnerBlind.vitest.test.ts > map sync invariant — visibility is owner-blind (all maps see the same pins) > an active resource is visible regardless of which organization owns it 1ms
+ ✓ src/resources/visibilityOwnerBlind.vitest.test.ts > map sync invariant — visibility is owner-blind (all maps see the same pins) > isResourceVisible gives the same answer no matter the owner (owner does not change visibility) 0ms
+ ✓ src/resources/visibilityOwnerBlind.vitest.test.ts > map sync invariant — visibility is owner-blind (all maps see the same pins) > the reader-visible set includes resources from every organization, not just one 1ms
+ ✓ src/resources/visibilityOwnerBlind.vitest.test.ts > map sync invariant — visibility is owner-blind (all maps see the same pins) > does not filter resources by any viewer or owner identity 0ms
+ ✓ src/resources/updateResourceOwnership.vitest.test.ts > updateResource ownership guard (SEC-001) > allows an active member of the owning organization to update 1ms
+ ✓ src/resources/updateResourceOwnership.vitest.test.ts > updateResource ownership guard (SEC-001) > blocks a member of a different organization from updating 0ms
+ ✓ src/resources/updateResourceOwnership.vitest.test.ts > updateResource ownership guard (SEC-001) > does not write or record an audit event when the editor is unauthorized 0ms
+ ✓ src/resources/updateResourceOwnership.vitest.test.ts > updateResource ownership guard (SEC-001) > blocks an inactive member of the owning organization 0ms
+ ✓ src/resources/validateResourceLocation.vitest.test.ts > validateResource — location (POST-005) > accepts a resource with latitude and longitude 3ms
+ ✓ src/resources/validateResourceLocation.vitest.test.ts > validateResource — location (POST-005) > rejects a missing latitude 0ms
+ ✓ src/resources/validateResourceLocation.vitest.test.ts > validateResource — location (POST-005) > rejects a missing longitude 0ms
+ ✓ src/resources/validateResourceLocation.vitest.test.ts > validateResource — location (POST-005) > rejects when both coordinates are missing 0ms
+ ✓ src/resources/resourceStatus.vitest.test.ts > resource status contract (POST-011) > the approved status set is exactly ACTIVE and EXPIRED 2ms
+ ✓ src/resources/resourceStatus.vitest.test.ts > resource status contract (POST-011) > accepts ACTIVE 0ms
+ ✓ src/resources/resourceStatus.vitest.test.ts > resource status contract (POST-011) > accepts EXPIRED 0ms
+ ✓ src/resources/resourceStatus.vitest.test.ts > resource status contract (POST-011) > rejects any value outside the approved set 0ms
+ ✓ src/resources/validateResource.vitest.test.ts > validateResource — title (POST-002) > accepts a resource with a non-empty title 2ms
+ ✓ src/resources/validateResource.vitest.test.ts > validateResource — title (POST-002) > rejects an empty title 0ms
+ ✓ src/resources/validateResource.vitest.test.ts > validateResource — title (POST-002) > rejects a whitespace-only title 0ms
+ ✓ src/resources/validateResource.vitest.test.ts > validateResource — title (POST-002) > rejects a missing title 0ms
+ ✓ src/resources/filterResourcesByZip.vitest.test.ts > filterResourcesByZip (RMAP ZIP search) > includes only resources whose address ZIP matches the searched ZIP 2ms
+ ✓ src/resources/filterResourcesByZip.vitest.test.ts > filterResourcesByZip (RMAP ZIP search) > matches a resource with a ZIP+4 address against a 5-digit search 0ms
+ ✓ src/resources/filterResourcesByZip.vitest.test.ts > filterResourcesByZip (RMAP ZIP search) > returns an empty array when no resource matches the ZIP 0ms
+ ✓ src/resources/filterResourcesByZip.vitest.test.ts > filterResourcesByZip (RMAP ZIP search) > excludes resources with no extractable ZIP 0ms
+ ✓ src/resources/filterResourcesByZip.vitest.test.ts > filterResourcesByZip (RMAP ZIP search) > returns an empty array for an empty resource list 0ms
+ ✓ src/auth/resolveAuthView.vitest.test.ts > resolveAuthView (AUTH-P-001, AUTH-P-002, AUTH-P-003) > returns 'loading' while auth state is still loading (AUTH-P-001) 1ms
+ ✓ src/auth/resolveAuthView.vitest.test.ts > resolveAuthView (AUTH-P-001, AUTH-P-002, AUTH-P-003) > returns 'login' when there is no user (AUTH-P-002 — logged-out sees login) 0ms
+ ✓ src/auth/resolveAuthView.vitest.test.ts > resolveAuthView (AUTH-P-001, AUTH-P-002, AUTH-P-003) > returns 'tabs' when a user has an ACTIVE membership (AUTH-P-003 — logged-in sees tabs) 0ms
+ ✓ src/auth/resolveAuthView.vitest.test.ts > resolveAuthView (AUTH-P-001, AUTH-P-002, AUTH-P-003) > does NOT return 'tabs' for a logged-in user without an ACTIVE membership (AUTH-P-003 gate) 0ms
+ ✓ src/auth/resolveAuthView.vitest.test.ts > resolveAuthView (AUTH-P-001, AUTH-P-002, AUTH-P-003) > does NOT return 'tabs' for a logged-in user with no membership at all 0ms
+ ✓ src/auth/resolveAuthView.vitest.test.ts > resolveAuthView (AUTH-P-001, AUTH-P-002, AUTH-P-003) > never shows tabs to a logged-out user (AUTH-P-002 — tabs hidden when user === null) 0ms
+ ✓ src/resources/canEditResource.vitest.test.ts > canEditResource (EDIT-008) > allows an active member of the resource's organization 1ms
+ ✓ src/resources/canEditResource.vitest.test.ts > canEditResource (EDIT-008) > allows a different member of the same organization (coworker edits A's pin) 0ms
+ ✓ src/resources/canEditResource.vitest.test.ts > canEditResource (EDIT-008) > denies a member of a different organization 0ms
+ ✓ src/resources/canEditResource.vitest.test.ts > canEditResource (EDIT-008) > denies when the membership is not ACTIVE 0ms
+ ✓ src/resources/canEditResource.vitest.test.ts > canEditResource (EDIT-008) > denies when there is no membership 0ms
+ ✓ src/resources/canEditResource.vitest.test.ts > canEditResource (EDIT-008) > denies when there is no user 0ms
+ ✓ src/pins/resourceCategories.vitest.test.ts > resource category pin configuration > defines the approved visual identity for each preset category 1ms
+ ✓ src/pins/resourceCategories.vitest.test.ts > resource category pin configuration > provides the Custom category as the default fallback 0ms
+ ✓ src/pins/resourceCategories.vitest.test.ts > resource category pin configuration > resolves ids and labels while safely falling back for custom categories 0ms
+ ✓ src/reports/activeAlertCount.vitest.test.ts > activeAlertCount (ALERT-P-006) > counts report alerts regardless of the Weather Alerts setting 1ms
+ ✓ src/reports/activeAlertCount.vitest.test.ts > activeAlertCount (ALERT-P-006) > counts weather alerts only when Weather Alerts is on 0ms
+ ✓ src/reports/activeAlertCount.vitest.test.ts > activeAlertCount (ALERT-P-006) > counts report alerts plus weather alerts when the setting is on 0ms
+ ✓ src/reports/activeAlertCount.vitest.test.ts > activeAlertCount (ALERT-P-006) > counts only report alerts when the setting is off 0ms
+ ✓ src/reports/activeAlertCount.vitest.test.ts > activeAlertCount (ALERT-P-006) > returns zero for an empty alert list 0ms
+ ✓ src/reports/activeAlertCount.vitest.test.ts > activeAlertCount (ALERT-P-006) > returns zero when only weather alerts exist and the setting is off 0ms
+ ✓ src/auth/providerOwnsResource.vitest.test.ts > providerOwnsResource (AUTH-T-004) > allows when the resource's organization matches the provider's organization 1ms
+ ✓ src/auth/providerOwnsResource.vitest.test.ts > providerOwnsResource (AUTH-T-004) > rejects when the resource belongs to a different organization 0ms
+ ✓ src/auth/providerOwnsResource.vitest.test.ts > providerOwnsResource (AUTH-T-004) > rejects when the provider has no organization 0ms
+ ✓ src/auth/providerOwnsResource.vitest.test.ts > providerOwnsResource (AUTH-T-004) > rejects when the resource has no organization 0ms
+ ✓ src/auth/providerOwnsResource.vitest.test.ts > providerOwnsResource (AUTH-T-004) > rejects when both organizations are null (does not treat null == null as ownership) 0ms
+ ✓ src/auth/resolveProviderMembership.vitest.test.ts > resolveProviderMembership (AUTH-T-004) > returns null when the user has no membership 1ms
+ ✓ src/auth/resolveProviderMembership.vitest.test.ts > resolveProviderMembership (AUTH-T-004) > shapes an active membership in a verified, active org for canWritePin 0ms
+ ✓ src/auth/resolveProviderMembership.vitest.test.ts > resolveProviderMembership (AUTH-T-004) > exposes the organizationId on the resolved membership 0ms
+ ✓ src/auth/resolveProviderMembership.vitest.test.ts > resolveProviderMembership (AUTH-T-004) > resolves an inactive membership such that canWritePin rejects it 0ms
+ ✓ src/auth/resolveProviderMembership.vitest.test.ts > resolveProviderMembership (AUTH-T-004) > resolves an unverified org such that canWritePin rejects it 0ms
+ ✓ src/auth/resolveProviderMembership.vitest.test.ts > resolveProviderMembership (AUTH-T-004) > resolves an inactive org such that canWritePin rejects it 0ms
+ ✓ src/resources/normalizePhone.vitest.test.ts > normalizePhone (POST-012) > formats 10 digits as (XXX)XXX-XXXX 1ms
+ ✓ src/resources/normalizePhone.vitest.test.ts > normalizePhone (POST-012) > rejects fewer than 10 digits 0ms
+ ✓ src/resources/normalizePhone.vitest.test.ts > normalizePhone (POST-012) > rejects more than 10 digits 0ms
+ ✓ src/resources/normalizePhone.vitest.test.ts > normalizePhone (POST-012) > rejects input containing letters 0ms
+ ✓ src/resources/normalizePhone.vitest.test.ts > normalizePhone (POST-012) > rejects an empty string 0ms
+
+ Test Files  42 passed (42)
+      Tests  204 passed (204)
+   Start at  12:33:39
+   Duration  756ms (transform 415ms, setup 0ms, import 823ms, tests 138ms, environment 2ms)
+

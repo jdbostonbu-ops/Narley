@@ -1922,3 +1922,66 @@ Wire the tested REPORT-000 mapper into the Narley API. Check the stored website 
 ## Prompt 388
 
 Add all remaining prompts to `prompts.md`, update every Reader and Provider Vitest figure in the root README, and commit all remaining changes.
+
+## Prompt 389
+
+Read AGENTS.md and TESTING.md (REPORT-C-000). In server/openai.ts, add category-specific instructions for the reader report reason "Closed / no longer operating", following the same pattern already used for PHONE_REPORT_REASON (exact string match, instructions appended to the prompt).
+The problem: the existing prompt tells the AI to compare closure evidence against current-operation evidence. That neutrality fails, because records that persist without maintenance — directories, listings, registries, profiles — are abundant and free, while closure evidence is scarce. The AI has reported organizations as operating on the strength of stale listings, and has treated those listings as a conflict that forces low confidence.
+Per REPORT-C-000, add instructions that:
+
+The AI may never report that an organization is currently operating on the strength of records that persist without maintenance. Listings, directories, registries, profiles, and search results are not evidence of current operation — they persist for years after an organization ceases to exist, and their presence required no one to do anything.
+Current operation may only be supported by evidence that someone acted recently: a dated report of active service delivery, a recent official statement from the organization, or other current-dated evidence of real operation.
+If no such evidence exists, current operation is unverified. Unverified is not a conflict between evidence — it is low confidence. The AI must state that current status could not be verified and recommend human verification.
+
+This category keeps the AI's existing web research and its own confidence and sources — unlike the phone category, there is no fixed response. Do not change the JSON output schema, and do not change the rules for the phone, no-resources, or website categories.
+Report the exact prompt wording you added, and flag any place it contradicts the existing shared instructions — particularly the existing rules about persistent record presence and conflicting cases, which may need reconciling rather than duplicating.
+
+## Prompt 390
+
+did you add a test to my vitest file? or did you create a new vitest file?
+
+## Prompt 391
+
+did you modify these files when you created the vitest file? M docs/project-context/SPRINT-USER-STORIES.md
+ M docs/project-context/TESTING.md
+ M server/openai.ts
+
+## Prompt 392
+
+did you modify this file when you created the vitest file? AI-PIN-VERIFICATION.md
+
+## Prompt 393
+
+undo these modifications: Edited 2 files (+2 -2)
+  └ server/openai.ts (+1 -1)
+    74          "Current operation may only be supported by evidence that someone acted recently: a dated report of active service delivery, a recent official statement from the organization, or other current-dated evidence of real operation.",
+    75 -        "If no such evidence exists, current operation is unverified. Unverified is not a conflict between evidence — it is low confidence. State that current status could not be verified and recommend human verification.",
+    75 +        "If no such evidence exists, current operation is unverified. Unverified is not a conflict between evidence — it is low confidence. The AI must state that current status could not be verified and recommend human verification.",
+    76        ]
+
+  └ server/openai.vitest.test.ts (+1 -1)
+    31    "Unverified is not a conflict between evidence — it is low confidence",
+    32 -  "state that current status could not be verified and recommend human verification",
+    32 +  "The AI must state that current status could not be verified and recommend human verification",
+    33  ] as const;
+
+## Prompt 394
+
+Read AGENTS.md and TESTING.md (REPORT-C-000), then make the failing test pass. Failing file: server/closedReportInstructions.vitest.test.ts.
+
+Create server/closedReportInstructions.ts exporting closedReportInstructions, a pure function taking a report reason string and returning the closure-specific OpenAI prompt instructions — a non-empty array of strings when the reason is exactly "Closed / no longer operating", and an empty array for any other reason. This module is pure: it imports nothing from the network layer or the OpenAI client, matching the pattern used by server/toApiResource.ts and server/websiteCheckObservation.ts.
+The instructions it returns, per REPORT-C-000:
+
+This category overrides any conflicting shared instruction about evidence of current operation or conflicting evidence. The AI continues its existing web research and determines confidence and sources normally under these rules — there is no fixed response.
+The AI may never report that an organization is currently operating on the strength of records that persist without maintenance. Listings, directories, registries, profiles, and search results are not evidence of current operation — they persist for years after an organization ceases to exist, and their presence required no one to do anything.
+Current operation may only be supported by evidence that someone acted recently: a dated report of active service delivery, a recent official statement from the organization, or other current-dated evidence of real operation.
+If no such evidence exists, current operation is unverified. Unverified is not a conflict between evidence — it is low confidence. The AI must state that current status could not be verified and recommend human verification.
+
+Wire it into server/openai.ts the same way the phone, no-resources, and website instructions are wired — spread into the instruction array alongside them.
+You previously flagged four places in the shared prompt that contradict REPORT-C-000 (persistent records as "weak evidence" at ~line 102, the high-confidence-only prohibition at ~104, the "evidence conflicts" requirement at ~107, and "weak operating signals" at ~108). Do NOT change them in this commit — report them again so I can decide separately.
+
+Do NOT write, modify, or delete any test file. and tell me what command to run. Do not run commands.
+
+## Prompt 395
+
+add all remaining prompts in prompts.md and run vitest reporter to append in the PASS-FAIL.md please and commit all changes

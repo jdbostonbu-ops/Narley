@@ -45,11 +45,6 @@ This document is a reusable library of user stories for Narley. Each Friday, sel
 - As a Reader, I want in-app route previews for walking, driving, transit, and bicycling so that I can choose the best way to travel.
 - As a Reader, I want to open my preferred maps application if in-app routing is unavailable.
 
-## Language Support
-
-- As a Reader, I want to use Narley in my preferred language so that I can understand the interface.
-- As a Provider, I want my language preference remembered so that I don't need to change it every time I sign in.
-
 ## Community Reporting
 
 - As a Reader, I want to report incorrect resource information so that Providers can review it.
@@ -97,3 +92,5 @@ This document is a reusable library of user stories for Narley. Each Friday, sel
 ### Stretch
 
 - As a Developer, I want the pin system to be configuration-driven so that new categories can be added without changing rendering logic.
+- As a Reader, I want to use Narley in my preferred language so that I can understand the interface.
+- As a Provider, I want my language preference remembered so that I don't need to change it every time I sign in.
