@@ -20,10 +20,17 @@ const theme = getTheme(false);
 
 type ReportAlertCardProps = {
   alert: ProviderReportAlert;
+  confidenceHelpVisible: boolean;
   onDelete: () => void;
+  onToggleConfidenceHelp: () => void;
 };
 
-const ReportAlertCard = ({ alert, onDelete }: ReportAlertCardProps) => {
+const ReportAlertCard = ({
+  alert,
+  confidenceHelpVisible,
+  onDelete,
+  onToggleConfidenceHelp,
+}: ReportAlertCardProps) => {
   const resourceLabel = alert.resourceTitle?.trim() ||
     alert.address?.trim() ||
     "Reported resource";
@@ -56,7 +63,24 @@ const ReportAlertCard = ({ alert, onDelete }: ReportAlertCardProps) => {
       </View>
       <View style={styles.reportBlock}>
         <Text style={styles.reportLabel}>CONFIDENCE</Text>
-        <Text style={styles.confidence}>{confidence.toLocaleUpperCase()}</Text>
+        <Pressable
+          accessibilityHint="Shows what high, medium, and low confidence mean"
+          accessibilityLabel={`Explain AI confidence levels. Current confidence ${confidence}.`}
+          accessibilityRole="button"
+          accessibilityState={{ expanded: confidenceHelpVisible }}
+          onPress={onToggleConfidenceHelp}
+          onTouchStart={(event) => event.stopPropagation()}
+          style={({ pressed }) => [styles.confidenceButton, pressed && styles.confidenceButtonPressed]}
+        >
+          <Text style={styles.confidence}>{confidence.toLocaleUpperCase()}</Text>
+        </Pressable>
+        {confidenceHelpVisible && (
+          <View style={styles.confidenceHelp}>
+            <Text style={styles.confidenceHelpText}><Text style={styles.confidenceHelpLevel}>HIGH — </Text>Evidence was clear, or the answer is known without searching.</Text>
+            <Text style={styles.confidenceHelpText}><Text style={styles.confidenceHelpLevel}>MEDIUM — </Text>Some evidence, not decisive.</Text>
+            <Text style={styles.confidenceHelpText}><Text style={styles.confidenceHelpLevel}>LOW — </Text>Evidence conflicts, or couldn't be verified.</Text>
+          </View>
+        )}
       </View>
       {alert.sources.length > 0 && (
         <View style={styles.reportBlock}>
@@ -93,6 +117,7 @@ export const AlertsScreen = () => {
     deleteReportAlert,
   } = useWeatherAlerts();
   const [selectedAlert, setSelectedAlert] = useState<ProviderCardData | null>(null);
+  const [confidenceHelpAlertId, setConfidenceHelpAlertId] = useState<string | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -125,7 +150,10 @@ export const AlertsScreen = () => {
 
   return (
     <View style={styles.screen}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        onTouchStart={() => setConfidenceHelpAlertId(null)}
+      >
         <View style={styles.header}>
           <View style={styles.sectionHeader}>
             <Text accessibilityRole="header" style={styles.sectionTitle}>Your alerts</Text>
@@ -167,8 +195,12 @@ export const AlertsScreen = () => {
           {reportAlerts.map((alert) => (
             <ReportAlertCard
               alert={alert}
+              confidenceHelpVisible={confidenceHelpAlertId === alert.id}
               key={alert.id}
               onDelete={() => confirmDeleteReport(alert)}
+              onToggleConfidenceHelp={() => {
+                setConfidenceHelpAlertId((currentId) => currentId === alert.id ? null : alert.id);
+              }}
             />
           ))}
         </View>
@@ -262,7 +294,29 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.xs,
   },
   reportValue: { color: theme.colors.text, fontSize: 15, lineHeight: 22 },
+  confidenceButton: {
+    alignSelf: "flex-start",
+    borderColor: theme.colors.accent,
+    borderRadius: theme.radius.pill,
+    borderWidth: 1,
+    minHeight: 44,
+    justifyContent: "center",
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+  },
+  confidenceButtonPressed: { opacity: 0.72 },
   confidence: { color: theme.colors.primary, fontSize: 14, fontWeight: "900" },
+  confidenceHelp: {
+    backgroundColor: theme.colors.surface,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    gap: theme.spacing.sm,
+    marginTop: theme.spacing.sm,
+    padding: theme.spacing.md,
+  },
+  confidenceHelpText: { color: theme.colors.text, fontSize: 14, lineHeight: 20 },
+  confidenceHelpLevel: { color: theme.colors.primary, fontWeight: "900" },
   source: { color: theme.colors.cta, fontSize: 13, lineHeight: 19 },
   createdAt: {
     color: theme.colors.textMuted,
