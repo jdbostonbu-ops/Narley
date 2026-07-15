@@ -1882,3 +1882,23 @@ Fix the Reader report-reason option so the full “Phone disconnected / no longe
 ## Prompt 378
 
 Add all remaining prompts to `prompts.md`, then commit every remaining project change.
+
+## Prompt 379
+
+After pushing the latest changes, explain whether the local API server must be restarted and whether Vercel requires a manual restart.
+
+## Prompt 380
+
+Investigate why GitHub/Vercel still shows the last deployment at 8:54 PM and determine whether the latest local commits were pushed.
+
+## Prompt 381
+
+Read `AGENTS.md` and `TESTING.md` (`REPORT-R-000`), then add category-specific OpenAI handling for “No more resources available.” Do not search or investigate the organization, do not assess truth or operating status, convey the Reader’s first-hand availability observation and resource details, return no sources, let AI choose confidence, and preserve every other category and the JSON schema.
+
+## Prompt 382
+
+Read `AGENTS.md` and `TESTING.md` (`ALERT-P-008`), then make Provider AI confidence tappable. Show the exact HIGH, MEDIUM, and LOW explanations inline without obscuring the report card, dismiss on tap-away, add an accessible control label, use shared theme tokens, and do not add or modify tests.
+
+## Prompt 383
+
+Add every remaining prompt to `prompts.md`, update the README Reader and Provider test-count badges, commit all outstanding changes, and push them to GitHub.

@@ -22,6 +22,7 @@ const PHONE_REPORT_SOURCES = [
     url: "https://www.cbsnews.com/news/google-search-remove-phone-number-personal-information/",
   },
 ] as const;
+const NO_RESOURCES_REPORT_REASON = "No more resources available";
 
 const invalidResult = (): OpenAIReportResult => ({
   findings: "",
@@ -43,6 +44,14 @@ export const callOpenAI = async (report: ReaderReport): Promise<OpenAIReportResu
         "For this phone report reason, confidence must always be high: this is high confidence that only a human can verify whether a phone line works.",
         `For this phone report reason, sources must contain exactly these two URLs in this order and no others: ${JSON.stringify(PHONE_REPORT_SOURCES)}.`,
         "The model must still perform the requested research, but no search result may change the required findings, confidence, or sources for this phone report reason.",
+      ]
+    : [];
+  const noResourcesReportInstructions = report.reason === NO_RESOURCES_REPORT_REASON
+    ? [
+        `For the report reason ${JSON.stringify(NO_RESOURCES_REPORT_REASON)}, override every conflicting investigation and search instruction: do not use web search, do not investigate the organization, do not comment on whether the organization is operating, and do not evaluate whether the reader's report is true.`,
+        "State that a reader submitted a first-hand observation that no resources were available at this location, and present the supplied resource title, address, and any supplied phone or website details for the provider to act on.",
+        "Determine confidence using the allowed confidence values, based only on confidence that the findings accurately convey the reader's first-hand report; do not express confidence about whether resources were actually available.",
+        "For this resource-availability report reason, sources must be an empty array because there are no applicable sources.",
       ]
     : [];
 
@@ -89,6 +98,7 @@ export const callOpenAI = async (report: ReaderReport): Promise<OpenAIReportResu
         "Confidence must be exactly high, medium, or low in lowercase.",
         "Sources must contain only URLs used for the assessment and may be empty.",
         ...phoneReportInstructions,
+        ...noResourcesReportInstructions,
         "Return only the required JSON object, with no prose or markdown fences.",
       ].join(" "),
       input: JSON.stringify(report),
