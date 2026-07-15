@@ -10,6 +10,7 @@ type ReaderReport = {
   reason: string;
   phone?: string;
   website?: string;
+  websiteObservation?: string;
 };
 
 const PHONE_REPORT_REASON = "Phone disconnected / no longer working";
@@ -23,6 +24,7 @@ const PHONE_REPORT_SOURCES = [
   },
 ] as const;
 const NO_RESOURCES_REPORT_REASON = "No more resources available";
+const WEBSITE_REPORT_REASON = "Wrong website or website not working";
 
 const invalidResult = (): OpenAIReportResult => ({
   findings: "",
@@ -52,6 +54,16 @@ export const callOpenAI = async (report: ReaderReport): Promise<OpenAIReportResu
         "State that a reader submitted a first-hand observation that no resources were available at this location, and present the supplied resource title, address, and any supplied phone or website details for the provider to act on.",
         "Determine confidence using the allowed confidence values, based only on confidence that the findings accurately convey the reader's first-hand report; do not express confidence about whether resources were actually available.",
         "For this resource-availability report reason, sources must be an empty array because there are no applicable sources.",
+      ]
+    : [];
+  const websiteReportInstructions = report.reason === WEBSITE_REPORT_REASON
+    && typeof report.websiteObservation === "string"
+    ? [
+        `For the report reason ${JSON.stringify(WEBSITE_REPORT_REASON)}, override every conflicting investigation and search instruction. The subject is the specific website URL stored on the resource, not the organization's web presence.`,
+        `Return findings exactly as follows, verbatim: ${JSON.stringify(report.websiteObservation)}. Do not contradict, soften, reinterpret, summarize, or add to this observation.`,
+        "Do not use web search for this website report, do not search for the organization's website, do not look up what its website really is, and do not substitute a different URL.",
+        "For this website report reason, confidence must be high because the findings report the server's direct observation, without claiming more than the server observed.",
+        "For this website report reason, sources must be an empty array because the observation came from the server's direct request, not a web-search source.",
       ]
     : [];
 
@@ -99,6 +111,7 @@ export const callOpenAI = async (report: ReaderReport): Promise<OpenAIReportResu
         "Sources must contain only URLs used for the assessment and may be empty.",
         ...phoneReportInstructions,
         ...noResourcesReportInstructions,
+        ...websiteReportInstructions,
         "Return only the required JSON object, with no prose or markdown fences.",
       ].join(" "),
       input: JSON.stringify(report),

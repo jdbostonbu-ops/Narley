@@ -18,11 +18,13 @@ import { updateResource } from "../apps/provider/src/resources/updateResource";
 import { verifyReaderReport } from "../apps/provider/src/reports/verifyReaderReport";
 import { submitProviderReport } from "../apps/provider/src/reports/submitProviderReport";
 import { callOpenAI } from "./openai";
+import { checkWebsite } from "./checkWebsite";
 import { signAuthToken } from "./authToken";
 import { loadProviderMembership } from "./loadProviderMembership";
 import { prisma } from "./prisma";
 import { requireAuth } from "./requireAuth";
 import { toApiResource } from "./toApiResource";
+import { toWebsiteCheckObservation } from "./websiteCheckObservation";
 import {
   sendPasswordResetEmail,
   sendReaderPasswordResetEmail,
@@ -450,6 +452,8 @@ type ReaderReport = {
   reason: string;
 };
 
+const WEBSITE_REPORT_REASON = "Wrong website or website not working";
+
 const parseReaderReport = (value: unknown): ReaderReport | null => {
   if (!isRecord(value)) {
     return null;
@@ -489,6 +493,10 @@ app.post("/reports", async (req, res) => {
       return res.status(404).json({ ok: false, error: "Resource not found" });
     }
 
+    const websiteObservation = report.reason === WEBSITE_REPORT_REASON
+      ? toWebsiteCheckObservation(await checkWebsite(resource.website ?? ""))
+      : undefined;
+
     const result = await verifyReaderReport(report, {
       callOpenAI: (readerReport) =>
         callOpenAI({
@@ -496,6 +504,7 @@ app.post("/reports", async (req, res) => {
           title: resource.title,
           ...(resource.phone !== null ? { phone: resource.phone } : {}),
           ...(resource.website !== null ? { website: resource.website } : {}),
+          ...(websiteObservation !== undefined ? { websiteObservation } : {}),
         }),
       createProviderAlert: (alert) => {
         alertCreation.promise = prisma.providerAlert.create({

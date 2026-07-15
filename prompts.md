@@ -1902,3 +1902,23 @@ Read `AGENTS.md` and `TESTING.md` (`ALERT-P-008`), then make Provider AI confide
 ## Prompt 383
 
 Add every remaining prompt to `prompts.md`, update the README Reader and Provider test-count badges, commit all outstanding changes, and push them to GitHub.
+
+## Prompt 384
+
+Read `AGENTS.md` and `TESTING.md` (`REPORT-000`) and, before changing code, report the plan for safely requesting a reported resource's stored website. Cover a bounded timeout and malformed or unsupported stored URLs, then stop before implementing the pure observation mapper, server request, and OpenAI category branch.
+
+## Prompt 385
+
+Provide the planned pure website-observation mapper's file path, exported function name, and three-value result type.
+
+## Prompt 386
+
+Read `AGENTS.md` and `TESTING.md` (`REPORT-000`), then make `server/websiteCheckObservation.vitest.test.ts` pass by creating the pure typed `server/websiteCheckObservation.ts` mapper. Map `404`, `reached-not-404`, and `could-not-reach` to the exact approved observation text; do not modify the test or implement network, route, or OpenAI wiring.
+
+## Prompt 387
+
+Wire the tested REPORT-000 mapper into the Narley API. Check the stored website with a five-second timeout, status-only GET and safe redirect handling; reject malformed, unsupported, local, and private destinations; convert failures to `could-not-reach`; pass the exact observation to a website-specific OpenAI branch that cannot search for or substitute another URL; preserve every other report category and the JSON schema; report confidence, sources, uncertainty, and verification commands.
+
+## Prompt 388
+
+Add all remaining prompts to `prompts.md`, update every Reader and Provider Vitest figure in the root README, and commit all remaining changes.
