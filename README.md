@@ -25,7 +25,7 @@
 
 ---
 
-👤 Author
+👤 Author **🔗 [Live Demo:](https://narley.vercel.app/)
 
 <table>
   <tr>
@@ -38,7 +38,6 @@
       <strong>Jacqueline Delgado</strong><br/><br/>
       <a href="https://github.com/jdbostonbu-ops">
         <img src="https://img.shields.io/badge/GitHub-jdbostonbu--ops-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub profile" />
-        **🔗 Live Demo:** _[https://narley.vercel.app/](https://narley.vercel.app/)_
       </a>
     </td>
   </tr>

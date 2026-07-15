@@ -1758,3 +1758,127 @@ Document all Provider and Reader features, their communication flows, the comple
 ## Prompt 347
 
 Add all remaining prompts to `prompts.md`.
+
+## Prompt 348
+
+Commit all remaining project changes.
+
+## Prompt 349
+
+Check whether the `.env` file was being tracked by Git.
+
+## Prompt 350
+
+Update line 5 of the README by removing the icon and Narley text and using the `narley-logo.png` asset from the apps/assets location.
+
+## Prompt 351
+
+Make the Express API deployable as a Vercel serverless function without breaking local development. Export the configured app, guard `app.listen` for direct local execution, add `api/index.ts` and `vercel.json`, generate Prisma during Vercel installation, report required environment variables, and provide full verification commands.
+
+## Prompt 352
+
+Check whether TDD is mentioned in the README.
+
+## Prompt 353
+
+Check whether Vitest is mentioned in the README.
+
+## Prompt 354
+
+Check whether the README states the total number of app tests.
+
+## Prompt 355
+
+Add README badges showing the Reader and Provider app test counts.
+
+## Prompt 356
+
+Recreate `narley-logo.png` so the house, Narley wordmark, and “Help nearby.” tagline shift left, moving the excess left-side whitespace to the right.
+
+## Prompt 357
+
+Explain whether favicons must be PNG files or can use SVG.
+
+## Prompt 358
+
+Ensure both app configurations include `web.favicon` pointing to `./assets/narley-icon-1024.png`.
+
+## Prompt 359
+
+Fix Vercel’s Prisma `import.meta` CommonJS runtime crash by researching Prisma 7’s generator module format, configuring CommonJS-compatible generation without adding root `type: module`, preserving postinstall generation, and providing regeneration, startup, and full-suite verification commands.
+
+## Prompt 360
+
+Commit all remaining changes.
+
+## Prompt 361
+
+Fix the black knocked-out corners in `narley-logo-left.png` as displayed in the README, making the exterior corners transparent while preserving the logo.
+
+## Prompt 362
+
+Research and report the Prisma 7.8 solution for Vercel’s `Cannot find module './internal/class.ts'` crash. Determine whether deprecated `prisma-client-js` remains supported and emits compiled JavaScript, document exact schema/config/import changes, recommend the safest approach, and make no changes yet.
+
+## Prompt 363
+
+Implement the recommended `prisma-client-js` Vercel fix: use `provider = "prisma-client-js"` with `engineType = "client"`, import `PrismaClient` from `@prisma/client`, find other stale generated-client imports, verify the dependency, and report cleanup of the gitignored custom output.
+
+## Prompt 364
+
+Add a self-contained Narley API landing page at exact `GET /` using inline HTML, CSS, and house SVG. Follow the design theme, show a truthful API-online status, describe the Provider/Reader API, list public endpoints, preserve every existing route and JSON 404, and provide test/startup verification commands.
+
+## Prompt 365
+
+Add the Narley house favicon to the API landing page.
+
+## Prompt 366
+
+Report how every Reader report category is sent to OpenAI, including the complete shared prompt behavior and what AI investigates for a disconnected-phone report. Do not change code.
+
+## Prompt 367
+
+List the report-reason categories available to a Reader.
+
+## Prompt 368
+
+Explain when an OpenAI Provider report card is labeled uncertain and list the confidence values AI is allowed to return.
+
+## Prompt 369
+
+Fix the README Live Demo link so it opens the deployed Narley Vercel URL instead of linking to `#`.
+
+## Prompt 370
+
+Before changing phone-report AI behavior, inspect `validateAiResult` and confirm whether the proposed exact findings, high confidence, and two sources pass validation and create a valid ProviderAlert. Report and stop before implementation.
+
+## Prompt 371
+
+Implement the approved phone-report changes: send optional stored phone and website fields to OpenAI, require an exact human-verification response for disconnected-phone reports, force high confidence and two specified sources, keep calling the model, and preserve the existing schema and other-category rules.
+
+## Prompt 372
+
+Explain how to switch from the Reader app to the Provider app on the physical iPhone and start the Provider Metro project without using the simulator.
+
+## Prompt 373
+
+Correct the failed directory command issued while already inside `apps/reader`; provide the sibling-path command for entering `apps/provider`.
+
+## Prompt 374
+
+Report how Reader report reasons work before adding a sixth value. Trace definitions, UI selection, API submission, server validation, tests, OpenAI reason branching, and every file needed for a new “Wrong website or website not working” reason. Do not change code.
+
+## Prompt 375
+
+Identify the line containing `REPORT-001` in `TESTING.md`.
+
+## Prompt 376
+
+Read `AGENTS.md` and `TESTING.md` (`REPORT-001`), then make the failing Reader reason test pass by adding “Wrong website or website not working” to `REPORT_REASONS` only. Do not modify the test or add server/AI behavior, and provide the Reader unit-test command.
+
+## Prompt 377
+
+Fix the Reader report-reason option so the full “Phone disconnected / no longer working” label is visible instead of truncated.
+
+## Prompt 378
+
+Add all remaining prompts to `prompts.md`, then commit every remaining project change.

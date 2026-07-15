@@ -1054,6 +1054,10 @@ If the request returns 404, the AI reports that verified observation.
 If the request does not return 404, the AI must state that the server received no 404, advise the provider to check whether the pinned website is the one they intended (a typo can still load a working page), and suggest that if the URL is correct they consider adding a note to the card for readers — for example, recommending readers copy and paste the address.
 A resource with no stored website has nothing to fetch.
 
+REPORT-R-000 — Resource-availability reports are not investigated
+When a reader reports "No more resources available," the AI does not investigate the organization. Whether a resource is available at a given moment is not published anywhere on the web and cannot be determined by search; only the reader who was present and the provider who stocks it can know.
+The AI reports that a reader has submitted a first-hand observation that no resources were available at this location, and presents the resource detail for the provider to act on. It does not search, does not comment on whether the organization is operating, and does not evaluate the truth of the report.
+
 REPORT-002 — No direct edits
 
 Submitting a report does not directly change the resource.

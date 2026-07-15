@@ -13,7 +13,7 @@ type ReaderReport = {
 };
 
 const PHONE_REPORT_REASON = "Phone disconnected / no longer working";
-const PHONE_REPORT_FINDINGS = "I have no way to place a call. If I searched right now, the number would probably appear in listings but a number can sit in a hundred directories for years and ring dead. The Number could also be reassigned to a different business. the Org could have published a new number. Or had an actual disconnection notice, but only a human can verify this not AI. Try calling your trusted partner.";
+const PHONE_REPORT_FINDINGS = "I have no way to place a call. If I searched right now, the number would probably appear in listings, but a number can sit in a hundred directories for years and ring dead. The number could also be reassigned to a different business, the organization could have published a new number, or there could be an actual disconnection notice — but only a human can verify this, not AI. Please call the number to verify. Try calling your trusted partner. ";
 const PHONE_REPORT_SOURCES = [
   {
     url: "https://www.seerinteractive.com/insights/ai-models-provide-incorrect-phone-numbers-36-of-the-time-heres-what-you-can-do",
