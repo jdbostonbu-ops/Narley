@@ -1,6 +1,7 @@
 import { lookup } from "node:dns/promises";
 import { isIP } from "node:net";
 
+import { toWebsiteCheckResult } from "./toWebsiteCheckResult";
 import type { WebsiteCheckResult } from "./websiteCheckObservation";
 
 const WEBSITE_CHECK_TIMEOUT_MS = 5_000;
@@ -126,7 +127,7 @@ const requestWebsite = async (
 
     if (!isRedirectStatus(response.status)) {
       await response.body?.cancel();
-      return response.status === 404 ? "404" : "reached-not-404";
+      return toWebsiteCheckResult(response.status);
     }
 
     const location = response.headers.get("location");
