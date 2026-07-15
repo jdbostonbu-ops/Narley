@@ -16,7 +16,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon-336791?logo=postgresql&logoColor=white)](https://neon.tech/)
 [![JWT](https://img.shields.io/badge/Auth-JWT-000000?logo=jsonwebtokens&logoColor=white)](https://jwt.io/)
 [![OpenAI](https://img.shields.io/badge/AI-OpenAI-412991?logo=openai&logoColor=white)](https://platform.openai.com/)
-[![Vitest — 364 Tests](https://img.shields.io/badge/Vitest-364_Tests-6E9F18?logo=vitest&logoColor=white)](https://vitest.dev/)
+[![Vitest — 367 Tests](https://img.shields.io/badge/Vitest-367_Tests-6E9F18?logo=vitest&logoColor=white)](https://vitest.dev/)
 [![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen)](#-testing)
 [![Reader Tests](https://img.shields.io/badge/Reader_Tests-128-brightgreen)](#-testing)
 [![Provider Tests](https://img.shields.io/badge/Provider_Tests-204-brightgreen)](#-testing)

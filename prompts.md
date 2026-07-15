@@ -2025,3 +2025,24 @@ Report every TypeScript error the new config surfaces in server/ — do not fix 
 ## Prompt 400
 
 add all remaining prompts to prompts.md and update vitest count to 364 total tests in the readme and then commit all changes
+
+## Prompt 401
+
+Read AGENTS.md and TESTING.md (REPORT-000), then make the failing test pass. Failing file: server/websiteCheckObservation.vitest.test.ts.
+In server/websiteCheckObservation.ts, the could-not-reach observation text has been updated. Copy the expected string EXACTLY from the test's assertion — character for character, including the em dash and all sentence spacing. Do not reword, re-punctuate, or join sentences.
+Change nothing else — the 404 and reached-not-404 observations, the WebsiteCheckResult type, and every other file stay as they are.
+Constraints (AGENTS.md): no any, no var, arrow/closure functions, typed. Do NOT modify the test file. State the exact commands for me to run.
+
+## Prompt 402
+
+Read AGENTS.md and TESTING.md (REPORT-000), then make the failing test pass. Failing file: server/toWebsiteCheckResult.vitest.test.ts.
+Currently server/checkWebsite.ts maps any non-redirect HTTP response with return response.status === 404 ? "404" : "reached-not-404";. That sends a 403 to reached-not-404, so the card tells the provider the site "did not return a 404 — check whether the pinned website is the one you intended," when in fact the server was refused and learned nothing. A 403 can mean the site blocks automated checks, or that the site is genuinely broken.
+
+Create server/toWebsiteCheckResult.ts exporting toWebsiteCheckResult, a pure function taking an HTTP status number and returning a WebsiteCheckResult (import the type from ./websiteCheckObservation). 404 → "404". 403 → "could-not-reach". Any other status → "reached-not-404". This module is pure — it imports nothing from the network layer, matching server/websiteCheckObservation.ts.
+In server/checkWebsite.ts, replace that ternary with a call to toWebsiteCheckResult. Change nothing else in that file — the timeout, redirect handling, SSRF guard, and network-failure paths all stay exactly as they are.
+
+Do not add a new WebsiteCheckResult value and do not change any observation text — a 403 reuses the existing could-not-reach observation. Read the AGENTS.md in the docs/project-content folder and the TESTING.md in the docs/project-context folder.
+
+## Prompt 403
+
+add all remaining prompts to the prompts.md folder, and update the total vitest count on the readme file then commit all the changes
