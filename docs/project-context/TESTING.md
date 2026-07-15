@@ -1034,10 +1034,25 @@ A Provider may independently verify the reported discrepancy and resolve after r
 ALERT-R-006 (persistence, both apps) — Temperature alerts persist for their full 24-hour lifetime in BOTH the reader and provider apps: In each app, a heat or cold alert, once generated, must remain visible until it expires per its 24-hour lifetime, regardless of whether subsequent forecast refreshes still meet the threshold. Each app's weather store must merge newly generated alerts with previously displayed, still-unexpired alerts rather than replacing the list, and a failed or unavailable forecast fetch must not clear existing unexpired alerts.
 
 REPORT-001 — Structured reasons
+Readers may select only approved report reasons. They may not enter free text.
+The approved reasons are:
 
-Readers may select only approved report reasons.
+Closed / no longer operating
+Wrong hours
+Wrong address / location
+No more resources available
+Phone disconnected / no longer working
+Wrong website or website not working
 
-Providers may enter a written message explaining in up to 500 words, complete address and resource of pin is required, as well as the provider name and email in the report.
+REPORT-P-001: "Providers may enter a written message explaining in up to 500 words, complete address and resource of pin is required, as well as the provider name and email in the report." 
+
+A report includes the resource, its address, and the selected reason.
+
+REPORT-000 — Website reports are verified by the server, not by search
+When a reader reports "Wrong website or website not working," the server requests the resource's stored website URL before calling the AI, and reports the observed result to the AI. Web search cannot determine whether a URL resolves; only a request can.
+If the request returns 404, the AI reports that verified observation.
+If the request does not return 404, the AI must state that the server received no 404, advise the provider to check whether the pinned website is the one they intended (a typo can still load a working page), and suggest that if the URL is correct they consider adding a note to the card for readers — for example, recommending readers copy and paste the address.
+A resource with no stored website has nothing to fetch.
 
 REPORT-002 — No direct edits
 
