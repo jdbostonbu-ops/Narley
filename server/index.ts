@@ -482,7 +482,7 @@ app.post("/reports", async (req, res) => {
   try {
     const resource = await prisma.resource.findUnique({
       where: { id: report.resourceId },
-      select: { title: true },
+      select: { title: true, phone: true, website: true },
     });
 
     if (resource === null) {
@@ -494,6 +494,8 @@ app.post("/reports", async (req, res) => {
         callOpenAI({
           ...readerReport,
           title: resource.title,
+          ...(resource.phone !== null ? { phone: resource.phone } : {}),
+          ...(resource.website !== null ? { website: resource.website } : {}),
         }),
       createProviderAlert: (alert) => {
         alertCreation.promise = prisma.providerAlert.create({
