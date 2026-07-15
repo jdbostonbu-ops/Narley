@@ -203,6 +203,14 @@ export const ResourceDetailModal = ({ item, onClose, showReport = false, showSav
               <Text accessibilityRole="header" style={styles.title}>{item.title}</Text>
               <Text style={styles.notes}>{item.notes}</Text>
               <Text style={styles.address}>{item.address}</Text>
+              {!!item.phone && <View style={styles.contactBlock}>
+                <Text style={styles.contactLabel}>PHONE</Text>
+                <Text style={styles.contactValue}>{item.phone}</Text>
+              </View>}
+              {!!item.website && <View style={styles.contactBlock}>
+                <Text style={styles.contactLabel}>WEBSITE</Text>
+                <Text style={styles.contactValue}>{item.website}</Text>
+              </View>}
               <View style={styles.actions}>
                 <Pressable accessibilityLabel="Get directions to this resource" accessibilityRole="button" style={styles.primary}><Text style={styles.primaryText}>Directions</Text></Pressable>
                 <Pressable accessibilityLabel="Share this resource" accessibilityRole="button" style={styles.secondary}><Text style={styles.secondaryText}>Share</Text></Pressable>
@@ -326,6 +334,9 @@ const styles = StyleSheet.create({
   title: { color: theme.colors.text, fontSize: 24, fontWeight: '900', marginBottom: 10, paddingRight: 44 },
   notes: { color: '#374151', fontSize: 16, lineHeight: 24, marginBottom: 18 },
   address: { color: theme.colors.textMuted, fontSize: 14, marginBottom: 20 },
+  contactBlock: { marginBottom: theme.spacing.md },
+  contactLabel: { color: theme.colors.textMuted, fontSize: 12, fontWeight: '900', marginBottom: theme.spacing.xs },
+  contactValue: { color: theme.colors.text, fontSize: 15, fontWeight: '700', lineHeight: 22 },
   actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 10 },
   primary: { backgroundColor: theme.colors.primary, borderRadius: 20, marginTop: 10, paddingHorizontal: 28, paddingVertical: 16 },
   primaryText: { color: theme.colors.textInverse, fontSize: 16, fontWeight: '800', letterSpacing: 0.3 },
