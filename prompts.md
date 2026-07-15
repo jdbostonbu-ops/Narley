@@ -1985,3 +1985,43 @@ Do NOT write, modify, or delete any test file. and tell me what command to run. 
 ## Prompt 395
 
 add all remaining prompts in prompts.md and run vitest reporter to append in the PASS-FAIL.md please and commit all changes
+
+## Prompt 396
+
+how many total tests do I have?
+
+## Prompt 397
+
+Update the total vitest in the readme file it it is missing the 356 update
+
+## Prompt 398
+
+Read AGENTS.md and TESTING.md (REPORT-H-000, REPORT-A-000), then make the failing tests pass. Failing files: server/hoursReportInstructions.vitest.test.ts and server/addressReportInstructions.vitest.test.ts.
+Follow the pattern already established by server/closedReportInstructions.ts and the phone category in server/openai.ts — a pure function taking a report reason string and returning category-specific OpenAI prompt instructions, importing nothing from the network layer or the OpenAI client.
+
+Create server/hoursReportInstructions.ts exporting hoursReportInstructions. Non-empty array when the reason is exactly "Wrong hours", empty array otherwise. Instruct the AI that for this category it must NOT search to verify the hours and must NOT report what any website says the hours are. It must always return this exact response verbatim, regardless of what any search would find:
+"I can't verify hours by searching. What's published online is often behind — hours change for holidays, weather, staffing, or just because, and the update reaches the internet later, if ever. If these hours changed recently, no website would know yet. It's also worth checking the pin for a typo. Only a human can confirm this — please call or visit."
+Create server/addressReportInstructions.ts exporting addressReportInstructions. Non-empty array when the reason is exactly "Wrong address / location", empty array otherwise. Same constraints — no searching to verify the address, no reporting what listings say the address is. Exact response verbatim:
+"I can't verify an address by searching. Organizations often appear at several addresses across listings, including ones they left years ago, and a search can't tell me which is current. It's also worth checking the pin for a typo. Only a human can confirm this — please call or visit."
+For both categories: confidence is always high — high confidence that only a human can verify this. Sources for both are always exactly these two:
+
+https://www.seerinteractive.com/insights/ai-models-provide-incorrect-phone-numbers-36-of-the-time-heres-what-you-can-do
+https://www.dreamhost.com/blog/google-business-profile/
+
+Wire both into server/openai.ts the same way the phone, no-resources, website, and closure instructions are wired — spread into the instruction array alongside them.
+
+Reproduce both response texts EXACTLY as written above — do not reword, re-punctuate, or join sentences. Previous string edits in this file dropped spaces between sentences.
+Do NOT write, modify, or delete any test file. Do not change the JSON output schema or the rules for the phone, no-resources, website, or closure categories.
+
+## Prompt 399
+
+Read AGENTS.md. The server/ folder has no TypeScript configuration — there is no server/tsconfig.json and no root tsconfig.json. As a result the editor doesn't know server code is Node code, so Node globals like process are reported as errors (Cannot find name 'process' ts(2591) at server/openai.ts:39). @types/node is already installed in the root node_modules.
+This is also why 8 TypeScript errors in server/index.ts only surfaced during a Vercel build rather than locally: nothing typechecks this folder. tsx strips types at runtime and Vitest only exercises the pure modules.
+
+Create a TypeScript configuration for the server/ folder that includes the Node type definitions so Node globals resolve, and that matches the strictness AGENTS.md requires (no implicit any, strict on) and the module/target settings the server actually runs under via tsx.
+Report exactly what the config does and where you placed it, and whether it affects the apps in apps/, the Vitest runs, tsx server/index.ts, or the Vercel build in any way. It must not change any of them.
+Report every TypeScript error the new config surfaces in server/ — do not fix them in this commit. I want to see the list first.
+
+## Prompt 400
+
+add all remaining prompts to prompts.md and update vitest count to 364 total tests in the readme and then commit all changes
