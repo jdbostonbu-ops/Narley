@@ -1063,10 +1063,18 @@ If the request returns 404, the AI reports that verified observation.
 If the request does not return 404, the AI must state that the server received no 404, advise the provider to check whether the pinned website is the one they intended (a typo can still load a working page), and suggest that if the URL is correct they consider adding a note to the card for readers — for example, recommending readers copy and paste the address.
 A resource with no stored website has nothing to fetch.
 
+REPORT-A-000 — Address reports are not investigated
+When a reader reports "Wrong address / location," the AI does not search to verify the address. Organizations appear at multiple addresses across listings, including ones they vacated years ago, and search cannot determine which is current. A wrong pin may also be a provider typo. Only a human can confirm an address by calling or visiting.
+The AI returns a fixed response advising human verification, with high confidence that only a human can verify this.
+
 REPORT-C-000 — Stale records are not evidence of operation
 When a reader reports "Closed / no longer operating," the AI may never report that an organization is currently operating on the strength of records that persist without maintenance. Listings, directories, registries, profiles, and search results are not evidence of current operation — they persist for years after an organization ceases to exist, and their presence required no one to do anything.
 Current operation may only be supported by evidence that someone acted recently: a dated report of active service delivery, a recent official statement from the organization, or other current-dated evidence of real operation.
 If no such evidence exists, current operation is unverified. Unverified is not a conflict — it is low confidence, and the AI must state that current status could not be verified and recommend human verification.
+
+REPORT-H-000 — Hours reports are not investigated
+When a reader reports "Wrong hours," the AI does not search to verify the hours. The AI is not sent the resource's stored hours and cannot compare them to anything; published hours are frequently behind reality, and hours that changed recently exist nowhere online. A wrong pin may also be a provider typo. Only a human can confirm hours by calling or visiting.
+The AI returns a fixed response advising human verification, with high confidence that only a human can verify this.
 
 REPORT-R-000 — Resource-availability reports are not investigated
 When a reader reports "No more resources available," the AI does not investigate the organization. Whether a resource is available at a given moment is not published anywhere on the web and cannot be determined by search; only the reader who was present and the provider who stocks it can know.
