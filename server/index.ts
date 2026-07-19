@@ -66,7 +66,7 @@ const LANDING_PAGE_HTML = `<!doctype html>
       }
 
       main {
-        width: min(100%, 680px);
+        width: min(100%, 900px);
         text-align: center;
       }
 
