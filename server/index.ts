@@ -336,7 +336,7 @@ const LANDING_PAGE_HTML = `<!doctype html>
       <section class="hero" aria-labelledby="narley-title">
         <figure class="qr-card qr-card--reader">
           <span class="qr-label">READER APP</span>
-          <img class="qr-image" src="/assets/Reader%20QR%20code.png" alt="QR code for the Narley Reader app">
+          <img class="qr-image" src="/assets/ReaderQRcode.png" alt="QR code for the Narley Reader app">
           <figcaption class="qr-caption">Install Expo Go</figcaption>
         </figure>
 
@@ -361,7 +361,7 @@ const LANDING_PAGE_HTML = `<!doctype html>
 
         <figure class="qr-card qr-card--provider">
           <span class="qr-label">PROVIDER APP</span>
-          <img class="qr-image" src="/assets/Provider%20QR%20code.png" alt="QR code for the Narley Provider app">
+          <img class="qr-image" src="/assets/ProviderQRcode.png" alt="QR code for the Narley Provider app">
           <figcaption class="qr-caption">Install Expo Go</figcaption>
         </figure>
 
