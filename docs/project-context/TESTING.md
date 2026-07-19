@@ -1077,6 +1077,48 @@ returns that day's date, produces no alert when index 2 does not qualify, and th
 card persists until 24 hours past its expected date across refreshes and failed
 fetches.
 
+ALERT-R-009 — Thunderstorm alert (2-day advance, persistent)
+
+Behavior
+Reader Alerts generate a single thunderstorm alert when the Open-Meteo daily
+forecast shows a thunderstorm on the day two days ahead. The function reads ONLY
+the daily forecast entry at index 2 (index 0 = today, index 1 = tomorrow, index 2
+= two days ahead). It does not alert on today or tomorrow. A thunderstorm is
+identified by the daily weathercode at index 2 being 95 (thunderstorm), 96
+(thunderstorm with slight hail), or 99 (thunderstorm with heavy hail). At most one
+thunderstorm alert is produced, reported by that day's date.
+
+The alert persists so the card does not fall off: once generated, the thunderstorm
+card remains visible until 24 hours after its expected date. It is not removed by
+a later refresh that no longer shows a thunderstorm, and a failed or unavailable
+forecast fetch does not clear an existing unexpired card. The weather store merges
+newly generated alerts with previously displayed, still-unexpired alerts rather
+than replacing the list. (Same persistence and expiry behavior as ALERT-R-006.)
+
+This is subject to the same Weather Alerts on/off setting, GPS-based location,
+and refresh behavior as ALERT-R-001.
+
+Expected result
+When the daily weathercode at index 2 is 95, 96, or 99, the function returns a
+thunderstorm alert carrying the index-2 date. When index 2 is not 95, 96, or 99,
+no thunderstorm alert is produced, even if index 0 or index 1 shows a
+thunderstorm. An empty or too-short forecast (no index 2) produces no alert. Once
+generated, the card remains until 24 hours after its expected date and is not
+removed by a refresh that no longer shows a thunderstorm or by a failed fetch.
+
+RED Test
+The function does not alert when index 2's weathercode is 95, 96, or 99; or it
+alerts when index 2 is not a thunderstorm; or it alerts from index 0 or index 1
+instead of index 2; or a generated card disappears before 24 hours after its
+expected date when a later refresh no longer shows a thunderstorm or the fetch
+fails.
+
+GREEN Test
+The function flags a thunderstorm only from the index-2 daily entry (codes 95, 96,
+or 99), returns that day's date, produces no alert when index 2 does not qualify,
+and the card persists until 24 hours past its expected date across refreshes and
+failed fetches.
+
 # 16. Provider Alerts and Community Intelligence
 ALERT-P-001 — Live Provider alerts
 
