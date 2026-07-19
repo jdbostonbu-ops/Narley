@@ -174,6 +174,27 @@ const LANDING_PAGE_HTML = `<!doctype html>
         color: #57C7B6;
       }
 
+      .expo-go {
+        margin-top: 36px;
+        padding-top: 28px;
+        border-top: 1px solid rgba(245, 241, 232, 0.2);
+        text-align: left;
+      }
+
+      .expo-go h2 {
+        margin: 0 0 14px;
+        color: #F5F1E8;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(24px, 4vw, 28px);
+      }
+
+      .expo-go p {
+        margin: 0;
+        color: #AFC3B9;
+        font-size: clamp(18px, 3vw, 20px);
+        line-height: 1.7;
+      }
+
       .endpoints {
         margin-top: 36px;
         padding-top: 28px;
@@ -265,6 +286,11 @@ const LANDING_PAGE_HTML = `<!doctype html>
             <span class="demo-login">Provider demo login: testb@example.com&nbsp; / &nbsp;DemoPass123!</span>
           </li>
         </ol>
+      </section>
+
+      <section class="expo-go" aria-labelledby="expo-go-heading">
+        <h2 id="expo-go-heading">Expo Go</h2>
+        <p>Once installed, open Expo Go once to confirm it launches. No login or configuration is needed. Open the built-in Camera app and point it at the QR code &mdash; a notification pops up, tap it to open your app in Expo Go; on Android, open the Expo Go app and tap the &ldquo;Scan QR Code&rdquo; button to use the in-app scanner. No account needed for either.</p>
       </section>
 
       <section class="endpoints" aria-labelledby="endpoints-heading">

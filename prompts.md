@@ -2089,9 +2089,16 @@ add all remaining prompts to prompts.md please
 
 ## Prompt 411
 
- on the url page where it says your demo password change it to this: DemoPass123!
+on the url page where it says your demo password change it to this: DemoPass123!
 
- ## Prompt 412
+## Prompt 412
 
-  for the url page, change this sentence to the lighter color green that GET uses: Reader: create an account (check spam for the verification
-  email).
+for the url page, change this sentence to the lighter color green that GET uses: Reader: create an account (check spam for the verification email).
+
+## Prompt 413
+
+on the url page, add a section called Expo Go  before Public endpoints and add this  under the Expo Go header section: Once installed, open Expo Go once to confirm it launches. No login or configuration is needed. Open the built-in Camera app and point it at the QR code — a notification pops up, tap it to open your app in Expo Go; on Android, open the Expo Go app and tap the "Scan QR Code" button to use the in-app scanner. No account needed for either.
+
+## Prompt 414
+
+add remaining prompts to prompts.md file please
