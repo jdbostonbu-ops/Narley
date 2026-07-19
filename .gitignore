@@ -4,6 +4,7 @@ apps/reader/node_modules/
 apps/provider/node_modules/
 dist/
 *.log
+.DS_Store
 
 /generated/prisma
 

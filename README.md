@@ -203,14 +203,20 @@ docs/project-context Product, architecture, testing, design specs
 
 ### ✅ Prerequisites
 
+**Required (needed no matter how you run the apps):**
+
 - Node.js (LTS) and npm
 - A PostgreSQL database (Neon recommended)
-- Xcode (iOS) and/or Android Studio for device/simulator builds
-- API keys: OpenAI, Resend
+- API keys: OpenAI and Resend
+- **Expo Go** on a physical device — the default way to run the apps
+
+**Optional (only for native or simulator builds):**
+
+- Xcode (iOS) and/or Android Studio — *not required if you're running the apps in Expo Go on a physical phone*
 
 ### 📥 Install
 
-```bash
+```
 git clone <your-repo-url>
 cd Narley
 npm install
@@ -218,29 +224,31 @@ npm install
 
 ### 🗄️ Set Up the Database
 
-```bash
+```
 npx prisma migrate dev
 npx prisma generate
 ```
 
 ### ▶️ Run the API
 
-```bash
+```
 npx tsx server/index.ts
 # → Narley API running on http://localhost:4000
 ```
 
 ### 📱 Run the Apps
 
-```bash
+Start each app from its own folder with a cleared Metro cache:
+
+```
 # Provider
-cd apps/provider && npm start
+cd apps/provider && npx expo start --clear
 
 # Reader
-cd apps/reader && npm start
+cd apps/reader && npx expo start --clear
 ```
 
-> 💡 On a physical phone, set `EXPO_PUBLIC_API_URL` to your machine's LAN address (e.g. `http://10.0.0.x:4000`) — not `localhost` — and keep the phone and computer on the same network.
+>Open the app in **Expo Go** on your phone. On a physical device, set `EXPO_PUBLIC_API_URL` to your machine's LAN address (e.g. `http://10.0.0.x:4000`) — not `localhost` — and keep the phone and computer on the same network. See [Environment Variables](#️-environment-variables) for the full list.
 
 ---
 
