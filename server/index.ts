@@ -146,23 +146,23 @@ const LANDING_PAGE_HTML = `<!doctype html>
         margin: 0 0 16px;
         color: #F5F1E8;
         font-family: Georgia, "Times New Roman", serif;
-        font-size: 22px;
+        font-size: clamp(24px, 4vw, 28px);
       }
 
       .try-apps ol {
         margin: 0;
         padding-left: 22px;
         color: #AFC3B9;
-        font-size: 14px;
-        line-height: 1.65;
+        font-size: clamp(18px, 3vw, 20px);
+        line-height: 1.7;
       }
 
       .try-apps li + li {
-        margin-top: 10px;
+        margin-top: 16px;
       }
 
       .try-apps ul {
-        margin: 6px 0 0;
+        margin: 10px 0 0;
         padding-left: 20px;
       }
 

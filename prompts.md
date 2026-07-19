@@ -2069,3 +2069,20 @@ Do not change code. Find the test(s) that assert all providers can see ProviderA
 ## Prompt 407
 
 add all remaining prompts in prompts.md file please
+
+## Prompt 408
+
+did you make changes to index.ts?
+
+## Prompt 409
+
+codex I don't know what font size this is but it's too small to read, I can't read it? Install “Expo Go” — free from the App Store (iPhone) or Google Play (Android).
+Open Expo Go and scan the QR code for the app you want to try:
+Reader app — find and save community resources near you.
+Provider app — publish and manage resources, review AI-verified reports.
+Reader: create an account (check spam for the verification email).
+Provider demo login: testb@example.com  /  [your demo password]
+
+## Prompt 410
+
+add all remaining prompts to prompts.md please
