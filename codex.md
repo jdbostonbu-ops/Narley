@@ -1,3 +1,5 @@
+Notes: if you are looking for prompts go to prompts.md file
+
 Provider Weather Alerts — Work List
 1. Refresh-on-focus (the actual stale-alert fix)
 

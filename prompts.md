@@ -2046,3 +2046,26 @@ Do not add a new WebsiteCheckResult value and do not change any observation text
 ## Prompt 403
 
 add all remaining prompts to the prompts.md folder, and update the total vitest count on the readme file then commit all the changes
+
+## Prompt 404
+
+Only Hum LLC's provider sees a ProviderAlert; other providers (testb / Test Org B) don't. Every provider is supposed to see alerts. Do not change any code yet. Trace and explain why: show me how ProviderAlert rows are created (what sets organizationId), and how GET /provider/alerts queries them. Tell me exactly where the filtering happens that causes only one org to see it. Report your findings first.
+
+## Prompt 405
+
+on the page where it says This URL is the API behind the Provider and Reader mobile apps. add these lines underneath it: How to try the apps
+
+1. Install "Expo Go" — free from the App Store (iPhone) or Google Play (Android).
+2. Open Expo Go and scan the QR code for the app you want to try:
+   • Reader app — find and save community resources near you.
+   • Provider app — publish and manage resources, review AI-verified reports.
+3. Reader: create an account (check spam for the verification email).
+   Provider demo login: testb@example.com  /  [your demo password]
+
+## Prompt 406
+
+Do not change code. Find the test(s) that assert all providers can see ProviderAlerts. For each: print the file and test name, show the exact code it calls (real GET /provider/alerts, a helper, or a mock), and show the seed data it sets up. Then explain in 3 lines why it passes while the live endpoint at index.ts:621–630 returns nothing for testb. Report only. and tell me if they are wired to do that, do not change code please
+
+## Prompt 407
+
+add all remaining prompts in prompts.md file please

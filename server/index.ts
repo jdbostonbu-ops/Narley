@@ -135,6 +135,41 @@ const LANDING_PAGE_HTML = `<!doctype html>
         line-height: 1.6;
       }
 
+      .try-apps {
+        margin-top: 28px;
+        padding-top: 28px;
+        border-top: 1px solid rgba(245, 241, 232, 0.2);
+        text-align: left;
+      }
+
+      .try-apps h2 {
+        margin: 0 0 16px;
+        color: #F5F1E8;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 22px;
+      }
+
+      .try-apps ol {
+        margin: 0;
+        padding-left: 22px;
+        color: #AFC3B9;
+        font-size: 14px;
+        line-height: 1.65;
+      }
+
+      .try-apps li + li {
+        margin-top: 10px;
+      }
+
+      .try-apps ul {
+        margin: 6px 0 0;
+        padding-left: 20px;
+      }
+
+      .demo-login {
+        color: #F5F1E8;
+      }
+
       .endpoints {
         margin-top: 36px;
         padding-top: 28px;
@@ -209,6 +244,24 @@ const LANDING_PAGE_HTML = `<!doctype html>
       </div>
       <p class="primary-copy">Narley connects people with verified community resources — shelter, food, charging, employment help — on a map that providers keep current.</p>
       <p class="secondary-copy">This URL is the API behind the Provider and Reader mobile apps.</p>
+
+      <section class="try-apps" aria-labelledby="try-apps-heading">
+        <h2 id="try-apps-heading">How to try the apps</h2>
+        <ol>
+          <li>Install &ldquo;Expo Go&rdquo; &mdash; free from the App Store (iPhone) or Google Play (Android).</li>
+          <li>
+            Open Expo Go and scan the QR code for the app you want to try:
+            <ul>
+              <li><strong>Reader app</strong> &mdash; find and save community resources near you.</li>
+              <li><strong>Provider app</strong> &mdash; publish and manage resources, review AI-verified reports.</li>
+            </ul>
+          </li>
+          <li>
+            Reader: create an account (check spam for the verification email).<br>
+            <span class="demo-login">Provider demo login: testb@example.com&nbsp; / &nbsp;[your demo password]</span>
+          </li>
+        </ol>
+      </section>
 
       <section class="endpoints" aria-labelledby="endpoints-heading">
         <h2 class="endpoints-label" id="endpoints-heading">PUBLIC ENDPOINTS</h2>
