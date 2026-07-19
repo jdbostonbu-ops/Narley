@@ -2161,3 +2161,11 @@ headers so it reads as a note.
 ## Prompt 422
 
 add all remaining prompts to prompts.md please
+
+## Prompt 423
+
+Make this a larger font I can't read it it's too small and make it the lighter green, same color as the Help Nearby color: These codes go live during the demo — please scan only when prompted.
+
+## Prompt 424
+
+add all remaining prompts to prompts.md please

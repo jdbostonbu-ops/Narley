@@ -129,8 +129,8 @@ const LANDING_PAGE_HTML = `<!doctype html>
       .qr-note {
         grid-area: caption;
         margin: -12px 0 0;
-        color: #AFC3B9;
-        font-size: 12px;
+        color: #57C7B6;
+        font-size: clamp(18px, 3vw, 20px);
         line-height: 1.5;
       }
 
