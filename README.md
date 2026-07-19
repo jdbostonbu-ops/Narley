@@ -185,6 +185,24 @@ AI and Readers **never** edit, close, or delete a resource. Providers remain the
 
 ---
 
+## 🤖 AI-Assisted Development
+
+Narley was built by a single developer using AI tools throughout the process, with all architecture, integration, and final decisions made by me. The workflow:
+
+- **ChatGPT** — initial MVP scoping ("BGLAD" framework), version 2 iteration, and PRD/requirements drafting.
+- **Claude** — version 3 development, Vitest test authoring support, and documentation.
+- **Codex** — code implementation, debugging, and refactoring.
+
+**Demo video:**
+- **ChatGPT** — image generation.
+- **Claude** — script writing (15-sec segments).
+- **HeyGen** — cinematic 15-sec shots.
+- **DaVinci Resolve** — video editing.
+
+Every AI suggestion was reviewed, tested, and integrated by me. AI accelerated the work; the design decisions, product direction, and quality bar are my own.
+
+---
+
 ## 📁 Project Structure
 
 ```text
