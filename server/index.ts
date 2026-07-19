@@ -258,7 +258,7 @@ const LANDING_PAGE_HTML = `<!doctype html>
           </li>
           <li>
             Reader: create an account (check spam for the verification email).<br>
-            <span class="demo-login">Provider demo login: testb@example.com&nbsp; / &nbsp;[your demo password]</span>
+            <span class="demo-login">Provider demo login: testb@example.com&nbsp; / &nbsp;DemoPass123!</span>
           </li>
         </ol>
       </section>
