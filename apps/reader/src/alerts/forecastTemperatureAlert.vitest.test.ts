@@ -9,8 +9,10 @@ describe("forecastTemperatureAlert (ALERT-R-001 forecast thresholds)", () => {
     };
     const result = forecastTemperatureAlert(hourly);
     expect(result.alert).toBe(true);
-    expect(result.type).toBe("HEAT");
-    expect(result.expectedAt).toBe("2026-07-12T13:00");
+    if (result.alert) {
+      expect(result.type).toBe("HEAT");
+      expect(result.expectedAt).toBe("2026-07-12T13:00");
+    }
   });
 
   it("flags cold at the first hour that reaches 32F, with its time", () => {
@@ -18,10 +20,12 @@ describe("forecastTemperatureAlert (ALERT-R-001 forecast thresholds)", () => {
       time: ["2026-07-12T02:00", "2026-07-12T03:00", "2026-07-12T04:00"],
       temperature_2m: [40, 35, 32],
     };
-    const result = forecastTemperatureAlert(hourly);
+   const result = forecastTemperatureAlert(hourly);
     expect(result.alert).toBe(true);
-    expect(result.type).toBe("COLD");
-    expect(result.expectedAt).toBe("2026-07-12T04:00");
+    if (result.alert) {
+      expect(result.type).toBe("COLD");
+      expect(result.expectedAt).toBe("2026-07-12T04:00");
+    }
   });
 
   it("reports the earliest crossing when several hours exceed the threshold", () => {
@@ -30,7 +34,10 @@ describe("forecastTemperatureAlert (ALERT-R-001 forecast thresholds)", () => {
       temperature_2m: [92, 94, 96],
     };
     const result = forecastTemperatureAlert(hourly);
-    expect(result.expectedAt).toBe("2026-07-12T14:00");
+    expect(result.alert).toBe(true);
+    if (result.alert) {
+      expect(result.expectedAt).toBe("2026-07-12T14:00");
+    }
   });
 
   it("does not flag when no hour crosses a threshold", () => {

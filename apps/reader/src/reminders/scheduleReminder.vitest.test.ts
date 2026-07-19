@@ -17,7 +17,9 @@ describe("scheduleReminder (REM-004)", () => {
 
     expect(scheduleNotification).toHaveBeenCalledTimes(1);
     expect(result.ok).toBe(true);
-    expect(result.message).toMatch(/scheduled/i);
+    if (result.ok) {
+      expect(result.message).toMatch(/scheduled/i);
+    }
   });
 
   it("does not schedule when the reminder is invalid, and reports it", async () => {
@@ -25,7 +27,9 @@ describe("scheduleReminder (REM-004)", () => {
 
     expect(scheduleNotification).not.toHaveBeenCalled();
     expect(result.ok).toBe(false);
-    expect(result.error).toBeTruthy();
+    if (!result.ok) {
+      expect(result.error).toBeTruthy();
+    }
   });
 
   it("does not schedule when the reminder is in the past, and reports it", async () => {
@@ -40,7 +44,9 @@ describe("scheduleReminder (REM-004)", () => {
 
     expect(scheduleNotification).not.toHaveBeenCalled();
     expect(result.ok).toBe(false);
-    expect(result.error).toMatch(/date/i);
+    if (!result.ok) {
+      expect(result.error).toMatch(/date/i);
+    }
   });
 
   it("schedules only one notification, never duplicates", async () => {

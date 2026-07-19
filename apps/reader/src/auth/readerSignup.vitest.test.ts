@@ -20,7 +20,9 @@ describe("readerSignup (AUTH-R-002 account creation, AUTH-R-008 password policy)
       deps,
     );
     expect(result.ok).toBe(true);
-    expect(result.userId).toBe("reader_new");
+    if (result.ok) {
+      expect(result.userId).toBe("reader_new");
+    }
     expect(deps.createUser).toHaveBeenCalledOnce();
   });
 

@@ -47,9 +47,13 @@ describe("createReport (REPORT-002)", () => {
     });
 
     // the report carries only report fields, never the live resource object
-    expect(result.report).not.toHaveProperty("resource");
-    expect(Object.keys(result.report)).toEqual(
-      expect.arrayContaining(["resourceId", "address", "reason"])
-    );
+    // the report carries only report fields, never the live resource object
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.report).not.toHaveProperty("resource");
+      expect(Object.keys(result.report)).toEqual(
+        expect.arrayContaining(["resourceId", "address", "reason"])
+      );
+    }
   });
 })
