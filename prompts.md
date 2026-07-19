@@ -2170,6 +2170,18 @@ Make this a larger font I can't read it it's too small and make it the lighter g
 
 add all remaining prompts to prompts.md please
 
+## Prompt 425
+
+please remove this from the url page: (I will give you the QR code)
+
+## Prompt 426
+
+On the url page chang this : the built-in Camera app  to this: your camera on your phone
+
+## Prompt 427
+
+look at the files these files I removed the spaces, I need you to update the url page and make sure that the files match. the files are assets/ProviderQRcode.png and assets/ReaderQRcode.png I need the URL page to match the new file names without the spaces
+
 ## Prompt 428
 
 on the readme file on line 277 use file assets/RED-Test.png at width 599 centered please with a heading saying RED-Test Vitest
@@ -2185,6 +2197,49 @@ On line 286 of the readme file, centered add a header saying GREEN-feat implemen
 ## Prompt 431
 
 add all remaining prompts in prompts.md please
->>>>>>> a0bc6f3 (updated readme added RED and GREEN test screenshot example, updated prompts.md file, added images in assets of screenshots)
 
+## Prompt 432
+
+do not create tests, do not touch other files: First, read AGENTS.md and follow all coding constraints and conventions 
+defined there. I am instructing you to read it because it contains the 
+coding constraints you must follow.
+
+Do NOT run any tests. Do NOT run any commands. Only write the code 
+changes and show them to me. I will run the tests and commands myself.
+
+Task: the reader weather alert system was always intended to cover rain, 
+sleet, snow, and wind — not just temperature — but only temperature is 
+implemented. Wire up the rest.
+
+Current state:
+- apps/reader/src/alerts/fetchOpenMeteoForecast.ts only requests 
+  &daily=temperature_2m_max from Open-Meteo's /v1/forecast endpoint.
+- apps/reader/src/alerts/getAlertsForLocation.ts only calls 
+  forecastTemperatureAlert.
+- Open-Meteo already returns precipitation, weathercode, and wind data — 
+  we just aren't requesting or using it.
+
+What to build:
+1. Extend the existing /v1/forecast fetch to also request:
+   precipitation_sum, precipitation_probability_max, weathercode, 
+   windspeed_10m_max, windgusts_10m_max
+2. Add alert logic for each condition using WMO weathercodes:
+   - Rain: weathercode 61–65 (or precipitation_probability_max ≥ 70%)
+   - Sleet / freezing rain: weathercode 66–67
+   - Snow: weathercode 71–77
+   - Thunderstorm: weathercode 95–99
+   - Wind: windgusts_10m_max above a sensible threshold (propose one)
+3. Wire the new alerts into getAlertsForLocation.ts alongside the 
+   existing temperature alert, so any/all can fire.
+
+Constraints:
+- Read and follow AGENTS.md.
+- Do NOT run tests or any commands — show me the code changes only.
+- Do NOT change existing forecastTemperatureAlert behavior.
+- Follow the existing forecastTemperatureAlert pattern and the naming/
+  file conventions already in the alerts folder.
+
+## Prompt 433
+
+add all remaining prompts in prompts.md please
 
