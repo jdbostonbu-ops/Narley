@@ -61,3 +61,36 @@ describe("normalizeAlert (ALERT-R-002 common alert fields)", () => {
     }
   });
 })
+
+describe("normalizeAlert (ALERT-R-013 weather messages use formatted date)", () => {
+  const zip = "06320";
+
+  it("formats a HEAVY_RAIN message with the human-readable date", () => {
+    const alert = normalizeAlert({ type: "HEAVY_RAIN", expectedAt: "2026-07-21" }, zip);
+    expect(alert.message).toBe("Heavy rain expected on Tuesday, Jul 21, 2026");
+    expect(alert.message).not.toContain("2026-07-21");
+  });
+
+  it("formats a HEAVY_SNOW message with the human-readable date", () => {
+    const alert = normalizeAlert({ type: "HEAVY_SNOW", expectedAt: "2026-07-21" }, zip);
+    expect(alert.message).toBe("Heavy snow expected on Tuesday, Jul 21, 2026");
+    expect(alert.message).not.toContain("2026-07-21");
+  });
+
+  it("formats a THUNDERSTORM message with the human-readable date", () => {
+    const alert = normalizeAlert({ type: "THUNDERSTORM", expectedAt: "2026-07-21" }, zip);
+    expect(alert.message).toBe("Thunderstorm expected on Tuesday, Jul 21, 2026");
+    expect(alert.message).not.toContain("2026-07-21");
+  });
+
+  it("formats a HIGH_WIND message with the human-readable date", () => {
+    const alert = normalizeAlert({ type: "HIGH_WIND", expectedAt: "2026-07-21" }, zip);
+    expect(alert.message).toBe("High wind expected on Tuesday, Jul 21, 2026");
+    expect(alert.message).not.toContain("2026-07-21");
+  });
+
+  it("leaves temperature alert messages unchanged", () => {
+    const alert = normalizeAlert({ type: "HEAT", expectedAt: "2026-07-12T14:00" }, zip);
+    expect(alert.message).toBe("Extreme heat expected at 2026-07-12T14:00");
+  });
+});

@@ -1187,6 +1187,32 @@ GREEN Test
 The formatter converts an ISO date (YYYY-MM-DD) into "Weekday, Mon D, YYYY" using
 the local calendar date with no timezone day-shift.
 
+ALERT-R-013 — Weather alert messages use the formatted date
+
+Behavior
+When normalizeAlert builds a card for a daily weather alert (HEAVY_RAIN,
+HEAVY_SNOW, THUNDERSTORM, HIGH_WIND), the message states the condition and the
+expected date in human-readable form using formatAlertDate (ALERT-R-012), in the
+form "<Condition> expected on <Weekday, Mon D, YYYY>". The raw ISO date is never
+shown in the message. Temperature alerts (HEAT, COLD) are unchanged and continue
+to use their existing time value.
+
+Expected result
+A HEAVY_RAIN alert with expectedAt "2026-07-21" produces the message
+"Heavy rain expected on Tuesday, Jul 21, 2026". HEAVY_SNOW, THUNDERSTORM, and
+HIGH_WIND follow the same "<Condition> expected on <formatted date>" pattern. No
+weather-alert message contains the raw ISO date (e.g. "2026-07-21").
+
+RED Test
+A daily weather alert message contains the raw ISO date instead of the formatted
+date; or does not use the "expected on <formatted date>" wording; or the
+temperature alert behavior changes.
+
+GREEN Test
+normalizeAlert renders daily weather alert messages as "<Condition> expected on
+<Weekday, Mon D, YYYY>" via formatAlertDate, and leaves temperature alerts
+unchanged.
+
 # 16. Provider Alerts and Community Intelligence
 ALERT-P-001 — Live Provider alerts
 
