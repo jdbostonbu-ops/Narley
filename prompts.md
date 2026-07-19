@@ -2243,3 +2243,255 @@ Constraints:
 
 add all remaining prompts in prompts.md please
 
+## Prompt 434
+
+Read AGENTS.md and TESTING.md in the docs/project-context folder and follow 
+them. Do not create, modify, or delete any test files — the RED test already 
+exists at apps/reader/src/alerts/forecastHeavyRainAlert.vitest.test.ts. Write 
+only the implementation that makes it pass (GREEN).
+
+Implement forecastHeavyRainAlert per TESTING.md ALERT-R-007:
+
+Create apps/reader/src/alerts/forecastHeavyRainAlert.ts exporting 
+forecastHeavyRainAlert, following the exact style and return shape of the 
+existing forecastTemperatureAlert.ts in the same folder.
+
+- Input: a daily forecast { time: readonly string[]; weathercode: readonly number[] }
+- Reads ONLY index 2 (two days ahead); ignores index 0 and index 1.
+- Returns { alert: true; type: "HEAVY_RAIN"; expectedAt: string } when the 
+  index-2 weathercode is 65 or 82, where expectedAt is time[2].
+- Returns { alert: false } when index 2 is not 65 or 82, when there is no 
+  index 2, or for an empty forecast.
+
+Do not run any tests or commands. Show me the implementation only — I will run 
+the test.
+
+## Prompt 435
+
+Read AGENTS.md and TESTING.md in the docs/project-context folder and follow 
+them. Do not create, modify, or delete any test files — the RED test already 
+exists at apps/reader/src/alerts/forecastHeavySnowAlert.vitest.test.ts. Write 
+only the implementation that makes it pass (GREEN).
+
+Implement forecastHeavySnowAlert per TESTING.md ALERT-R-008:
+
+Create apps/reader/src/alerts/forecastHeavySnowAlert.ts exporting 
+forecastHeavySnowAlert, following the exact style and return shape of the 
+existing forecastTemperatureAlert.ts and forecastHeavyRainAlert.ts in the 
+same folder.
+
+- Input: a daily forecast { time: readonly string[]; weathercode: readonly number[] }
+- Reads ONLY index 2 (two days ahead); ignores index 0 and index 1.
+- Returns { alert: true; type: "HEAVY_SNOW"; expectedAt: string } when the 
+  index-2 weathercode is 75 or 86, where expectedAt is time[2].
+- Returns { alert: false } when index 2 is not 75 or 86, when there is no 
+  index 2, or for an empty forecast.
+
+Do not run any tests or commands. Show me the implementation only — I will run 
+the test.
+
+## Prompt 436
+
+Read AGENTS.md and TESTING.md in the docs/project-context folder and follow 
+them. Do not create, modify, or delete any test files — the RED test already 
+exists at apps/reader/src/alerts/forecastThunderstormAlert.vitest.test.ts. 
+Write only the implementation that makes it pass (GREEN).
+
+Implement forecastThunderstormAlert per TESTING.md ALERT-R-009:
+
+Create apps/reader/src/alerts/forecastThunderstormAlert.ts exporting 
+forecastThunderstormAlert, following the exact style and return shape of the 
+existing forecastTemperatureAlert.ts, forecastHeavyRainAlert.ts, and 
+forecastHeavySnowAlert.ts in the same folder.
+
+- Input: a daily forecast { time: readonly string[]; weathercode: readonly number[] }
+- Reads ONLY index 2 (two days ahead); ignores index 0 and index 1.
+- Returns { alert: true; type: "THUNDERSTORM"; expectedAt: string } when the 
+  index-2 weathercode is 95, 96, or 99, where expectedAt is time[2].
+- Returns { alert: false } when index 2 is not 95, 96, or 99, when there is no 
+  index 2, or for an empty forecast.
+
+Do not run any tests or commands. Show me the implementation only — I will run 
+the test.
+
+## Prompt 437
+
+Read AGENTS.md and TESTING.md in the docs/project-context folder and follow 
+them. Do not create, modify, or delete any test files — the RED test already 
+exists at apps/reader/src/alerts/forecastHighWindAlert.vitest.test.ts. Write 
+only the implementation that makes it pass (GREEN).
+
+Implement forecastHighWindAlert per TESTING.md ALERT-R-010:
+
+Create apps/reader/src/alerts/forecastHighWindAlert.ts exporting 
+forecastHighWindAlert, following the style and return shape of the existing 
+forecast alert functions in the same folder (e.g. forecastTemperatureAlert.ts). 
+NOTE: unlike the rain/snow/thunderstorm alerts, this one is NOT weathercode-based 
+— it reads a numeric wind gust field.
+
+- Input: a daily forecast { time: readonly string[]; windgusts_10m_max: readonly number[] }
+- Reads ONLY index 2 (two days ahead); ignores index 0 and index 1.
+- Returns { alert: true; type: "HIGH_WIND"; expectedAt: string } when the 
+  index-2 windgusts_10m_max value is greater than or equal to 46 (inclusive — 
+  exactly 46 qualifies), where expectedAt is time[2].
+- Returns { alert: false } when the index-2 gust is below 46, when there is no 
+  index 2, or for an empty forecast.
+
+Do not run any tests or commands. Show me the implementation only — I will run 
+the test.
+
+## Prompt 438
+
+ALERT-R-011 — Weather alerts surfaced through getAlertsForLocation
+
+Behavior
+The Reader alert pipeline (getAlertsForLocation) fetches the Open-Meteo daily
+forecast and runs all weather detectors — temperature, heavy rain (ALERT-R-007),
+heavy snow (ALERT-R-008), thunderstorm (ALERT-R-009), and high wind
+(ALERT-R-010) — surfacing every alert that fires. The Open-Meteo fetch requests
+the daily fields required by these detectors: weathercode and windgusts_10m_max
+(in mph), in addition to the existing temperature fields. Each detector that
+returns alert: true contributes one alert card. Detectors that return
+alert: false contribute nothing. This is subject to the same Weather Alerts
+on/off setting, GPS-based location, refresh behavior, and API-failure handling
+as ALERT-R-001, and to the persistence and expiry behavior of ALERT-R-006.
+
+Expected result
+Given a daily forecast where index 2 qualifies for one or more weather
+conditions, getAlertsForLocation includes a corresponding alert for each fired
+condition. When no weather condition qualifies at index 2, no weather alerts are
+added (existing non-weather behavior is unchanged). A failed forecast fetch does
+not clear existing unexpired alerts.
+
+RED Test
+getAlertsForLocation does not surface a heavy-rain / heavy-snow / thunderstorm /
+high-wind alert when index 2 of the daily forecast qualifies; or it surfaces a
+weather alert when none qualifies; or the fetch does not request weathercode and
+windgusts_10m_max.
+
+GREEN Test
+getAlertsForLocation requests the daily weathercode and windgusts_10m_max fields,
+runs all weather detectors, and surfaces one alert per fired condition while
+producing none when no condition qualifies.
+
+## Prompt 439
+
+Read-only investigation. Do not change code. In apps/reader/src/alerts, the 
+new weather detectors (forecastHeavyRainAlert, etc.) read index 2 of the 
+forecast time array and treat it as "2 days ahead." getAlertsForLocation now 
+feeds them forecast.time from fetchOpenMeteoForecast, which uses 
+mapOpenMeteoForecast. 
+
+Confirm: is the `time` array returned by mapOpenMeteoForecast (and thus 
+fetchOpenMeteoForecast) a DAILY array (one entry per day, so index 2 = two 
+days ahead) or an HOURLY array (index 2 = two hours ahead)? Show me where 
+`time` comes from in the mapping and the Open-Meteo response. Report findings 
+only — do not change anything.
+
+## Prompt 440
+
+Read AGENTS.md and TESTING.md in the docs/project-context folder and follow 
+them. Do not create, modify, or delete any test files — the RED test already 
+exists at apps/reader/src/alerts/formatAlertDate.vitest.test.ts. Write only the 
+implementation that makes it pass (GREEN).
+
+Implement formatAlertDate per TESTING.md ALERT-R-012:
+
+Create apps/reader/src/alerts/formatAlertDate.ts exporting a function 
+formatAlertDate that takes an ISO date string (YYYY-MM-DD) and returns a 
+human-readable string in the form "Weekday, Mon D, YYYY" 
+(e.g. "2026-07-21" -> "Tuesday, Jul 21, 2026").
+
+CRITICAL: parse the date as a LOCAL calendar date, not UTC. new Date("2026-07-21") 
+parses as UTC midnight, which shifts to the previous day in western timezones and 
+would render the wrong weekday/day. Construct the date from the year, month, and 
+day components as local time so the output matches the ISO calendar date exactly 
+with no off-by-one shift. Day is shown with no leading zero (Jul 5, not Jul 05).
+
+Do not run any tests or commands. Show me the implementation only — I will run 
+the test.
+
+## Prompt 441
+
+Read AGENTS.md and TESTING.md in the docs/project-context folder and follow 
+them. Do not create, modify, or delete any test files — the RED test already 
+exists in apps/reader/src/alerts/normalizeAlert.vitest.test.ts. Write only the 
+implementation that makes it pass (GREEN).
+
+Implement ALERT-R-013 in apps/reader/src/alerts/normalizeAlert.ts:
+
+For the four daily weather alert types (HEAVY_RAIN, HEAVY_SNOW, THUNDERSTORM, 
+HIGH_WIND), the message must read "<Condition> expected on <formatted date>", 
+where the date is produced by the existing formatAlertDate function 
+(./formatAlertDate) applied to alert.expectedAt.
+
+Required exact messages for expectedAt "2026-07-21":
+- HEAVY_RAIN  -> "Heavy rain expected on Tuesday, Jul 21, 2026"
+- HEAVY_SNOW  -> "Heavy snow expected on Tuesday, Jul 21, 2026"
+- THUNDERSTORM -> "Thunderstorm expected on Tuesday, Jul 21, 2026"
+- HIGH_WIND   -> "High wind expected on Tuesday, Jul 21, 2026"
+
+Note the wording change from "expected at" to "expected on" for these four, and 
+that the raw ISO date must not appear in the message.
+
+Do NOT change the temperature (HEAT/COLD) alert messages — they keep their 
+existing "expected at <timestamp>" format and their existing time value. Do not 
+change titles or advice. Keep the `time` field as alert.expectedAt.
+
+Do not run any tests or commands. Show me the implementation only — I will run 
+the test.
+
+## Prompt 442
+
+Read AGENTS.md and TESTING.md in the docs/project-context folder and follow them. 
+Do not modify any test files.
+
+Targeted wiring fix in apps/reader/state/WeatherAlertsStore.tsx.
+
+In loadWeatherAlerts, the fetchWeather callback currently runs ONLY 
+forecastTemperatureAlert on the forecast. The four daily weather detectors are 
+already implemented and tested but are never called here, so heavy rain, heavy 
+snow, thunderstorm, and high wind alerts never appear.
+
+Fix: in that same fetchWeather callback, after fetching `forecast`, also run these 
+four detectors on the same `forecast` object and push any that return alert: true 
+into rawAlerts, exactly like the existing temperature push:
+
+- forecastHeavyRainAlert   (../src/alerts/forecastHeavyRainAlert)
+- forecastHeavySnowAlert   (../src/alerts/forecastHeavySnowAlert)
+- forecastThunderstormAlert (../src/alerts/forecastThunderstormAlert)
+- forecastHighWindAlert    (../src/alerts/forecastHighWindAlert)
+
+Each returns { alert: true; type; expectedAt } | { alert: false }. Push the alert 
+object only when alert === true, so it flows through mergeAlerts / filterActiveAlerts 
+/ normalizeAlert like the temperature alert already does. Do not change the 
+temperature logic, the persistence/merge logic, or anything else. Add the imports.
+
+Do not run any tests or commands. Show me the change only — I will verify. and do not create tests
+
+## Prompt 443
+
+Read AGENTS.md and TESTING.md in the docs/project-context folder and follow them. 
+Do not modify test files.
+
+In apps/reader/src/alerts/isAlertExpired.ts, the Alert union type only allows 
+TemperatureAlert and NwsAlert, so the four new daily weather alerts cannot be 
+pushed into rawAlerts in WeatherAlertsStore.tsx (TS2345 errors).
+
+Add a WeatherAlert type and include it in the Alert union:
+
+export type WeatherAlert = {
+  type: "HEAVY_RAIN" | "HEAVY_SNOW" | "THUNDERSTORM" | "HIGH_WIND";
+  expectedAt: string;
+};
+export type Alert = TemperatureAlert | WeatherAlert | NwsAlert;
+
+Do not change the isAlertExpired logic itself — the existing date-only expiry 
+branch (getDateOnlyExpiry) already handles these alerts correctly because they 
+use a YYYY-MM-DD expectedAt and a type field. Only widen the type.
+
+Do not run tests or commands. Show me the change only.
+
+## Prompt 444
+
+add all remaining prompts in prompts.md please

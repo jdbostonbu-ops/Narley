@@ -3,6 +3,11 @@ export type TemperatureAlert = {
   expectedAt: string;
 };
 
+export type WeatherAlert = {
+  type: "HEAVY_RAIN" | "HEAVY_SNOW" | "THUNDERSTORM" | "HIGH_WIND";
+  expectedAt: string;
+};
+
 export type NwsAlert = {
   event: string;
   headline: string;
@@ -10,7 +15,7 @@ export type NwsAlert = {
   severity: string;
 };
 
-export type Alert = TemperatureAlert | NwsAlert;
+export type Alert = TemperatureAlert | WeatherAlert | NwsAlert;
 
 const TWENTY_FOUR_HOURS_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
 const DATE_ONLY_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;

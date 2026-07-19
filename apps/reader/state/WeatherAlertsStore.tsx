@@ -13,7 +13,11 @@ import * as SecureStore from "expo-secure-store";
 import { fetchNwsAlerts } from "../src/alerts/fetchNwsAlerts";
 import { fetchOpenMeteoForecast } from "../src/alerts/fetchOpenMeteoForecast";
 import { filterActiveAlerts } from "../src/alerts/filterActiveAlerts";
+import { forecastHeavyRainAlert } from "../src/alerts/forecastHeavyRainAlert";
+import { forecastHeavySnowAlert } from "../src/alerts/forecastHeavySnowAlert";
+import { forecastHighWindAlert } from "../src/alerts/forecastHighWindAlert";
 import { forecastTemperatureAlert } from "../src/alerts/forecastTemperatureAlert";
+import { forecastThunderstormAlert } from "../src/alerts/forecastThunderstormAlert";
 import { getAlertsWithSetting } from "../src/alerts/getAlertsWithSetting";
 import type { Alert } from "../src/alerts/isAlertExpired";
 import { mergeAlerts } from "../src/alerts/mergeAlerts";
@@ -111,9 +115,29 @@ export const WeatherAlertsProvider = ({ children }: { children: ReactNode }) => 
           fetchWeather: async (currentLocation) => {
             const forecast = await fetchOpenMeteoForecast(currentLocation);
             const temperatureAlert = forecastTemperatureAlert(forecast);
+            const heavyRainAlert = forecastHeavyRainAlert(forecast);
+            const heavySnowAlert = forecastHeavySnowAlert(forecast);
+            const thunderstormAlert = forecastThunderstormAlert(forecast);
+            const highWindAlert = forecastHighWindAlert(forecast);
 
             if (temperatureAlert.alert) {
               rawAlerts.push(temperatureAlert);
+            }
+
+            if (heavyRainAlert.alert) {
+              rawAlerts.push(heavyRainAlert);
+            }
+
+            if (heavySnowAlert.alert) {
+              rawAlerts.push(heavySnowAlert);
+            }
+
+            if (thunderstormAlert.alert) {
+              rawAlerts.push(thunderstormAlert);
+            }
+
+            if (highWindAlert.alert) {
+              rawAlerts.push(highWindAlert);
             }
 
             return forecast;
