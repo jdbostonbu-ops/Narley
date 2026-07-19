@@ -1,3 +1,5 @@
+import { formatAlertDate } from "./formatAlertDate";
+
 type TemperatureAlert = {
   type: "HEAT" | "COLD";
   expectedAt: string;
@@ -52,10 +54,11 @@ export const normalizeAlert = (
           advice: "secure loose objects",
         },
       }[alert.type];
+      const formattedDate = formatAlertDate(alert.expectedAt);
 
       return {
         title: details.title,
-        message: `${details.message} expected at ${alert.expectedAt}`,
+        message: `${details.message} expected on ${formattedDate}`,
         location: zip,
         time: alert.expectedAt,
         severity: null,
