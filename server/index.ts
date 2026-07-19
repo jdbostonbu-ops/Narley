@@ -375,7 +375,7 @@ const LANDING_PAGE_HTML = `<!doctype html>
         <ol>
           <li>Install &ldquo;Expo Go&rdquo; &mdash; free from the App Store (iPhone) or Google Play (Android).</li>
           <li>
-            Open Expo Go and scan the QR code for the app you want to try (I will give you the QR code):
+            Open Expo Go and scan the QR code for the app you want to try:
             <ul>
               <li><strong>Reader app</strong> &mdash; find and save community resources near you.</li>
               <li><strong>Provider app</strong> &mdash; publish and manage resources, review AI-verified reports.</li>
