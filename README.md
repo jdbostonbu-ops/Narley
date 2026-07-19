@@ -195,7 +195,7 @@ Narley was built by a single developer using AI tools throughout the process, wi
 
 **Demo video:**
 - **ChatGPT** — image generation from image uploads.
-- **Claude** — script writing 15-sec script drafts (revised by me for scene-to-scene continuity).
+- **Claude** — initial 15-sec script drafts (revised by me for scene-to-scene continuity).
 - **HeyGen** — cinematic 15-sec shots.
 - **DaVinci Resolve** — video editing.
 
