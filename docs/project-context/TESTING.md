@@ -1119,6 +1119,51 @@ or 99), returns that day's date, produces no alert when index 2 does not qualify
 and the card persists until 24 hours past its expected date across refreshes and
 failed fetches.
 
+ALERT-R-010 — High wind alert (2-day advance, persistent)
+
+Behavior
+Reader Alerts generate a single high-wind alert when the Open-Meteo daily forecast
+shows high winds on the day two days ahead. Unlike rain, snow, and thunderstorm
+alerts, high wind is NOT determined by a weathercode; it is evaluated from the
+numeric daily maximum wind gust field (windgusts_10m_max), requested in mph. The
+function reads ONLY the daily forecast entry at index 2 (index 0 = today, index 1
+= tomorrow, index 2 = two days ahead). It does not alert on today or tomorrow.
+High wind is identified by the index-2 daily maximum wind gust being greater than
+or equal to 46 mph (the NWS Wind Advisory gust threshold). At most one high-wind
+alert is produced, reported by that day's date.
+
+The alert persists so the card does not fall off: once generated, the high-wind
+card remains visible until 24 hours after its expected date. It is not removed by
+a later refresh that no longer shows high wind, and a failed or unavailable
+forecast fetch does not clear an existing unexpired card. The weather store merges
+newly generated alerts with previously displayed, still-unexpired alerts rather
+than replacing the list. (Same persistence and expiry behavior as ALERT-R-006.)
+
+This is subject to the same Weather Alerts on/off setting, GPS-based location,
+and refresh behavior as ALERT-R-001.
+
+Expected result
+When the index-2 daily maximum wind gust is >= 46 mph, the function returns a
+high-wind alert carrying the index-2 date. A gust of exactly 46 qualifies
+(inclusive). When the index-2 gust is below 46, no high-wind alert is produced,
+even if index 0 or index 1 is at or above 46. An empty or too-short forecast (no
+index 2) produces no alert. Once generated, the card remains until 24 hours after
+its expected date and is not removed by a refresh that no longer shows high wind
+or by a failed fetch.
+
+RED Test
+The function does not alert when index 2's gust is >= 46; or it alerts when index
+2's gust is below 46; or it uses the wrong boundary (e.g. strictly greater-than,
+so 46 fails to trigger); or it alerts from index 0 or index 1 instead of index 2;
+or a generated card disappears before 24 hours after its expected date when a
+later refresh no longer shows high wind or the fetch fails.
+
+GREEN Test
+The function flags high wind only from the index-2 daily maximum gust (>= 46 mph,
+inclusive), returns that day's date, produces no alert when index 2 is below 46,
+and the card persists until 24 hours past its expected date across refreshes and
+failed fetches.
+
 # 16. Provider Alerts and Community Intelligence
 ALERT-P-001 — Live Provider alerts
 
