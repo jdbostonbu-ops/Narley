@@ -301,6 +301,29 @@ cd apps/reader && npm run test:unit
 npx vitest run server/
 ```
 
+
+<h3 align="center">RED-Test Vitest</h3>
+
+<h4 align="center"><code>b13239c test(server): RED 403 is not a reached website (REPORT-000) &larr; the failing test</code></h4>
+
+<p align="center">
+  <img src="./assets/RED-Test.png" width="599" alt="RED-Test Vitest" />
+</p>
+
+<p align="center"><em>The REPORT-000 suite fails to import — 364 tests run, 1 suite failing.</em></p>
+
+---
+
+<h3 align="center">GREEN-feat implementation</h3>
+
+<h4 align="center"><code>7e5c437 feat(server): treat a 403 as unreachable, not reached (REPORT-000) &larr; the fix that makes it pass</code></h4>
+
+<p align="center">
+  <img src="./assets/GREEN-feat-implementation.png" width="599" alt="GREEN-feat implementation" />
+</p>
+
+<p align="center"><em>Implementation added — the suite loads and passes. 367/367 green.</em></p>
+
 ---
 
 ## 🔌 API Reference

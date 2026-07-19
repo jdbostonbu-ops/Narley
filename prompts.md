@@ -2169,3 +2169,22 @@ Make this a larger font I can't read it it's too small and make it the lighter g
 ## Prompt 424
 
 add all remaining prompts to prompts.md please
+
+## Prompt 428
+
+on the readme file on line 277 use file assets/RED-Test.png at width 599 centered please with a heading saying RED-Test Vitest
+
+## Prompt 429
+
+On line 278 can you add a subheader centered, on the reademe file and add this; b13239c test(server): RED 403 is not a reached website (REPORT-000)   ← the failing test
+
+## Prompt 430
+
+On line 286 of the readme file, centered add a header saying GREEN-feat implementation and on the next line a sub header with this: 7e5c437 feat(server): treat a 403 as unreachable, not reached (REPORT-000)  ← the fix that makes it pass and the next line a centered image assets/GREEN-feat-implementation.png width 599 please
+
+## Prompt 431
+
+add all remaining prompts in prompts.md please
+>>>>>>> a0bc6f3 (updated readme added RED and GREEN test screenshot example, updated prompts.md file, added images in assets of screenshots)
+
+
