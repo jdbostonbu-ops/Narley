@@ -390,7 +390,7 @@ const LANDING_PAGE_HTML = `<!doctype html>
 
       <section class="expo-go" aria-labelledby="expo-go-heading">
         <h2 id="expo-go-heading">Expo Go</h2>
-        <p>Once installed, open Expo Go once to confirm it launches. No login or configuration is needed. Open the built-in Camera app and point it at the QR code &mdash; a notification pops up, tap it to open your app in Expo Go; on Android, open the Expo Go app and tap the &ldquo;Scan QR Code&rdquo; button to use the in-app scanner. No account needed for either.</p>
+        <p>Once installed, open Expo Go once to confirm it launches. No login or configuration is needed. Open your camera on your phone and point it at the QR code &mdash; a notification pops up, tap it to open your app in Expo Go; on Android, open the Expo Go app and tap the &ldquo;Scan QR Code&rdquo; button to use the in-app scanner. No account needed for either.</p>
       </section>
 
       <section class="endpoints" aria-labelledby="endpoints-heading">
