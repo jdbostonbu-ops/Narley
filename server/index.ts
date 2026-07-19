@@ -170,6 +170,10 @@ const LANDING_PAGE_HTML = `<!doctype html>
         color: #F5F1E8;
       }
 
+      .reader-signup {
+        color: #57C7B6;
+      }
+
       .endpoints {
         margin-top: 36px;
         padding-top: 28px;
@@ -257,7 +261,7 @@ const LANDING_PAGE_HTML = `<!doctype html>
             </ul>
           </li>
           <li>
-            Reader: create an account (check spam for the verification email).<br>
+            <span class="reader-signup">Reader: create an account (check spam for the verification email).</span><br>
             <span class="demo-login">Provider demo login: testb@example.com&nbsp; / &nbsp;DemoPass123!</span>
           </li>
         </ol>

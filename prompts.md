@@ -2090,3 +2090,8 @@ add all remaining prompts to prompts.md please
 ## Prompt 411
 
  on the url page where it says your demo password change it to this: DemoPass123!
+
+ ## Prompt 412
+
+  for the url page, change this sentence to the lighter color green that GET uses: Reader: create an account (check spam for the verification
+  email).
