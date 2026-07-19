@@ -3,6 +3,11 @@ type TemperatureAlert = {
   expectedAt: string;
 };
 
+type WeatherAlert = {
+  type: "HEAVY_RAIN" | "HEAVY_SNOW" | "THUNDERSTORM" | "HIGH_WIND";
+  expectedAt: string;
+};
+
 type NwsAlert = {
   event: string;
   headline: string;
@@ -20,10 +25,44 @@ type NormalizedAlert = {
 };
 
 export const normalizeAlert = (
-  alert: TemperatureAlert | NwsAlert,
+  alert: TemperatureAlert | WeatherAlert | NwsAlert,
   zip: string
 ): NormalizedAlert => {
   if ("type" in alert) {
+    if (alert.type !== "HEAT" && alert.type !== "COLD") {
+      const details = {
+        HEAVY_RAIN: {
+          title: "Heavy Rain",
+          message: "Heavy rain",
+          advice: "prepare for heavy rain",
+        },
+        HEAVY_SNOW: {
+          title: "Heavy Snow",
+          message: "Heavy snow",
+          advice: "prepare for heavy snow",
+        },
+        THUNDERSTORM: {
+          title: "Thunderstorm",
+          message: "Thunderstorm",
+          advice: "seek shelter",
+        },
+        HIGH_WIND: {
+          title: "High Wind",
+          message: "High wind",
+          advice: "secure loose objects",
+        },
+      }[alert.type];
+
+      return {
+        title: details.title,
+        message: `${details.message} expected at ${alert.expectedAt}`,
+        location: zip,
+        time: alert.expectedAt,
+        severity: null,
+        advice: details.advice,
+      };
+    }
+
     const isHeat = alert.type === "HEAT";
 
     return {

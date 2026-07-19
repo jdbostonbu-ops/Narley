@@ -1,4 +1,8 @@
+import { forecastHeavyRainAlert } from "./forecastHeavyRainAlert";
+import { forecastHeavySnowAlert } from "./forecastHeavySnowAlert";
+import { forecastHighWindAlert } from "./forecastHighWindAlert";
 import { forecastTemperatureAlert } from "./forecastTemperatureAlert";
+import { forecastThunderstormAlert } from "./forecastThunderstormAlert";
 import { normalizeAlert } from "./normalizeAlert";
 import { nwsAlerts } from "./nwsAlerts";
 
@@ -10,6 +14,8 @@ type Location = {
 type WeatherResult = {
   time: readonly string[];
   temperature_2m: readonly number[];
+  weathercode?: readonly number[];
+  windgusts_10m_max?: readonly number[];
 };
 
 type NwsFeature = {
@@ -46,10 +52,27 @@ export const getAlertsForLocation = async (
   const failures: Array<"weather" | "nws"> = [];
 
   if (weatherResult.status === "fulfilled") {
-    const alert = forecastTemperatureAlert(weatherResult.value);
+    const forecast = weatherResult.value;
+    const weathercodeForecast = {
+      time: forecast.time,
+      weathercode: forecast.weathercode ?? [],
+    };
+    const windForecast = {
+      time: forecast.time,
+      windgusts_10m_max: forecast.windgusts_10m_max ?? [],
+    };
+    const forecastAlerts = [
+      forecastTemperatureAlert(forecast),
+      forecastHeavyRainAlert(weathercodeForecast),
+      forecastHeavySnowAlert(weathercodeForecast),
+      forecastThunderstormAlert(weathercodeForecast),
+      forecastHighWindAlert(windForecast),
+    ];
 
-    if (alert.alert) {
-      alerts.push(normalizeAlert(alert, zip));
+    for (const alert of forecastAlerts) {
+      if (alert.alert) {
+        alerts.push(normalizeAlert(alert, zip));
+      }
     }
   } else {
     failures.push("weather");

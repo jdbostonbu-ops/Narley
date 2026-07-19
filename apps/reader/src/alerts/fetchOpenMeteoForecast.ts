@@ -5,7 +5,21 @@ type Location = {
   longitude: number;
 };
 
-type Forecast = NonNullable<ReturnType<typeof mapOpenMeteoForecast>>;
+type Forecast = NonNullable<ReturnType<typeof mapOpenMeteoForecast>> & {
+  weathercode: readonly number[];
+  windgusts_10m_max: readonly number[];
+};
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
+const isNumberArrayWithLength = (
+  value: unknown,
+  expectedLength: number
+): value is number[] =>
+  Array.isArray(value) &&
+  value.length === expectedLength &&
+  value.every((item) => typeof item === "number");
 
 export const fetchOpenMeteoForecast = async (
   location: Location,
@@ -16,8 +30,9 @@ export const fetchOpenMeteoForecast = async (
     "https://api.open-meteo.com/v1/forecast" +
     `?latitude=${latitude}` +
     `&longitude=${longitude}` +
-    "&daily=temperature_2m_max" +
+    "&daily=temperature_2m_max,weathercode,windgusts_10m_max" +
     "&temperature_unit=fahrenheit" +
+    "&windspeed_unit=mph" +
     "&forecast_days=7" +
     "&timezone=auto";
   const response = await fetch(url);
@@ -33,5 +48,23 @@ export const fetchOpenMeteoForecast = async (
     throw new Error("Invalid weather forecast response");
   }
 
-  return forecast;
+  if (!isRecord(payload) || !isRecord(payload.daily)) {
+    throw new Error("Invalid weather forecast response");
+  }
+
+  const { weathercode, windgusts_10m_max } = payload.daily;
+  const forecastLength = forecast.time.length;
+
+  if (
+    !isNumberArrayWithLength(weathercode, forecastLength) ||
+    !isNumberArrayWithLength(windgusts_10m_max, forecastLength)
+  ) {
+    throw new Error("Invalid weather forecast response");
+  }
+
+  return {
+    ...forecast,
+    weathercode,
+    windgusts_10m_max,
+  };
 };

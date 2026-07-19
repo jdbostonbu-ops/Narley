@@ -1164,6 +1164,29 @@ inclusive), returns that day's date, produces no alert when index 2 is below 46,
 and the card persists until 24 hours past its expected date across refreshes and
 failed fetches.
 
+ALERT-R-012 — Human-readable alert date
+
+Behavior
+Weather alert messages display the alert's expected date in a human-readable
+format: weekday, abbreviated month, day, and year — e.g. "Tuesday, Jul 21, 2026".
+The date is derived from the alert's ISO date (expectedAt, e.g. "2026-07-21") and
+must render the same calendar day as the ISO date, without any timezone-induced
+off-by-one shift (an ISO date of 2026-07-21 must never render as Jul 20 or Jul 22).
+
+Expected result
+Given an ISO date "2026-07-21", the formatted output is "Tuesday, Jul 21, 2026".
+The weekday, month, day, and year all correspond to the ISO calendar date. The
+formatting does not shift the day due to UTC/local timezone parsing.
+
+RED Test
+The formatter returns the wrong weekday or a shifted day for a given ISO date
+(e.g. renders 2026-07-21 as Monday or as Jul 20); or omits the year; or does not
+produce the "Weekday, Mon D, YYYY" shape.
+
+GREEN Test
+The formatter converts an ISO date (YYYY-MM-DD) into "Weekday, Mon D, YYYY" using
+the local calendar date with no timezone day-shift.
+
 # 16. Provider Alerts and Community Intelligence
 ALERT-P-001 — Live Provider alerts
 
