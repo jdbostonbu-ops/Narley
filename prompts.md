@@ -2102,3 +2102,44 @@ on the url page, add a section called Expo Go  before Public endpoints and add t
 ## Prompt 414
 
 add remaining prompts to prompts.md file please
+
+## Prompt 415
+
+on the url page on this lineOpen Expo Go and scan the QR code for the app you want to try: add in (I will give you the QR code)
+
+## Prompt 416
+
+widen the width on the page on the url page, the layout is too narrow
+
+## Prompt 417
+
+On the Narley landing page (the root page served at narley.vercel.app),
+add two QR code images to the hero section, positioned to the left and
+right of the "Narley" title:
+
+- Left of the title: assets/Reader QR code image, with a header
+  "READER APP" above it and the text "Install Expo Go" below it.
+- Right of the title: assets/Provider QR code image, with a header
+  "PROVIDER APP" above it and the text "Install Expo Go" below it.
+
+Requirements:
+- Use the existing image files in the assets/ folder (Reader and
+  Provider QR codes). Reference them by their actual filenames.
+- Keep the layout responsive: on mobile/narrow screens, the QR codes
+  should stack vertically below the title instead of overflowing.
+- Match the existing page styling (cream text on the dark green
+  background, same fonts).
+- Do not change any other content on the page. Do not use `var` or the `any` type. Use const/let and proper types
+consistent with the existing codebase. Match the file's existing
+style and conventions.
+
+## Prompt 418
+
+No — don't start the server. Just add the two QR images and labels
+to the page markup. I'll verify the page renders myself. Only edit
+the landing page file and confirm the image paths match the actual
+filenames in assets/.
+
+## Prompt 419
+
+add all remaining prompts to prompts.md please

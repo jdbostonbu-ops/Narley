@@ -70,6 +70,60 @@ const LANDING_PAGE_HTML = `<!doctype html>
         text-align: center;
       }
 
+      .hero {
+        display: grid;
+        grid-template-areas: "reader brand provider";
+        grid-template-columns: 190px minmax(280px, 1fr) 190px;
+        gap: 32px;
+        align-items: center;
+        margin-bottom: 28px;
+      }
+
+      .hero-brand {
+        grid-area: brand;
+      }
+
+      .qr-card {
+        margin: 0;
+        color: #F5F1E8;
+        font-family: Georgia, "Times New Roman", serif;
+        text-align: center;
+      }
+
+      .qr-card--reader {
+        grid-area: reader;
+      }
+
+      .qr-card--provider {
+        grid-area: provider;
+      }
+
+      .qr-label {
+        display: block;
+        margin-bottom: 10px;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+      }
+
+      .qr-image {
+        display: block;
+        width: 100%;
+        max-width: 180px;
+        height: auto;
+        margin: 0 auto;
+        border: 8px solid #F5F1E8;
+        border-radius: 12px;
+      }
+
+      .qr-caption {
+        display: block;
+        margin-top: 10px;
+        font-size: 16px;
+        font-weight: 700;
+      }
+
       .brand-icon {
         display: block;
         width: 72px;
@@ -242,6 +296,19 @@ const LANDING_PAGE_HTML = `<!doctype html>
           padding: 32px 20px;
         }
 
+        .hero {
+          grid-template-areas:
+            "brand"
+            "reader"
+            "provider";
+          grid-template-columns: 1fr;
+          gap: 28px;
+        }
+
+        .qr-image {
+          max-width: 220px;
+        }
+
         .endpoint-row {
           grid-template-columns: 1fr;
           gap: 5px;
@@ -251,22 +318,38 @@ const LANDING_PAGE_HTML = `<!doctype html>
   </head>
   <body>
     <main>
-      <svg class="brand-icon" viewBox="0 0 72 72" role="img" aria-label="Narley house">
-        <path
-          d="M12 33 36 12l24 21M17 29v29h38V29M29 58V43h14v15"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="6"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </svg>
-      <h1>Narley</h1>
-      <p class="tagline">Help nearby.</p>
-      <div class="status" role="status" aria-label="Narley API is online">
-        <span class="status-dot" aria-hidden="true"></span>
-        API online
-      </div>
+      <section class="hero" aria-labelledby="narley-title">
+        <figure class="qr-card qr-card--reader">
+          <span class="qr-label">READER APP</span>
+          <img class="qr-image" src="/assets/Reader%20QR%20code.png" alt="QR code for the Narley Reader app">
+          <figcaption class="qr-caption">Install Expo Go</figcaption>
+        </figure>
+
+        <div class="hero-brand">
+          <svg class="brand-icon" viewBox="0 0 72 72" role="img" aria-label="Narley house">
+            <path
+              d="M12 33 36 12l24 21M17 29v29h38V29M29 58V43h14v15"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <h1 id="narley-title">Narley</h1>
+          <p class="tagline">Help nearby.</p>
+          <div class="status" role="status" aria-label="Narley API is online">
+            <span class="status-dot" aria-hidden="true"></span>
+            API online
+          </div>
+        </div>
+
+        <figure class="qr-card qr-card--provider">
+          <span class="qr-label">PROVIDER APP</span>
+          <img class="qr-image" src="/assets/Provider%20QR%20code.png" alt="QR code for the Narley Provider app">
+          <figcaption class="qr-caption">Install Expo Go</figcaption>
+        </figure>
+      </section>
       <p class="primary-copy">Narley connects people with verified community resources — shelter, food, charging, employment help — on a map that providers keep current.</p>
       <p class="secondary-copy">This URL is the API behind the Provider and Reader mobile apps.</p>
 
