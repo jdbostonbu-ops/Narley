@@ -72,7 +72,9 @@ const LANDING_PAGE_HTML = `<!doctype html>
 
       .hero {
         display: grid;
-        grid-template-areas: "reader brand provider";
+        grid-template-areas:
+          "reader brand provider"
+          "caption caption caption";
         grid-template-columns: 190px minmax(280px, 1fr) 190px;
         gap: 32px;
         align-items: center;
@@ -122,6 +124,14 @@ const LANDING_PAGE_HTML = `<!doctype html>
         margin-top: 10px;
         font-size: 16px;
         font-weight: 700;
+      }
+
+      .qr-note {
+        grid-area: caption;
+        margin: -12px 0 0;
+        color: #AFC3B9;
+        font-size: 12px;
+        line-height: 1.5;
       }
 
       .brand-icon {
@@ -300,9 +310,14 @@ const LANDING_PAGE_HTML = `<!doctype html>
           grid-template-areas:
             "brand"
             "reader"
-            "provider";
+            "provider"
+            "caption";
           grid-template-columns: 1fr;
           gap: 28px;
+        }
+
+        .qr-note {
+          margin-top: -8px;
         }
 
         .qr-image {
@@ -349,6 +364,8 @@ const LANDING_PAGE_HTML = `<!doctype html>
           <img class="qr-image" src="/assets/Provider%20QR%20code.png" alt="QR code for the Narley Provider app">
           <figcaption class="qr-caption">Install Expo Go</figcaption>
         </figure>
+
+        <p class="qr-note">These codes go live during the demo &mdash; please scan only when prompted.</p>
       </section>
       <p class="primary-copy">Narley connects people with verified community resources — shelter, food, charging, employment help — on a map that providers keep current.</p>
       <p class="secondary-copy">This URL is the API behind the Provider and Reader mobile apps.</p>

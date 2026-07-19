@@ -2143,3 +2143,21 @@ filenames in assets/.
 ## Prompt 419
 
 add all remaining prompts to prompts.md please
+
+## Prompt 420
+
+codex did I give you this prompt? Below both QR codes (spanning under both), add a single caption line
+in a muted/lighter color that reads: "These codes go live during the
+demo — please scan only when prompted." Keep it smaller than the
+headers so it reads as a note.
+
+## Prompt 421
+
+okay thank you please follow the prompt: Below both QR codes (spanning under both), add a single caption line
+in a muted/lighter color that reads: "These codes go live during the
+demo — please scan only when prompted." Keep it smaller than the
+headers so it reads as a note.
+
+## Prompt 422
+
+add all remaining prompts to prompts.md please
