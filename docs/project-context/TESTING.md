@@ -1036,6 +1036,47 @@ returns that day's date, produces no alert when index 2 does not qualify, and th
 card persists until 24 hours past its expected date across refreshes and failed
 fetches.
 
+ALERT-R-008 — Heavy snow alert (2-day advance, persistent)
+
+Behavior
+Reader Alerts generate a single heavy-snow alert when the Open-Meteo daily
+forecast shows heavy snow on the day two days ahead. The function reads ONLY the
+daily forecast entry at index 2 (index 0 = today, index 1 = tomorrow, index 2 =
+two days ahead). It does not alert on today or tomorrow. Heavy snow is identified
+by the daily weathercode at index 2 being 75 (heavy snow) or 86 (heavy snow
+showers). At most one heavy-snow alert is produced, reported by that day's date.
+
+The alert persists so the card does not fall off: once generated, the heavy-snow
+card remains visible until 24 hours after its expected date. It is not removed by
+a later refresh that no longer shows heavy snow, and a failed or unavailable
+forecast fetch does not clear an existing unexpired card. The weather store merges
+newly generated alerts with previously displayed, still-unexpired alerts rather
+than replacing the list. (Same persistence and expiry behavior as ALERT-R-006.)
+
+This is subject to the same Weather Alerts on/off setting, GPS-based location,
+and refresh behavior as ALERT-R-001.
+
+Expected result
+When the daily weathercode at index 2 is 75 or 86, the function returns a
+heavy-snow alert carrying the index-2 date. When index 2 is not 75 or 86, no
+heavy-snow alert is produced, even if index 0 or index 1 shows heavy snow (light
+and moderate snow codes 71, 73, 77, 85 do not qualify). An empty or too-short
+forecast (no index 2) produces no alert. Once generated, the card remains until
+24 hours after its expected date and is not removed by a refresh that no longer
+shows heavy snow or by a failed fetch.
+
+RED Test
+The function does not alert when index 2's weathercode is 75 or 86; or it alerts
+when index 2 is not heavy snow; or it alerts from index 0 or index 1 instead of
+index 2; or a generated card disappears before 24 hours after its expected date
+when a later refresh no longer shows heavy snow or the fetch fails.
+
+GREEN Test
+The function flags heavy snow only from the index-2 daily entry (codes 75 or 86),
+returns that day's date, produces no alert when index 2 does not qualify, and the
+card persists until 24 hours past its expected date across refreshes and failed
+fetches.
+
 # 16. Provider Alerts and Community Intelligence
 ALERT-P-001 — Live Provider alerts
 
