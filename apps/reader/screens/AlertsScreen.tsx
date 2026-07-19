@@ -66,7 +66,6 @@ export const AlertsScreen = () => {
             <View style={styles.body}>
               <Text style={styles.cardTitle}>{item.title}</Text>
               <Text style={styles.message}>{item.message}</Text>
-              <Text style={styles.metadata}>{item.metadata}</Text>
             </View>
           </View>
         )}
@@ -106,7 +105,6 @@ const styles = StyleSheet.create({
   body: { flex: 1 },
   cardTitle: { color: emergencyTheme.colors.text, fontSize: 17, fontWeight: "900", marginBottom: 4 },
   message: { color: emergencyTheme.colors.textMuted, fontSize: 15, lineHeight: 21, marginBottom: 8 },
-  metadata: { color: emergencyTheme.colors.textMuted, fontSize: 12, fontWeight: "700" },
   emptyCard: { ...theme.shadows.card, backgroundColor: theme.colors.background, borderRadius: 24, padding: 24 },
   emptyTitle: { color: theme.colors.text, fontSize: 18, fontWeight: "900", marginBottom: 6 },
   emptyBody: { color: theme.colors.textMuted, fontSize: 15, lineHeight: 22 },

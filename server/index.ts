@@ -365,7 +365,10 @@ const LANDING_PAGE_HTML = `<!doctype html>
           <figcaption class="qr-caption">Install Expo Go</figcaption>
         </figure>
 
-        <p class="qr-note">These codes go live during the demo &mdash; please scan only when prompted.</p>
+        <p class="qr-note">
+          These codes go live during the demo &mdash; please scan only when prompted.<br />
+          The expected Expo --tunnel latency is not a bug, meaning it runs slower with these QR codes above.
+        </p>
       </section>
       <p class="primary-copy">Narley connects people with verified community resources — shelter, food, charging, employment help — on a map that providers keep current.</p>
       <p class="secondary-copy">This URL is the API behind the Provider and Reader mobile apps.</p>

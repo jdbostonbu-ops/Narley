@@ -28,7 +28,6 @@ export type ReaderWeatherAlert = {
   id: string;
   title: string;
   message: string;
-  metadata: string;
 };
 
 type WeatherAlertsValue = {
@@ -74,7 +73,6 @@ export const WeatherAlertsProvider = ({ children }: { children: ReactNode }) => 
       message: alert.advice === null
         ? alert.message
         : `${alert.message}. ${alert.advice}`,
-      metadata: alert.time,
     })));
   }, []);
 

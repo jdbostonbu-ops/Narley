@@ -996,6 +996,8 @@ Open-Meteo temperature alerts (heat ≥91°F, cold ≤32°F) have no built-in ex
 The Alerts screen re-fetches on focus and removes any alerts that have expired relative to the current time.
 An expired alert must not remain visible after a refresh. (Applies to both Reader and Provider weather alerts.)
 
+ALERT-R-006 (persistence, both apps) — Temperature alerts persist for their full 24-hour lifetime in BOTH the reader and provider apps: In each app, a heat or cold alert, once generated, must remain visible until it expires per its 24-hour lifetime, regardless of whether subsequent forecast refreshes still meet the threshold. Each app's weather store must merge newly generated alerts with previously displayed, still-unexpired alerts rather than replacing the list, and a failed or unavailable forecast fetch must not clear existing unexpired alerts.
+
 ALERT-R-007 — Heavy rain alert (2-day advance, persistent)
 
 Behavior
@@ -1257,7 +1259,39 @@ LOW — Evidence conflicts, or couldn't be verified.
 
 The explanation is reachable by tap (not hover, which does not exist on touch devices), has an accessible label, and does not obscure the report beneath it.
 
-ALERT-R-006 (persistence, both apps) — Temperature alerts persist for their full 24-hour lifetime in BOTH the reader and provider apps: In each app, a heat or cold alert, once generated, must remain visible until it expires per its 24-hour lifetime, regardless of whether subsequent forecast refreshes still meet the threshold. Each app's weather store must merge newly generated alerts with previously displayed, still-unexpired alerts rather than replacing the list, and a failed or unavailable forecast fetch must not clear existing unexpired alerts.
+ALERT-P-009 — Provider weather alerts run all detectors
+
+Behavior
+The Provider weather pipeline surfaces the same weather alerts as the Reader app
+(ALERT-R-007 heavy rain, ALERT-R-008 heavy snow, ALERT-R-009 thunderstorm,
+ALERT-R-010 high wind), using the same conditions, thresholds, 2-day-ahead
+(index 2) rule, human-readable date (ALERT-R-012/013), and 24-hour persistence
+(ALERT-R-006). The Provider forecast fetch requests the daily fields these
+detectors require: weathercode and windgusts_10m_max (in mph), in addition to the
+existing temperature field. The Provider weather store runs all weather detectors
+on the fetched forecast, not temperature alone, and surfaces every alert that
+fires. This is subject to the Provider Weather Alerts on/off setting and GPS-based
+location, matching ALERT-P-001.
+
+Expected result
+The Provider forecast fetch returns weathercode and windgusts_10m_max for each
+forecast day. When index 2 qualifies for heavy rain, heavy snow, thunderstorm, or
+high wind, the Provider Alerts screen shows the corresponding card with the
+human-readable date. When no weather condition qualifies at index 2, no weather
+card is added. Weather cards persist until 24 hours after their expected date and
+are not cleared by a refresh that no longer shows the condition or by a failed
+fetch, identical to Reader behavior.
+
+RED Test
+The Provider fetch does not request weathercode or windgusts_10m_max; or the
+Provider weather store runs only forecastTemperatureAlert and never the four
+weather detectors; or a qualifying index-2 condition produces no Provider card.
+
+GREEN Test
+The Provider fetch requests and returns weathercode and windgusts_10m_max, the
+Provider store runs all weather detectors on the forecast, and each fired
+condition surfaces a persistent Provider alert card with the formatted date.
+
 
 REPORT-001 — Structured reasons
 Readers may select only approved report reasons. They may not enter free text.
