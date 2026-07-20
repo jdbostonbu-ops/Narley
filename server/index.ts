@@ -385,9 +385,10 @@ const LANDING_PAGE_HTML = `<!doctype html>
             </ul>
           </li>
           <li>
-            <span class="reader-signup">Reader: create an account (check spam for the verification email).</span><br>
+            <span class="demo-login">Reader demo login: demo@narley.app&nbsp; / &nbsp;DemoPass123!</span><br>
             <span class="demo-login">Provider demo login: testb@example.com&nbsp; / &nbsp;DemoPass123!</span>
           </li>
+          <li>Create an account if you like. It will send a code to your email to verify &mdash; check your SPAM folder if you choose to create an account.</li>
         </ol>
       </section>
 
