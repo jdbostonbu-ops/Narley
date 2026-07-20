@@ -12,6 +12,7 @@ import { resolveSearchState } from "../src/location/resolveSearchState";
 import { geocodeAddress } from "../src/resources/geocodeAddress";
 import { getReaderVisibleResources } from "../src/resources/getReaderVisibleResources";
 import { resolveDisplayedResources } from "../src/resources/resolveDisplayedResources";
+import { resolveMapPins } from "../src/resources/resolveMapPins";
 import { resolveSelectedResource } from "../src/resources/resolveSelectedResource";
 import { ProviderCard, type ProviderCardData } from "../components/ProviderCard";
 import { ProviderDetailModal } from "../components/ProviderDetailModal";
@@ -52,6 +53,7 @@ export const MapScreen = () => {
     currentLocationZip,
     activeZip,
   );
+  const mapPins = resolveMapPins(expirationVisibleResources);
   const selectedResource = resolveSelectedResource(
     expirationVisibleResources,
     selectedResourceId,
@@ -242,7 +244,7 @@ export const MapScreen = () => {
             ref={mapRef}
             style={styles.map}
           >
-            {displayedResources.map((resource) => (
+            {mapPins.map((resource) => (
               <Marker
                 accessibilityLabel={`${resource.title}. ${resource.category ?? "Community resource"}`}
                 anchor={{ x: 0.5, y: 1 }}
