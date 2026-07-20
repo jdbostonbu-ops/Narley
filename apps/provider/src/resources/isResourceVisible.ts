@@ -2,9 +2,8 @@ type Resource = {
   status: string;
   expiresAt: Date;
 };
-
-export const isResourceVisible = (
-  resource: Resource,
+export const isResourceVisible = <T extends Resource>(
+  resource: T,
   now: Date,
 ): boolean =>
   resource.status === "ACTIVE" &&

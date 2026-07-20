@@ -18,7 +18,7 @@
 [![OpenAI](https://img.shields.io/badge/AI-OpenAI-412991?logo=openai&logoColor=white)](https://platform.openai.com/)
 [![Vitest — 367 Tests](https://img.shields.io/badge/Vitest-367_Tests-6E9F18?logo=vitest&logoColor=white)](https://vitest.dev/)
 [![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen)](#-testing)
-[![Reader Tests](https://img.shields.io/badge/Reader_Tests-128-brightgreen)](#-testing)
+[![Reader Tests](https://img.shields.io/badge/Reader_Tests-163-brightgreen)](#-testing)
 [![Provider Tests](https://img.shields.io/badge/Provider_Tests-204-brightgreen)](#-testing)
 
 </div>
