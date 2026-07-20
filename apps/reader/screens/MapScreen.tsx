@@ -18,6 +18,7 @@ import { getZipForLocation } from '../src/location/getZipForLocation';
 import { resolveInitialRegion } from '../src/location/resolveInitialRegion';
 import { resolveSearchState } from '../src/location/resolveSearchState';
 import { resolveDisplayedResources } from '../src/resources/resolveDisplayedResources';
+import { resolveSelectedResource } from '../src/resources/resolveSelectedResource';
 import { shouldReloadOnForeground } from '../src/resources/shouldReloadOnForeground';
 
 const theme = getTheme(false);
@@ -45,9 +46,7 @@ export const MapScreen = () => {
     currentLocationZip,
     activeZip,
   );
-  const selected = selectedId === null
-    ? null
-    : resources.find((resource) => resource.id === selectedId) ?? null;
+  const selected = resolveSelectedResource(resources, selectedId);
 
   const loadResources = useCallback(async () => {
     if (mountedRef.current) {
