@@ -16,10 +16,10 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon-336791?logo=postgresql&logoColor=white)](https://neon.tech/)
 [![JWT](https://img.shields.io/badge/Auth-JWT-000000?logo=jsonwebtokens&logoColor=white)](https://jwt.io/)
 [![OpenAI](https://img.shields.io/badge/AI-OpenAI-412991?logo=openai&logoColor=white)](https://platform.openai.com/)
-[![Vitest — 435 Tests](https://img.shields.io/badge/Vitest-435_Tests-6E9F18?logo=vitest&logoColor=white)](https://vitest.dev/)
+[![Vitest — 458 Tests](https://img.shields.io/badge/Vitest-458_Tests-6E9F18?logo=vitest&logoColor=white)](https://vitest.dev/)
 [![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen)](#-testing)
-[![Reader Tests](https://img.shields.io/badge/Reader_Tests-163-brightgreen)](#-testing)
-[![Provider Tests](https://img.shields.io/badge/Provider_Tests-214-brightgreen)](#-testing)
+[![Reader Tests](https://img.shields.io/badge/Reader_Tests-186-brightgreen)](#-testing)
+[![Provider Tests](https://img.shields.io/badge/Provider_Tests-237-brightgreen)](#-testing)
 
 </div>
 
@@ -288,6 +288,8 @@ MAILTRAP_API_TOKEN=      # Mailtrap API credential
 ## 🧪 Test-Driven-Development (TDD) Testing
 
 Narley's domain and security logic is built **test-first (RED → GREEN)** with Vitest.
+
+**Current test counts:** 458 Vitest tests overall, including 237 Provider tests and 186 Reader tests.
 
 ```bash
 # Run Provider + Reader + server tests
