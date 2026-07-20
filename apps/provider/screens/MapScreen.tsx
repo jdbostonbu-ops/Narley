@@ -12,6 +12,7 @@ import { resolveSearchState } from "../src/location/resolveSearchState";
 import { geocodeAddress } from "../src/resources/geocodeAddress";
 import { getReaderVisibleResources } from "../src/resources/getReaderVisibleResources";
 import { resolveDisplayedResources } from "../src/resources/resolveDisplayedResources";
+import { resolveSelectedResource } from "../src/resources/resolveSelectedResource";
 import { ProviderCard, type ProviderCardData } from "../components/ProviderCard";
 import { ProviderDetailModal } from "../components/ProviderDetailModal";
 import { MapPin } from "../components/MapPin";
@@ -40,7 +41,7 @@ export const MapScreen = () => {
   const [gpsRegion, setGpsRegion] = useState<Region | null>(null);
   const [searchMessage, setSearchMessage] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
-  const [selectedResource, setSelectedResource] = useState<ProviderCardData | null>(null);
+  const [selectedResourceId, setSelectedResourceId] = useState<string | null>(null);
   const [reportResource, setReportResource] = useState<ProviderCardData | null>(null);
   const expirationVisibleResources = getReaderVisibleResources(
     resources,
@@ -50,6 +51,10 @@ export const MapScreen = () => {
     expirationVisibleResources,
     currentLocationZip,
     activeZip,
+  );
+  const selectedResource = resolveSelectedResource(
+    expirationVisibleResources,
+    selectedResourceId,
   );
 
   const centerMapOnUserLocation = useCallback(async (): Promise<void> => {
@@ -246,6 +251,7 @@ export const MapScreen = () => {
                   latitude: resource.latitude,
                   longitude: resource.longitude,
                 }}
+                onPress={() => setSelectedResourceId(resource.id)}
                 title={resource.title}
               >
                 <MapPin category={resource.category} />
@@ -282,7 +288,7 @@ export const MapScreen = () => {
             )}
             item={item}
             key={resource.id}
-            onPress={() => setSelectedResource(item)}
+            onPress={() => setSelectedResourceId(item.id)}
           />
         );
       }) : (
@@ -298,7 +304,7 @@ export const MapScreen = () => {
         </View>
       )}
       </ScrollView>
-      <ProviderDetailModal item={selectedResource} onClose={() => setSelectedResource(null)} />
+      <ProviderDetailModal item={selectedResource} onClose={() => setSelectedResourceId(null)} />
       <ProviderReportModal
         onClose={() => setReportResource(null)}
         resource={reportResource}
