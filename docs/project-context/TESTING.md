@@ -731,10 +731,6 @@ PMAP-010 — Invalid search
 
 Empty, unknown, or failed searches show an error and preserve the last valid map state.
 
-PMAP-011 — Nearby behavior
-
-If the interface says “nearby,” the resource cards and count must reflect the approved geographic area or distance logic.
-
 PMAP-012 — Report another Provider’s pin discrepancy
 
 When a Provider identifies a discrepancy on a pin owned by another Provider and is not authorized to change that resource, the Provider may submit a report to the Narley admin. The report includes the affected resource ID, complete address, reporting Provider’s name and email, selected reason, and supporting details. Submitting the report does not allow the reporting Provider to edit the other Provider’s resource.
@@ -799,11 +795,11 @@ Version 2 UI and security rules conflict on deletion.
 # 12. Reader Map and Resources
 RMAP-001 — Initial map
 
-The Reader Map opens in the approved initial region or the user’s available location.
+The Reader Map opens centered on the user's GPS location per RMAP-011. A fixed fallback region is used only when location permission is denied or unavailable.
 
 RMAP-002 — Search
 
-A valid city or ZIP search recenters the map.
+A valid city or ZIP search recenters the map and filters the resource cards to that location per RMAP-013.
 
 RMAP-003 — Invalid search
 
@@ -820,7 +816,7 @@ Valid coordinates
 Not expired
 RMAP-005 — Resource count
 
-The displayed count accurately represents the approved visible result set.
+The displayed count accurately represents the current-location filtered result set per RMAP-012 and RMAP-013 — the resources shown for the active GPS or searched location.
 
 RMAP-006 — Card fields
 
@@ -847,6 +843,74 @@ Tapping a card opens the same detail modal.
 RMAP-010 — Synchronization
 
 Selecting either surface keeps the selected pin, card, and modal synchronized.
+
+
+RMAP-011 — Map centers on the user's GPS location by default
+
+Behavior
+On load, the Reader map centers on the user's actual device GPS location, not a fixed or hardcoded location. The map renders where the user physically is: a user in Boston sees Boston; a user in New London (06320) sees New London. If the user's location changes (they travel to a new area), the map follows to the new location. GPS is requested via device location permission, the same source used by weather alerts. If location permission is denied or unavailable, the map falls back to a default region.
+
+Expected result
+With location permission granted, the map's initial center is the user's current GPS coordinates. When the user is in Boston, the map opens on Boston; when in New London, on New London. The map does not open on a hardcoded location regardless of where the user is. If permission is denied, the map uses the defined fallback region.
+
+RED Test
+The map opens on a fixed/hardcoded region (e.g., always New London) regardless of the user's GPS location; or it never requests or applies the device location.
+
+GREEN Test
+The map centers on the user's GPS coordinates on load and follows the user's location; a hardcoded region is used only as an explicit fallback when permission is denied or unavailable.
+
+RMAP-012 — Resource cards filter by ZIP to the user's GPS location by default
+
+Behavior
+The resource cards, listed in a stacked column below the map, filter by ZIP code to the user's current GPS location when no search is active. A user in ZIP 06320 sees only 06320 resource cards. The card list matches the user's location automatically, the same way weather locates the user. Cards filter by exact ZIP match. The map pins and the card list reflect the same set of resources for the current location.
+
+Expected result
+With no active search, the card list contains only resources whose ZIP matches the user's current GPS location. A user in 06320 does not see cards from other ZIPs (e.g., a 65802 resource does not appear). When the user's GPS location changes, the cards update to the new location's ZIP.
+
+RED Test
+With no active search, the card list shows resources outside the user's current-location ZIP (e.g., shows all resources, or a resource from a non-matching ZIP); or the cards do not update when the user's location changes.
+
+GREEN Test
+With no active search, the card list contains only resources matching the user's current GPS-location ZIP by exact match, and updates when the user's location changes.
+
+RMAP-013 — ZIP search overrides location for map and cards
+
+Behavior
+The user may search by ZIP code to view a different location on purpose. Entering a ZIP recenters the map on that ZIP and filters the resource cards to that ZIP (exact match), overriding the GPS-default location. A user in Boston planning to travel can search 06320, see New London's pins and cards, tap a card, and save the resource. When the search is cleared, the view returns to the GPS-default location. The map pins and the card list reflect the same searched location.
+
+Expected result
+Entering a valid ZIP recenters the map on that ZIP and filters the cards to that ZIP by exact match, regardless of the user's actual GPS location. A user physically in Boston who searches 06320 sees 06320 pins and cards and can save them. Clearing the search returns the map and cards to the user's GPS location.
+
+RED Test
+A ZIP search recenters the map but does not filter the cards to that ZIP; or the cards continue to show the GPS-location resources during an active search; or clearing the search does not return to the GPS-default location.
+
+GREEN Test
+A valid ZIP search recenters the map and filters the cards to that ZIP by exact match, overriding GPS; clearing the search returns the map and cards to the user's GPS location.
+
+RMAP-014 — Tapping a visible pin shows that resource's card on demand
+
+Behavior
+The user may zoom or pan the map and see pins for resources outside the current location (GPS or searched ZIP). Tapping any visible pin — including one outside the current location — shows that resource's card/detail on demand. This is separate from the auto-filtered card list: viewing a resource by tapping its pin does not add it to the current-location card list and is not governed by the current-location ZIP filter.
+
+Expected result
+Tapping any pin visible on the map opens that resource's card/detail, even if the resource is outside the user's current-location ZIP or the searched ZIP. The auto-filtered card list below the map is unchanged by tapping a pin.
+
+RED Test
+Tapping a visible pin outside the current location fails to show that resource's card; or the current-location card list only allows viewing resources it contains (a visible out-of-location pin can't be opened).
+
+GREEN Test
+Tapping any visible pin — including out-of-location pins — shows that resource's card on demand, independent of the current-location card filter.
+
+RMAP-015 — Map renders all resource pins regardless of the card location filterBehavior
+
+The map renders a pin for every visible resource, regardless of the reader's current location or any active ZIP search. Pins are not removed from the map by the current-location card filter (RMAP-012) or by a ZIP search (RMAP-013). A reader in 06320 can zoom out or pan the map and see pins in other areas — for example 06515 — even though those resources are outside the reader's current location and outside any active search. Tapping any of those pins shows that resource's card (RMAP-014). A ZIP search recenters the map to that area so its pins are in view, but searching does not remove pins for other areas; zooming back out still shows them. Only the card list below the map filters to the current location or searched ZIP; the pins do not.Expected result
+
+Every visible resource appears as a pin on the map at all times, independent of the card list's location filter. A reader in 06320 sees 06320 pins in view and, on zooming out, sees pins for other ZIPs such as 06515. Entering a ZIP search recenters the map on that ZIP without removing any pins; the reader can zoom out and still see pins for all other areas. The card list continues to filter to the current location (RMAP-012) or searched ZIP
+
+(RMAP-013) while the pins remain complete.RED Test
+
+The map renders pins from the location-filtered card list instead of the full visible resource set, so pins in other ZIPs disappear when the reader is in a location or has an active search; or a ZIP search removes pins for areas outside the searched ZIP.GREEN Test
+The map renders pins for the full set of visible resources regardless of the current-location or searched-ZIP card filter; pins for other areas remain on the map and can be viewed by zooming or panning; and the card list filters to the current location or searched ZIP independently of the pins.
 
 # 13. Reader Resource Detail
 DETAIL-001 — Displayed information
