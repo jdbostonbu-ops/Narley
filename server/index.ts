@@ -407,7 +407,7 @@ const LANDING_PAGE_HTML = `<!doctype html>
         <h2 id="resource-zips-heading">Resources by ZIP</h2>
         <p>Try looking up these ZIP codes in the Reader app to see the resources in that area:</p>
         <ul>
-          <li>68502</li>
+          <li>65802</li>
           <li>06515</li>
           <li>06320</li>
           <li>06382</li>
