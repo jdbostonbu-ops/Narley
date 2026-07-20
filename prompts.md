@@ -2620,3 +2620,54 @@ Report the architecture and the conventions, with file paths and any relevant do
 ## Prompt 455
 
 add all remaining prompts in prompts.md file please
+
+## Prompt 456
+
+In the Url page, Change Reader line on item 3: a Reader demo login: demo@narley.app / DemoPass123!, styled the same way as the existing provider demo login line.
+
+Add item 4: a note that reads: "Create an account if you like. It will send a code to your email to verify — check your SPAM folder if you choose to create an account."
+
+## Prompt 457
+
+In the readme file change the total vitest to 412 please
+
+## Prompt 458
+
+Read docs/project-context/AGENTS.md and docs/project-context/TESTING.md.
+Implement spec RMAP-011. There is a failing test at apps/reader/src/location/resolveInitialRegion.vitest.test.ts. Create apps/reader/src/location/resolveInitialRegion.ts to make it pass, then wire it into apps/reader/screens/MapScreen.tsx so the map centers on the user's GPS location (via the existing getUserLocation) instead of the hardcoded region constant, using the current New London coordinates only as the permission-denied fallback. Do not change tests.
+
+## Prompt 459
+
+Read docs/project-context/AGENTS.md and docs/project-context/TESTING.md.
+Implement spec RMAP-012. There is a failing test at apps/reader/src/resources/resolveDisplayedResources.vitest.test.ts. Create apps/reader/src/resources/resolveDisplayedResources.ts to make it pass, then wire it into apps/reader/screens/MapScreen.tsx so that when no search is active the resource cards filter to the user's current GPS location's ZIP instead of showing all resources. This requires resolving the user's ZIP from their GPS coordinates (reverse geocode); add whatever location helper is needed for that. An active ZIP search continues to override the current-location ZIP.
+
+## Prompt 460
+
+Read docs/project-context/AGENTS.md and docs/project-context/TESTING.md.
+Implement spec RMAP-013. There is a failing test at apps/reader/src/location/resolveSearchState.vitest.test.ts. Create apps/reader/src/location/resolveSearchState.ts to make it pass, then wire it into apps/reader/screens/MapScreen.tsx so that a ZIP search overrides the location and clearing the search returns the map to the user's GPS location — resetting the map back to GPS mode and recentering on the GPS region when the search is cleared.
+
+## Prompt 461
+
+Read docs/project-context/AGENTS.md and docs/project-context/TESTING.md.
+Implement spec RMAP-014. There is a failing test at apps/reader/src/resources/resolveSelectedResource.vitest.test.ts. Create apps/reader/src/resources/resolveSelectedResource.ts to make it pass, then wire it into apps/reader/screens/MapScreen.tsx so that tapping a pin resolves the selected resource's detail from the full resource set — independent of the current-location card filter — so any tapped resource shows its card even when it is outside the filtered card list.
+
+## Prompt 462
+
+Read docs/project-context/AGENTS.md and docs/project-context/TESTING.md.
+Implement spec RMAP-015. There is a failing test at apps/reader/src/resources/resolveMapPins.vitest.test.ts. Create apps/reader/src/resources/resolveMapPins.ts to make it pass, then wire it into apps/reader/screens/MapScreen.tsx so the map markers render from the full visible resource set (all pins, every location) while the card list below the map continues to render from the location-filtered set. Pins must not be removed by the current-location or searched-ZIP card filter.
+
+## Prompt 463
+
+on the url page, under this URL is the API line add a section and say try looking up these zip codes in the reader app to see the resources in that area: list of the zips 68502, 06515, 06320, 06382
+
+## Prompt 464
+
+add all remaining prompts in prompts.md file please
+
+## Prompt 465
+
+on the url page the reader app QR code is on the left and the provider app QR code is on the right, I need the provider app QR code and its label text to be on the left, and the reader app QR code and its label text to be on the right. can you do that for me please.
+
+## Prompt 466
+
+add all remaining prompts to prompts.md please

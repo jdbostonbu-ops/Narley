@@ -73,7 +73,7 @@ const LANDING_PAGE_HTML = `<!doctype html>
       .hero {
         display: grid;
         grid-template-areas:
-          "reader brand provider"
+          "provider brand reader"
           "caption caption caption";
         grid-template-columns: 190px minmax(280px, 1fr) 190px;
         gap: 32px;
@@ -199,6 +199,36 @@ const LANDING_PAGE_HTML = `<!doctype html>
         line-height: 1.6;
       }
 
+      .resource-zips {
+        margin-top: 28px;
+        text-align: left;
+      }
+
+      .resource-zips h2 {
+        margin: 0 0 12px;
+        color: #F5F1E8;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(22px, 4vw, 26px);
+      }
+
+      .resource-zips p {
+        margin: 0 0 12px;
+        color: #AFC3B9;
+        font-size: clamp(17px, 3vw, 19px);
+        line-height: 1.6;
+      }
+
+      .resource-zips ul {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 24px;
+        margin: 0;
+        padding-left: 22px;
+        color: #57C7B6;
+        font-size: 18px;
+        font-weight: 700;
+      }
+
       .try-apps {
         margin-top: 28px;
         padding-top: 28px;
@@ -309,8 +339,8 @@ const LANDING_PAGE_HTML = `<!doctype html>
         .hero {
           grid-template-areas:
             "brand"
-            "reader"
             "provider"
+            "reader"
             "caption";
           grid-template-columns: 1fr;
           gap: 28px;
@@ -372,6 +402,17 @@ const LANDING_PAGE_HTML = `<!doctype html>
       </section>
       <p class="primary-copy">Narley connects people with verified community resources — shelter, food, charging, employment help — on a map that providers keep current.</p>
       <p class="secondary-copy">This URL is the API behind the Provider and Reader mobile apps.</p>
+
+      <section class="resource-zips" aria-labelledby="resource-zips-heading">
+        <h2 id="resource-zips-heading">Resources by ZIP</h2>
+        <p>Try looking up these ZIP codes in the Reader app to see the resources in that area:</p>
+        <ul>
+          <li>68502</li>
+          <li>06515</li>
+          <li>06320</li>
+          <li>06382</li>
+        </ul>
+      </section>
 
       <section class="try-apps" aria-labelledby="try-apps-heading">
         <h2 id="try-apps-heading">How to try the apps</h2>
