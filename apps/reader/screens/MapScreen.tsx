@@ -18,6 +18,7 @@ import { getZipForLocation } from '../src/location/getZipForLocation';
 import { resolveInitialRegion } from '../src/location/resolveInitialRegion';
 import { resolveSearchState } from '../src/location/resolveSearchState';
 import { resolveDisplayedResources } from '../src/resources/resolveDisplayedResources';
+import { resolveMapPins } from '../src/resources/resolveMapPins';
 import { resolveSelectedResource } from '../src/resources/resolveSelectedResource';
 import { shouldReloadOnForeground } from '../src/resources/shouldReloadOnForeground';
 
@@ -46,6 +47,7 @@ export const MapScreen = () => {
     currentLocationZip,
     activeZip,
   );
+  const mapPins = resolveMapPins(resources);
   const selected = resolveSelectedResource(resources, selectedId);
 
   const loadResources = useCallback(async () => {
@@ -214,7 +216,7 @@ export const MapScreen = () => {
         <Text style={styles.stateBody}>Loading resources…</Text>
       </View> : <>
         <View style={styles.mapCard}>
-          <MapView accessibilityLabel="Map of nearby resources" initialRegion={gpsRegion} ref={mapRef} style={styles.map}>{displayedResources.map((item) => <Marker accessibilityLabel={`${item.title}. ${item.category}`} anchor={{ x: 0.5, y: 1 }} coordinate={{ latitude: item.latitude!, longitude: item.longitude! }} key={item.id} onPress={() => setSelectedId(item.id)} title={item.title}><MapPin category={item.category} /></Marker>)}</MapView>
+          <MapView accessibilityLabel="Map of nearby resources" initialRegion={gpsRegion} ref={mapRef} style={styles.map}>{mapPins.map((item) => <Marker accessibilityLabel={`${item.title}. ${item.category}`} anchor={{ x: 0.5, y: 1 }} coordinate={{ latitude: item.latitude, longitude: item.longitude }} key={item.id} onPress={() => setSelectedId(item.id)} title={item.title}><MapPin category={item.category} /></Marker>)}</MapView>
         </View>
         <View style={styles.sectionHeader}><Text style={styles.sectionTitle}>Nearby resources</Text><Text style={styles.count}>{displayedResources.length}</Text></View>
         {displayedResources.length === 0 ? <View style={styles.stateCard}>
