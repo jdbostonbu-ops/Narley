@@ -967,8 +967,9 @@ Tapping a visible pin outside the current location fails to show that resource's
 GREEN Test
 Tapping any visible pin — including out-of-location pins — shows that resource's card on demand, independent of the current-location card filter.
 
-RMAP-015 — Map renders all resource pins regardless of the card location filterBehavior
+RMAP-015 — Map renders all resource pins regardless of the card location filter
 
+Behavior
 The map renders a pin for every visible resource, regardless of the reader's current location or any active ZIP search. Pins are not removed from the map by the current-location card filter (RMAP-012) or by a ZIP search (RMAP-013). A reader in 06320 can zoom out or pan the map and see pins in other areas — for example 06515 — even though those resources are outside the reader's current location and outside any active search. Tapping any of those pins shows that resource's card (RMAP-014). A ZIP search recenters the map to that area so its pins are in view, but searching does not remove pins for other areas; zooming back out still shows them. Only the card list below the map filters to the current location or searched ZIP; the pins do not.Expected result
 
 Every visible resource appears as a pin on the map at all times, independent of the card list's location filter. A reader in 06320 sees 06320 pins in view and, on zooming out, sees pins for other ZIPs such as 06515. Entering a ZIP search recenters the map on that ZIP without removing any pins; the reader can zoom out and still see pins for all other areas. The card list continues to filter to the current location (RMAP-012) or searched ZIP
