@@ -735,10 +735,6 @@ PMAP-012 — Report another Provider’s pin discrepancy
 
 When a Provider identifies a discrepancy on a pin owned by another Provider and is not authorized to change that resource, the Provider may submit a report to the Narley admin. The report includes the affected resource ID, complete address, reporting Provider’s name and email, selected reason, and supporting details. Submitting the report does not allow the reporting Provider to edit the other Provider’s resource.
 
-Required V3 decision
-
-Version 2 recenters the map but does not distance-filter cards or counts.
-
 PMAP-013 — Provider map centers on GPS location by default
 
 Behavior
