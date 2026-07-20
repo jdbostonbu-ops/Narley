@@ -11,11 +11,12 @@ import { READER_SCREEN_INSET } from '@/constants/layout';
 import { getResources } from '@/api/client';
 import { getTheme } from '@shared-ui/theme/theme';
 import { MapPin } from '../../provider/components/MapPin';
-import { filterResourcesByZip } from '../../provider/src/resources/filterResourcesByZip';
 import { getReaderVisibleResources } from '../../provider/src/resources/getReaderVisibleResources';
 import { geocodeSearch } from '../src/location/geocodeSearch';
 import { getUserLocation } from '../src/location/getUserLocation';
+import { getZipForLocation } from '../src/location/getZipForLocation';
 import { resolveInitialRegion } from '../src/location/resolveInitialRegion';
+import { resolveDisplayedResources } from '../src/resources/resolveDisplayedResources';
 import { shouldReloadOnForeground } from '../src/resources/shouldReloadOnForeground';
 
 const theme = getTheme(false);
@@ -30,6 +31,7 @@ export const MapScreen = () => {
   const mapModeRef = useRef<'gps' | 'search'>('gps');
   const [query, setQuery] = useState('');
   const [activeZip, setActiveZip] = useState<string | null>(null);
+  const [currentLocationZip, setCurrentLocationZip] = useState<string | null>(null);
   const [gpsRegion, setGpsRegion] = useState<Region | null>(null);
   const [searching, setSearching] = useState(false);
   const [searchMessage, setSearchMessage] = useState<string | null>(null);
@@ -37,9 +39,11 @@ export const MapScreen = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const displayedResources = activeZip === null
-    ? resources
-    : filterResourcesByZip(resources, activeZip);
+  const displayedResources = resolveDisplayedResources(
+    resources,
+    currentLocationZip,
+    activeZip,
+  );
   const selected = selectedId === null
     ? null
     : resources.find((resource) => resource.id === selectedId) ?? null;
@@ -91,12 +95,16 @@ export const MapScreen = () => {
   const centerMapOnUserLocation = useCallback(async (): Promise<void> => {
     const location = await getUserLocation();
     const nextRegion = resolveInitialRegion(location, fallbackRegion);
+    const nextLocationZip = location === null
+      ? null
+      : await getZipForLocation(location);
 
     if (!mountedRef.current) {
       return;
     }
 
     setGpsRegion(nextRegion);
+    setCurrentLocationZip(nextLocationZip);
 
     if (mapModeRef.current === 'gps') {
       mapRef.current?.animateToRegion(nextRegion, 500);
