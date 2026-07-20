@@ -725,7 +725,7 @@ Reader-only Save + Remind controls must not appear in Provider mode.
 
 PMAP-009 — Search
 
-A valid city or ZIP search recenters the map.
+A valid city or ZIP search recenters the map and filters the resource cards to that location per PMAP-015.
 
 PMAP-010 — Invalid search
 
@@ -738,6 +738,76 @@ When a Provider identifies a discrepancy on a pin owned by another Provider and 
 Required V3 decision
 
 Version 2 recenters the map but does not distance-filter cards or counts.
+
+PMAP-013 — Provider map centers on GPS location by default
+
+Behavior
+On load, the Provider map centers on the provider's actual device GPS location, not a fixed or hardcoded location. The map renders where the provider physically is: a provider in 06515 sees 06515; if they travel to 06320, the map updates to 06320. GPS is requested via device location permission. If permission is denied or unavailable, the map falls back to a default region.
+
+Expected result
+With location permission granted, the map's initial center is the provider's current GPS coordinates, and it follows the provider when their location changes. The map does not open on a hardcoded location. If permission is denied, the map uses the defined fallback region.
+
+RED Test
+The map opens on a fixed/hardcoded region regardless of the provider's GPS location; or it never requests or applies the device location.
+
+GREEN Test
+The map centers on the provider's GPS coordinates on load and follows their location; a hardcoded region is used only as an explicit fallback when permission is denied or unavailable.
+
+PMAP-014 — Provider resource cards filter by ZIP to the provider's GPS location by default
+
+Behavior
+The Provider resource cards, listed below the map, filter by ZIP code to the provider's current GPS location when no search is active. A provider in 06515 sees only 06515 cards. Cards filter by exact ZIP match. Currently the provider cards render from all areas regardless of location; this spec corrects that.
+
+Expected result
+With no active search, the card list contains only resources whose ZIP matches the provider's current GPS location. A provider in 06515 does not see cards from other ZIPs. When the provider's GPS location changes, the cards update to the new location's ZIP.
+
+RED Test
+With no active search, the card list shows resources outside the provider's current-location ZIP (e.g., shows all resources from all areas); or the cards do not update when the provider's location changes.
+
+GREEN Test
+With no active search, the card list contains only resources matching the provider's current GPS-location ZIP by exact match, and updates when the provider's location changes.
+
+PMAP-015 — ZIP search overrides location for provider map and cards
+
+Behavior
+The provider may search by ZIP code to view a different location. Entering a ZIP recenters the map on that ZIP and filters the cards to that ZIP (exact match), overriding the GPS-default location. When the search is cleared, the view returns to the GPS-default location. The map pins and card list reflect the same searched location.
+
+Expected result
+Entering a valid ZIP recenters the map on that ZIP and filters the cards to that ZIP by exact match, regardless of the provider's actual GPS location. Clearing the search returns the map and cards to the provider's GPS location.
+
+RED Test
+A ZIP search recenters the map but does not filter the cards to that ZIP; or the cards continue to show the GPS-location resources during an active search; or clearing the search does not return to the GPS-default location.
+
+GREEN Test
+A valid ZIP search recenters the map and filters the cards to that ZIP by exact match, overriding GPS; clearing the search returns the map and cards to the provider's GPS location.
+
+PMAP-016 — Tapping a visible pin shows that resource's card on demand
+
+Behavior
+The provider may zoom or pan the map and see pins for resources outside the current location. Tapping any visible pin — including one outside the current location — opens that resource's detail on demand. This is separate from the auto-filtered card list and is not governed by the current-location ZIP filter. (This extends PMAP-005's pin-selection behavior to out-of-location pins.)
+
+Expected result
+Tapping any pin visible on the map opens that resource's detail, even if the resource is outside the provider's current-location ZIP or searched ZIP. The filtered card list is unchanged by tapping a pin.
+
+RED Test
+Tapping a visible pin outside the current location fails to open that resource's detail; or the card list only allows opening resources it contains.
+
+GREEN Test
+Tapping any visible pin — including out-of-location pins — opens that resource's detail on demand, independent of the current-location card filter.
+
+PMAP-017 — Provider map renders all resource pins regardless of the card location filter
+
+Behavior
+The Provider map renders a pin for every visible resource, regardless of the provider's current location or any active ZIP search. Pins are not removed by the current-location card filter (PMAP-014) or by a ZIP search (PMAP-015). A provider in 06515 can zoom out or pan and see pins in other areas such as 06320. A ZIP search recenters the map without removing pins for other areas. Only the card list filters to the current or searched location; the pins do not. ("Visible resource" still means resources passing the provider's existing visibility rules — PMAP-001, PMAP-003.)
+
+Expected result
+Every visible resource appears as a pin at all times, independent of the card filter. A provider in 06515 sees 06515 pins in view and, on zooming out, sees pins for other ZIPs such as 06320. A ZIP search recenters without removing pins. The card list continues to filter to the current or searched location.
+
+RED Test
+The map renders pins from the location-filtered card list instead of the full visible resource set, so pins in other ZIPs disappear when the provider is in a location or has an active search; or a ZIP search removes pins for areas outside the searched ZIP.
+
+GREEN Test
+The map renders pins for the full set of visible resources regardless of the current-location or searched-ZIP card filter; pins for other areas remain and can be viewed by zooming or panning; and the card list filters independently of the pins.
 
 # 11. My Posts
 MYPOST-001 — Authentication
