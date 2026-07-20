@@ -6,10 +6,11 @@ import { useFocusEffect } from "@react-navigation/native";
 
 import { getTheme } from "@shared-ui/theme/theme";
 import { getUserLocation } from "../src/location/getUserLocation";
+import { getZipForLocation } from "../src/location/getZipForLocation";
 import { resolveInitialRegion } from "../src/location/resolveInitialRegion";
-import { filterResourcesByZip } from "../src/resources/filterResourcesByZip";
 import { geocodeAddress } from "../src/resources/geocodeAddress";
 import { getReaderVisibleResources } from "../src/resources/getReaderVisibleResources";
+import { resolveDisplayedResources } from "../src/resources/resolveDisplayedResources";
 import { ProviderCard, type ProviderCardData } from "../components/ProviderCard";
 import { ProviderDetailModal } from "../components/ProviderDetailModal";
 import { MapPin } from "../components/MapPin";
@@ -34,6 +35,7 @@ export const MapScreen = () => {
   const mapModeRef = useRef<"gps" | "search">("gps");
   const [searchText, setSearchText] = useState("");
   const [activeZip, setActiveZip] = useState<string | null>(null);
+  const [currentLocationZip, setCurrentLocationZip] = useState<string | null>(null);
   const [gpsRegion, setGpsRegion] = useState<Region | null>(null);
   const [searchMessage, setSearchMessage] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
@@ -43,19 +45,25 @@ export const MapScreen = () => {
     resources,
     new Date(),
   );
-  const visibleResources = activeZip === null
-    ? expirationVisibleResources
-    : filterResourcesByZip(expirationVisibleResources, activeZip);
+  const displayedResources = resolveDisplayedResources(
+    expirationVisibleResources,
+    currentLocationZip,
+    activeZip,
+  );
 
   const centerMapOnUserLocation = useCallback(async (): Promise<void> => {
     const location = await getUserLocation();
     const nextRegion = resolveInitialRegion(location, fallbackRegion);
+    const nextLocationZip = location === null
+      ? null
+      : await getZipForLocation(location);
 
     if (!mountedRef.current) {
       return;
     }
 
     setGpsRegion(nextRegion);
+    setCurrentLocationZip(nextLocationZip);
 
     if (mapModeRef.current === "gps") {
       mapRef.current?.animateToRegion(nextRegion, 500);
@@ -204,7 +212,7 @@ export const MapScreen = () => {
             ref={mapRef}
             style={styles.map}
           >
-            {visibleResources.map((resource) => (
+            {displayedResources.map((resource) => (
               <Marker
                 accessibilityLabel={`${resource.title}. ${resource.category ?? "Community resource"}`}
                 anchor={{ x: 0.5, y: 1 }}
@@ -223,14 +231,14 @@ export const MapScreen = () => {
       </View>
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Nearby Resources</Text>
-        <Text style={styles.count}>{visibleResources.length}</Text>
+        <Text style={styles.count}>{displayedResources.length}</Text>
       </View>
       {loading ? (
         <View style={styles.emptyCard}>
           <ActivityIndicator color={theme.colors.accent} />
           <Text style={styles.loadingText}>Loading resources…</Text>
         </View>
-      ) : visibleResources.length ? visibleResources.map((resource) => {
+      ) : displayedResources.length ? displayedResources.map((resource) => {
         const item: ProviderCardData = resource;
         return (
           <ProviderCard
