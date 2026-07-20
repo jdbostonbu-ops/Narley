@@ -2495,3 +2495,128 @@ Do not run tests or commands. Show me the change only.
 ## Prompt 444
 
 add all remaining prompts in prompts.md please
+
+## Prompt 445
+
+before you remove the metadata, tell me if it will cause a problem: Read AGENTS.md and TESTING.md in the docs/project-context folder and follow them. 
+Do not modify any test files.
+
+In apps/reader/state/WeatherAlertsStore.tsx, the alert card renders a metadata 
+line showing the raw ISO date (e.g. "2026-07-21"), which duplicates the date 
+already shown in the human-readable message ("...Tuesday, Jul 21, 2026").
+
+Remove the raw ISO date from the card. In the display object built in 
+applyMergedAlerts, the `metadata` field is currently set to `alert.time` (the raw 
+ISO date). Remove the raw date so it no longer appears on the card.
+
+If the AlertsScreen renders a <Text> for item.metadata, remove that redundant 
+metadata display as well so no empty line is left. The message already contains 
+the formatted date, so no date should appear below it.
+
+Do not change the message text, the formatted date, the title, or any alert 
+logic. Only remove the redundant raw-date metadata from the card display.
+
+Do not run tests or commands. Show me the change only — I will verify.
+
+## Prompt 446
+
+okay then proceed
+
+## Prompt 447
+
+on the url page under the line that says : These codes go live during the demo in the same font color add this line below it. The expected Expo --tunnel latency is not a bug, meaning it runs slower with these QR codes above.
+
+## Prompt 448
+
+Read AGENTS.md and TESTING.md in the docs/project-context folder and follow them. 
+Do not modify any test files — the RED test already exists at 
+apps/provider/src/weather/fetchForecast.vitest.test.ts. Write only the 
+implementation that makes it pass (GREEN).
+
+Implement ALERT-P-009 (fetch part) in apps/provider/src/weather/fetchForecast.ts.
+
+The provider fetch currently only requests &daily=temperature_2m_max and returns 
+just the mapped { time, temperature_2m }. Extend it to also fetch and return the 
+daily fields the weather detectors need, mirroring how 
+apps/reader/src/alerts/fetchOpenMeteoForecast.ts already does it:
+
+- Add to the Open-Meteo request: weathercode and windgusts_10m_max in the daily 
+  params, and windspeed_unit=mph.
+- After mapping with mapOpenMeteoForecast, validate that payload.daily.weathercode 
+  and payload.daily.windgusts_10m_max are number arrays matching the forecast 
+  length, and return them spliced onto the forecast result:
+  { ...forecast, weathercode, windgusts_10m_max }
+- Update the Forecast return type to include weathercode: readonly number[] and 
+  windgusts_10m_max: readonly number[].
+- Keep the existing not-ok and invalid-response error handling.
+
+Do not run any tests or commands. Show me the implementation only — I will run 
+the test.
+
+## Prompt 449
+
+Don't change any code: I have a React Native / Expo monorepo with apps/reader and apps/provider (twin apps). Running npx tsc -p apps/provider/tsconfig.json --noEmit reports 16 TypeScript errors across 7 files. The reader app type-checks clean. I want provider to reach the same clean state.
+Please investigate and give me exact fixes for each error. Here are the errors:
+apps/provider/src/components/animated-icon.tsx(142,5): error TS2698: Spread types may only be created from object types.
+apps/provider/src/components/animated-icon.web.tsx(5,21): error TS2307: Cannot find module './animated-icon.module.css' or its corresponding type declarations.
+apps/provider/src/components/app-tabs.tsx(1,28): error TS2307: Cannot find module 'expo-router/unstable-native-tabs' or its corresponding type declarations.
+apps/provider/src/components/app-tabs.web.tsx(8,8): error TS2307: Cannot find module 'expo-router/ui' or its corresponding type declarations.
+apps/provider/src/components/app-tabs.web.tsx(52,25): error TS2367 + TS2538 (colorScheme 'unspecified' comparison + null/undefined index)
+apps/provider/src/components/app-tabs.web.tsx(68,15): error TS2322: Type '{ ios: string; web: string; }' is not assignable to type 'SFSymbols7_0'.
+apps/provider/src/components/external-link.tsx(1,28): error TS2307: Cannot find module 'expo-router'.
+apps/provider/src/components/external-link.tsx(13,23): error TS7006: Parameter 'event' implicitly has an 'any' type.
+apps/provider/src/components/ui/collapsible.tsx(22,13): error TS2322: Type '{ ios: string; android: string; web: string; }' is not assignable to type 'SFSymbols7_0'.
+apps/provider/src/resources/visibilityOwnerBlind.vitest.test.ts(20,44) & (21,44): error TS2353: 'organizationId' does not exist in type 'Resource'.
+
+## Prompt 450
+
+go to my readme and make sure that it reades that the reader app has 163 tests I will update you later with the total vitest and the provider app test
+
+## Prompt 451
+
+First read docs/project-context/AGENTS.md and docs/project-context/TESTING.md and follow the conventions and Definition of Done defined there.
+This implements spec ALERT-P-009 (Provider weather alerts run all detectors) — specifically the heavy-rain detector. There is a failing test at apps/provider/src/alerts/forecastHeavyRainAlert.vitest.test.ts. Write the implementation file apps/provider/src/alerts/forecastHeavyRainAlert.ts so that this test passes.
+Do not modify the test. Do not change any other files.
+
+## Prompt 452
+
+First read docs/project-context/AGENTS.md and docs/project-context/TESTING.md.
+I'm about to write a RED test for spec ALERT-P-010 (Provider weather alert persistence — 24-hour expiry, merge across refreshes) in the provider app. The test needs to call the real functions that will own this behavior, but they may not exist yet. Investigate the provider app and report — do not write or change any code.
+Tell me:
+
+Does provider already have an alert-expiry function (something that decides whether a weather alert card is past its 24-hour-after-expectedAt window)? If so, give the file path, exported function name, and full signature. If not, say so and propose the file path and function name/signature it should have, consistent with provider's conventions.
+Where does provider's weather/alert state live (e.g. a store in apps/provider/src/state, apps/provider/src/weather, or apps/provider/src/alerts)? Report the file path(s), the store's exported names, and how alerts are currently held and updated.
+Where should the "merge newly generated alerts with previously displayed still-unexpired alerts" logic live — an existing store function, or a standalone helper? Give the file path and the function name/signature I should test against.
+What is the exact shape of a provider weather alert object (the type used for HEAVY_RAIN / HEAVY_SNOW / THUNDERSTORM / HIGH_WIND cards), including the field that holds the expected date.
+
+Report findings and proposed names/paths only. No implementation. no coding and no writing tests.
+
+## Prompt 453
+
+First read docs/project-context/AGENTS.md and docs/project-context/TESTING.md.
+I'm writing a RED test for spec ALERT-P-010 (Provider weather alert persistence wiring). Provider reuses reader's shared mergeAlerts and isAlertExpired helpers. I need to know how the READER app structures and TESTS its equivalent persistence wiring, so provider can follow the same pattern. Investigate and report — do not write or change any code.
+Tell me:
+
+Does reader have a persistence/merge WIRING test (not just a mergeAlerts unit test) — one that proves reader's store or refresh flow keeps unexpired alerts across a successful refresh, a refresh that drops the condition, and a failed fetch? Give the test file path and what it calls.
+What exact seam does that reader test target — does it call the store hook, an exported pure function, mergeAlerts/filterActiveAlerts directly, or something else? Give the file path and exported name/signature it imports.
+How is reader's weather-alert store structured (file path, exports), and is its merge/refresh step exported and directly testable, or tested only through a hook?
+Given how reader does it, what is the equivalent seam provider should expose or use for the same test, and at what path/name — so provider mirrors reader's structure without changing behavior.
+
+Report reader's structure, the reader test's approach, and the provider-equivalent path/name. No implementation.
+
+## Prompt 454
+
+I need a clear architectural map of how the reader and provider apps relate in this monorepo, so I can write provider tests and specs that match the intended structure. Investigate and report — do not change any code.
+Report:
+
+Sharing model. How do reader and provider share code? Does provider intentionally import from apps/reader/src/... (cross-app imports), or is shared code supposed to live in a shared package (e.g. packages/)? List concrete examples of provider importing from reader, and say whether that's the intended pattern per AGENTS.md/TESTING.md or a shortcut.
+Twin definition. What does "the provider app behaves like the reader app" mean in practice here — full duplication (each app owns its own copy of each function, independently tested), or shared helpers with app-specific wiring? Cite anything in the project docs that defines this.
+What's shared vs. duplicated today. For the weather/alert pipeline specifically: which functions does provider have its own copy of (e.g. forecastHeavyRainAlert), and which does it import from reader (e.g. mergeAlerts, isAlertExpired)? Is that split intentional or inconsistent?
+Testing convention. Per TESTING.md and existing tests: when provider reuses a reader helper, is the provider app supposed to have its own test for that behavior, or rely on reader's test? What's the rule?
+For ALERT-P-010 specifically. Given the above, should provider have its own mergeAlerts/isAlertExpired, or keep importing reader's — and correspondingly, should the P-010 test import from a provider-local path or from reader? State the answer that's consistent with the project's own conventions.
+
+Report the architecture and the conventions, with file paths and any relevant doc quotes. No implementation. report it to claude in the claude.md  file please
+
+## Prompt 455
+
+add all remaining prompts in prompts.md file please

@@ -1293,6 +1293,21 @@ Provider store runs all weather detectors on the forecast, and each fired
 condition surfaces a persistent Provider alert card with the formatted date.
 
 
+ALERT-P-010 — Provider weather alert persistence wiring (24-hour, merge across refreshes)
+
+Behavior
+Provider weather alerts (HEAVY_RAIN, HEAVY_SNOW, THUNDERSTORM, HIGH_WIND) are generated from the Open-Meteo forecast for the user's GPS-based location, subject to the Provider Weather Alerts on/off setting (matching ALERT-P-001). Persistence and expiry are handled by the existing shared helpers mergeAlerts and isAlertExpired, which provider reuses; this spec does not reimplement them. What this spec covers is the provider store wiring in WeatherAlertsStore that applies those helpers on every refresh.
+On each forecast refresh, the store merges newly generated alerts with previously displayed, still-unexpired alerts (via mergeAlerts) rather than replacing the list, and drops only alerts that are expired (past 24 hours after their expectedAt date, via isAlertExpired). A refresh whose forecast no longer shows a condition does not remove an unexpired card for that condition. A failed or unavailable forecast fetch does not clear existing unexpired cards. Turning the Weather Alerts setting off, or losing location, clears the cards. This operates on the raw WeatherAlert values (which carry type and expectedAt), independent of the NWS alert source.
+
+Expected result
+For the user's GPS location, across a successful refresh that still shows the condition, a successful refresh that no longer shows the condition, and a failed fetch, unexpired weather alert cards remain present. New alerts are merged in with still-unexpired existing ones, never replacing them. A card is removed only once it is expired (past 24 hours after its expectedAt). Alerts-off and lost-location clear the cards.
+
+RED Test
+There is no test proving the provider store applies mergeAlerts/isAlertExpired across refreshes; or the store replaces the alert list instead of merging; or a refresh that no longer shows a condition removes an unexpired card; or a failed fetch clears an existing unexpired card; or an expired card is not removed; or the merge step is unreachable to tests (non-exported with no tested seam).
+
+GREEN Test
+A test drives the provider store (or an exported wiring seam) through a successful refresh, a refresh that drops the condition, and a failed fetch, and asserts that unexpired cards persist and are merged with new alerts, that expired cards are removed, and that alerts-off/lost-location clears them — using the shared mergeAlerts and isAlertExpired.
+
 REPORT-001 — Structured reasons
 Readers may select only approved report reasons. They may not enter free text.
 The approved reasons are:
