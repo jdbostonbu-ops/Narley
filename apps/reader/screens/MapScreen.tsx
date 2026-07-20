@@ -14,10 +14,12 @@ import { MapPin } from '../../provider/components/MapPin';
 import { filterResourcesByZip } from '../../provider/src/resources/filterResourcesByZip';
 import { getReaderVisibleResources } from '../../provider/src/resources/getReaderVisibleResources';
 import { geocodeSearch } from '../src/location/geocodeSearch';
+import { getUserLocation } from '../src/location/getUserLocation';
+import { resolveInitialRegion } from '../src/location/resolveInitialRegion';
 import { shouldReloadOnForeground } from '../src/resources/shouldReloadOnForeground';
 
 const theme = getTheme(false);
-const region: Region = { latitude: 41.3557, longitude: -72.0995, latitudeDelta: 0.05, longitudeDelta: 0.05 };
+const fallbackRegion: Region = { latitude: 41.3557, longitude: -72.0995, latitudeDelta: 0.05, longitudeDelta: 0.05 };
 const searchRegionDelta = 0.08;
 
 export const MapScreen = () => {
@@ -25,8 +27,10 @@ export const MapScreen = () => {
   const mapRef = useRef<MapView | null>(null);
   const mountedRef = useRef(true);
   const previousAppStateRef = useRef<AppStateStatus>(AppState.currentState);
+  const mapModeRef = useRef<'gps' | 'search'>('gps');
   const [query, setQuery] = useState('');
   const [activeZip, setActiveZip] = useState<string | null>(null);
+  const [gpsRegion, setGpsRegion] = useState<Region | null>(null);
   const [searching, setSearching] = useState(false);
   const [searchMessage, setSearchMessage] = useState<string | null>(null);
   const [resources, setResources] = useState<ReaderResource[]>([]);
@@ -84,6 +88,21 @@ export const MapScreen = () => {
     }
   }, []);
 
+  const centerMapOnUserLocation = useCallback(async (): Promise<void> => {
+    const location = await getUserLocation();
+    const nextRegion = resolveInitialRegion(location, fallbackRegion);
+
+    if (!mountedRef.current) {
+      return;
+    }
+
+    setGpsRegion(nextRegion);
+
+    if (mapModeRef.current === 'gps') {
+      mapRef.current?.animateToRegion(nextRegion, 500);
+    }
+  }, []);
+
   useEffect(() => {
     mountedRef.current = true;
 
@@ -94,7 +113,8 @@ export const MapScreen = () => {
 
   useFocusEffect(useCallback(() => {
     void loadResources();
-  }, [loadResources]));
+    void centerMapOnUserLocation();
+  }, [centerMapOnUserLocation, loadResources]));
 
   useEffect(() => {
     const handleAppStateChange = (nextState: AppStateStatus) => {
@@ -103,6 +123,7 @@ export const MapScreen = () => {
 
       if (shouldReloadOnForeground(previousState, nextState)) {
         void loadResources();
+        void centerMapOnUserLocation();
       }
     };
     const subscription = AppState.addEventListener('change', handleAppStateChange);
@@ -110,7 +131,7 @@ export const MapScreen = () => {
     return () => {
       subscription.remove();
     };
-  }, [loadResources]);
+  }, [centerMapOnUserLocation, loadResources]);
 
   const handleSearch = async () => {
     const trimmedQuery = query.trim();
@@ -134,6 +155,7 @@ export const MapScreen = () => {
     }
 
     setActiveZip(/^\d{5}$/.test(trimmedQuery) ? trimmedQuery : null);
+    mapModeRef.current = 'search';
     mapRef.current?.animateToRegion({
       latitude: result.latitude,
       longitude: result.longitude,
@@ -156,12 +178,12 @@ export const MapScreen = () => {
         <Pressable accessibilityLabel="Search resources" accessibilityRole="button" disabled={searching} onPress={() => { void handleSearch(); }} style={[styles.searchButton, searching && styles.searchDisabled]}>{searching && <ActivityIndicator color={theme.colors.textInverse} size="small" />}<Text style={styles.searchText}>{searching ? 'Searching…' : 'Search'}</Text></Pressable>
       </View>
       {searchMessage !== null && <Text accessibilityLiveRegion="polite" style={styles.searchMessage}>{searchMessage}</Text>}
-      {loading ? <View accessibilityLabel="Loading resources" style={styles.stateCard}>
+      {loading || gpsRegion === null ? <View accessibilityLabel="Loading resources" style={styles.stateCard}>
         <ActivityIndicator color={theme.colors.accent} />
         <Text style={styles.stateBody}>Loading resources…</Text>
       </View> : <>
         <View style={styles.mapCard}>
-          <MapView accessibilityLabel="Map of nearby resources" initialRegion={region} ref={mapRef} style={styles.map}>{displayedResources.map((item) => <Marker accessibilityLabel={`${item.title}. ${item.category}`} anchor={{ x: 0.5, y: 1 }} coordinate={{ latitude: item.latitude!, longitude: item.longitude! }} key={item.id} onPress={() => setSelectedId(item.id)} title={item.title}><MapPin category={item.category} /></Marker>)}</MapView>
+          <MapView accessibilityLabel="Map of nearby resources" initialRegion={gpsRegion} ref={mapRef} style={styles.map}>{displayedResources.map((item) => <Marker accessibilityLabel={`${item.title}. ${item.category}`} anchor={{ x: 0.5, y: 1 }} coordinate={{ latitude: item.latitude!, longitude: item.longitude! }} key={item.id} onPress={() => setSelectedId(item.id)} title={item.title}><MapPin category={item.category} /></Marker>)}</MapView>
         </View>
         <View style={styles.sectionHeader}><Text style={styles.sectionTitle}>Nearby resources</Text><Text style={styles.count}>{displayedResources.length}</Text></View>
         {displayedResources.length === 0 ? <View style={styles.stateCard}>
