@@ -8,6 +8,7 @@ import { getTheme } from "@shared-ui/theme/theme";
 import { getUserLocation } from "../src/location/getUserLocation";
 import { getZipForLocation } from "../src/location/getZipForLocation";
 import { resolveInitialRegion } from "../src/location/resolveInitialRegion";
+import { resolveSearchState } from "../src/location/resolveSearchState";
 import { geocodeAddress } from "../src/resources/geocodeAddress";
 import { getReaderVisibleResources } from "../src/resources/getReaderVisibleResources";
 import { resolveDisplayedResources } from "../src/resources/resolveDisplayedResources";
@@ -101,11 +102,36 @@ export const MapScreen = () => {
     };
   }, [centerMapOnUserLocation]);
 
+  const returnToGpsLocation = useCallback((): void => {
+    const gpsSearchState = resolveSearchState("");
+
+    mapModeRef.current = gpsSearchState.mode;
+    setActiveZip(gpsSearchState.activeZip);
+
+    if (gpsRegion !== null) {
+      mapRef.current?.animateToRegion(gpsRegion, 500);
+    }
+
+    setSearchMessage("Map centered on your location.");
+  }, [gpsRegion]);
+
+  const handleSearchTextChange = (nextSearchText: string): void => {
+    setSearchText(nextSearchText);
+
+    if (
+      resolveSearchState(nextSearchText).mode === "gps" &&
+      mapModeRef.current === "search"
+    ) {
+      returnToGpsLocation();
+    }
+  };
+
   const handleSearch = async () => {
     const query = searchText.trim();
+    const nextSearchState = resolveSearchState(query);
 
-    if (query.length === 0) {
-      setSearchMessage("Enter a city, state, or ZIP code.");
+    if (nextSearchState.mode === "gps") {
+      returnToGpsLocation();
       return;
     }
 
@@ -144,9 +170,8 @@ export const MapScreen = () => {
         return;
       }
 
-      const zip = /^\d{5}$/.test(query) ? query : null;
-      setActiveZip(zip);
-      mapModeRef.current = "search";
+      setActiveZip(nextSearchState.activeZip);
+      mapModeRef.current = nextSearchState.mode;
       mapRef.current?.animateToRegion({
         latitude: result.latitude,
         longitude: result.longitude,
@@ -174,7 +199,7 @@ export const MapScreen = () => {
           accessibilityLabel="Search resources by city or ZIP code"
           autoCapitalize="words"
           editable={!isSearching}
-          onChangeText={setSearchText}
+          onChangeText={handleSearchTextChange}
           onSubmitEditing={() => {
             void handleSearch();
           }}
