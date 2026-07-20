@@ -16,6 +16,7 @@ import { geocodeSearch } from '../src/location/geocodeSearch';
 import { getUserLocation } from '../src/location/getUserLocation';
 import { getZipForLocation } from '../src/location/getZipForLocation';
 import { resolveInitialRegion } from '../src/location/resolveInitialRegion';
+import { resolveSearchState } from '../src/location/resolveSearchState';
 import { resolveDisplayedResources } from '../src/resources/resolveDisplayedResources';
 import { shouldReloadOnForeground } from '../src/resources/shouldReloadOnForeground';
 
@@ -141,12 +142,36 @@ export const MapScreen = () => {
     };
   }, [centerMapOnUserLocation, loadResources]);
 
+  const returnToGpsLocation = useCallback((): void => {
+    const gpsSearchState = resolveSearchState('');
+
+    mapModeRef.current = gpsSearchState.mode;
+    setActiveZip(gpsSearchState.activeZip);
+
+    if (gpsRegion !== null) {
+      mapRef.current?.animateToRegion(gpsRegion, 500);
+    }
+
+    setSearchMessage('Map centered on your location.');
+  }, [gpsRegion]);
+
+  const handleQueryChange = (nextQuery: string): void => {
+    setQuery(nextQuery);
+
+    if (
+      resolveSearchState(nextQuery).mode === 'gps' &&
+      mapModeRef.current === 'search'
+    ) {
+      returnToGpsLocation();
+    }
+  };
+
   const handleSearch = async () => {
     const trimmedQuery = query.trim();
+    const nextSearchState = resolveSearchState(trimmedQuery);
 
-    if (trimmedQuery.length === 0) {
-      setActiveZip(null);
-      setSearchMessage('Enter a city or ZIP code');
+    if (nextSearchState.mode === 'gps') {
+      returnToGpsLocation();
       return;
     }
 
@@ -156,14 +181,13 @@ export const MapScreen = () => {
     const result = await geocodeSearch(trimmedQuery);
 
     if (!result.ok) {
-      setActiveZip(null);
       setSearchMessage(result.error);
       setSearching(false);
       return;
     }
 
-    setActiveZip(/^\d{5}$/.test(trimmedQuery) ? trimmedQuery : null);
-    mapModeRef.current = 'search';
+    setActiveZip(nextSearchState.activeZip);
+    mapModeRef.current = nextSearchState.mode;
     mapRef.current?.animateToRegion({
       latitude: result.latitude,
       longitude: result.longitude,
@@ -182,7 +206,7 @@ export const MapScreen = () => {
         <Text style={styles.pageSubtitle}>Reader app</Text>
       </View>
       <View style={styles.searchRow}>
-        <TextInput accessibilityLabel="Search resources by city or ZIP code" editable={!searching} onChangeText={setQuery} onSubmitEditing={() => { void handleSearch(); }} placeholder="City or ZIP code" placeholderTextColor={theme.colors.textMuted} returnKeyType="search" style={styles.searchInput} value={query} />
+        <TextInput accessibilityLabel="Search resources by city or ZIP code" editable={!searching} onChangeText={handleQueryChange} onSubmitEditing={() => { void handleSearch(); }} placeholder="City or ZIP code" placeholderTextColor={theme.colors.textMuted} returnKeyType="search" style={styles.searchInput} value={query} />
         <Pressable accessibilityLabel="Search resources" accessibilityRole="button" disabled={searching} onPress={() => { void handleSearch(); }} style={[styles.searchButton, searching && styles.searchDisabled]}>{searching && <ActivityIndicator color={theme.colors.textInverse} size="small" />}<Text style={styles.searchText}>{searching ? 'Searching…' : 'Search'}</Text></Pressable>
       </View>
       {searchMessage !== null && <Text accessibilityLiveRegion="polite" style={styles.searchMessage}>{searchMessage}</Text>}
