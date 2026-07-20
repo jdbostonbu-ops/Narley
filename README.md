@@ -82,7 +82,7 @@ Provider app ─┐
               ├── HTTP/JSON API ── Express server ── Prisma ── PostgreSQL
 Reader app ───┘                         │
                                         ├── OpenAI Responses API + web search
-                                        └── Resend transactional email
+                                        └── Mailtrap transactional email
 
 Both apps ── device location ── Open-Meteo + National Weather Service
 Reader app ── expo-notifications ── local reminder notifications
@@ -145,7 +145,7 @@ AI and Readers **never** edit, close, or delete a resource. Providers remain the
 
 | Service | Purpose |
 |---------|---------|
-| **Resend** | Email verification, password reset, provider-to-admin reports |
+| **Mailtrap** | Email verification, password reset, provider-to-admin reports |
 | **OpenAI** | Responses API + web search for community-report research |
 | **Open-Meteo** | Seven-day daily-max temperature forecasts |
 | **National Weather Service** | Active official warnings |
@@ -225,7 +225,7 @@ docs/project-context Product, architecture, testing, design specs
 
 - Node.js (LTS) and npm
 - A PostgreSQL database (Neon recommended)
-- API keys: OpenAI and Resend
+- API keys: OpenAI and Mailtrap
 - **Expo Go** on a physical device — the default way to run the apps
 
 **Optional (only for native or simulator builds):**
@@ -280,7 +280,7 @@ JWT_SECRET=              # JWT signing/verification secret
 EXPO_PUBLIC_API_URL=     # API URL embedded into each Expo app
 OPENAI_API_KEY=          # OpenAI API credential
 OPENAI_MODEL=            # Optional model override (defaults to gpt-5-mini)
-RESEND_API_KEY=          # Resend API credential
+MAILTRAP_API_TOKEN=      # Mailtrap API credential
 ```
 
 ---
