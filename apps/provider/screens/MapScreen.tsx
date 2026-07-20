@@ -1,9 +1,12 @@
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import * as Location from "expo-location";
-import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, AppState, type AppStateStatus, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import MapView, { Marker, type Region } from "react-native-maps";
+import { useFocusEffect } from "@react-navigation/native";
 
 import { getTheme } from "@shared-ui/theme/theme";
+import { getUserLocation } from "../src/location/getUserLocation";
+import { resolveInitialRegion } from "../src/location/resolveInitialRegion";
 import { filterResourcesByZip } from "../src/resources/filterResourcesByZip";
 import { geocodeAddress } from "../src/resources/geocodeAddress";
 import { getReaderVisibleResources } from "../src/resources/getReaderVisibleResources";
@@ -15,7 +18,7 @@ import { useResourceStore } from "../state/ResourceStore";
 
 const theme = getTheme(false);
 
-const initialRegion: Region = {
+const fallbackRegion: Region = {
   latitude: 41.3557,
   longitude: -72.0995,
   latitudeDelta: 0.05,
@@ -26,8 +29,12 @@ const searchRegionDelta = 0.08;
 export const MapScreen = () => {
   const { resources, loading, error } = useResourceStore();
   const mapRef = useRef<MapView | null>(null);
+  const mountedRef = useRef(true);
+  const previousAppStateRef = useRef<AppStateStatus>(AppState.currentState);
+  const mapModeRef = useRef<"gps" | "search">("gps");
   const [searchText, setSearchText] = useState("");
   const [activeZip, setActiveZip] = useState<string | null>(null);
+  const [gpsRegion, setGpsRegion] = useState<Region | null>(null);
   const [searchMessage, setSearchMessage] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedResource, setSelectedResource] = useState<ProviderCardData | null>(null);
@@ -39,6 +46,52 @@ export const MapScreen = () => {
   const visibleResources = activeZip === null
     ? expirationVisibleResources
     : filterResourcesByZip(expirationVisibleResources, activeZip);
+
+  const centerMapOnUserLocation = useCallback(async (): Promise<void> => {
+    const location = await getUserLocation();
+    const nextRegion = resolveInitialRegion(location, fallbackRegion);
+
+    if (!mountedRef.current) {
+      return;
+    }
+
+    setGpsRegion(nextRegion);
+
+    if (mapModeRef.current === "gps") {
+      mapRef.current?.animateToRegion(nextRegion, 500);
+    }
+  }, []);
+
+  useEffect(() => {
+    mountedRef.current = true;
+
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  useFocusEffect(useCallback(() => {
+    void centerMapOnUserLocation();
+  }, [centerMapOnUserLocation]));
+
+  useEffect(() => {
+    const handleAppStateChange = (nextState: AppStateStatus) => {
+      const previousState = previousAppStateRef.current;
+      previousAppStateRef.current = nextState;
+
+      if (
+        (previousState === "background" || previousState === "inactive") &&
+        nextState === "active"
+      ) {
+        void centerMapOnUserLocation();
+      }
+    };
+    const subscription = AppState.addEventListener("change", handleAppStateChange);
+
+    return () => {
+      subscription.remove();
+    };
+  }, [centerMapOnUserLocation]);
 
   const handleSearch = async () => {
     const query = searchText.trim();
@@ -85,6 +138,7 @@ export const MapScreen = () => {
 
       const zip = /^\d{5}$/.test(query) ? query : null;
       setActiveZip(zip);
+      mapModeRef.current = "search";
       mapRef.current?.animateToRegion({
         latitude: result.latitude,
         longitude: result.longitude,
@@ -139,27 +193,33 @@ export const MapScreen = () => {
       )}
 
       <View style={styles.mapCard}>
-        <MapView
-          accessibilityLabel="Map of provider resources"
-          initialRegion={initialRegion}
-          ref={mapRef}
-          style={styles.map}
-        >
-          {visibleResources.map((resource) => (
-            <Marker
-              accessibilityLabel={`${resource.title}. ${resource.category ?? "Community resource"}`}
-              anchor={{ x: 0.5, y: 1 }}
-              key={resource.id}
-              coordinate={{
-                latitude: resource.latitude,
-                longitude: resource.longitude,
-              }}
-              title={resource.title}
-            >
-              <MapPin category={resource.category} />
-            </Marker>
-          ))}
-        </MapView>
+        {gpsRegion === null ? (
+          <View accessibilityLabel="Loading provider location" style={styles.mapLoading}>
+            <ActivityIndicator color={theme.colors.accent} />
+          </View>
+        ) : (
+          <MapView
+            accessibilityLabel="Map of provider resources"
+            initialRegion={gpsRegion}
+            ref={mapRef}
+            style={styles.map}
+          >
+            {visibleResources.map((resource) => (
+              <Marker
+                accessibilityLabel={`${resource.title}. ${resource.category ?? "Community resource"}`}
+                anchor={{ x: 0.5, y: 1 }}
+                key={resource.id}
+                coordinate={{
+                  latitude: resource.latitude,
+                  longitude: resource.longitude,
+                }}
+                title={resource.title}
+              >
+                <MapPin category={resource.category} />
+              </Marker>
+            ))}
+          </MapView>
+        )}
       </View>
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Nearby Resources</Text>
@@ -275,6 +335,11 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+  },
+  mapLoading: {
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "center",
   },
   sectionHeader: {
     alignItems: "center",
