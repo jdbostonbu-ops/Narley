@@ -430,7 +430,10 @@ const LANDING_PAGE_HTML = `<!doctype html>
             <span class="demo-login">Reader demo login: demo@narley.app&nbsp; / &nbsp;DemoPass123!</span><br>
             <span class="demo-login">Provider demo login: testb@example.com&nbsp; / &nbsp;DemoPass123!</span>
           </li>
-          <li>Create an account if you like. It will send a code to your email to verify &mdash; check your SPAM folder if you choose to create an account.</li>
+          <li>
+            (a) You can only create an account for the Reader app. The Provider app is strictly for organizations and is secured to require a QR code or invitation, preventing just anyone from creating a Provider app account. That is how I designed it: I vet the organizations.<br><br>
+            (b) You can create an account with the Reader app. To create an account just select create account. It will send a code to your email; check your SPAM folder if you choose to create an account.
+          </li>
         </ol>
       </section>
 
