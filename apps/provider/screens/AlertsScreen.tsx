@@ -314,6 +314,7 @@ const styles = StyleSheet.create({
     gap: theme.spacing.sm,
     marginTop: theme.spacing.sm,
     padding: theme.spacing.md,
+    paddingBottom: theme.spacing.lg,
   },
   confidenceHelpText: { color: theme.colors.text, fontSize: 14, lineHeight: 20 },
   confidenceHelpLevel: { color: theme.colors.primary, fontWeight: "900" },
