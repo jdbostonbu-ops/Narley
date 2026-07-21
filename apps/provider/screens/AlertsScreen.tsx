@@ -78,7 +78,7 @@ const ReportAlertCard = ({
           <View style={styles.confidenceHelp}>
             <Text style={styles.confidenceHelpText}><Text style={styles.confidenceHelpLevel}>HIGH — </Text>Evidence was clear, or the answer is known without searching.</Text>
             <Text style={styles.confidenceHelpText}><Text style={styles.confidenceHelpLevel}>MEDIUM — </Text>Some evidence, not decisive.</Text>
-            <Text style={styles.confidenceHelpText}><Text style={styles.confidenceHelpLevel}>LOW — </Text>Evidence conflicts, or couldn't be verified.</Text>
+            <Text style={styles.confidenceHelpText}><Text style={styles.confidenceHelpLevel}>LOW — </Text>Evidence conflicts, or{"\n"}couldn't be verified.</Text>
           </View>
         )}
       </View>
